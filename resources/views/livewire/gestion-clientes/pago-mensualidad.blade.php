@@ -1,156 +1,250 @@
-<div class="max-w-7xl mx-auto py-8 px-4">
-    <div class="mb-8 flex items-center justify-between border-b pb-4">
+<div class="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+
+    {{-- ENCABEZADO --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">Pago de Mensualidad</h2>
-            <p class="text-xs font-mono text-indigo-600 uppercase tracking-widest mt-1">ID PAGO: {{ $pagoId }}</p>
+            <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                <i class="ri-home-4-line text-indigo-400"></i>
+                <span>Gestión al Cliente</span>
+                <i class="ri-arrow-right-s-line"></i>
+                <span class="text-emerald-600">Cobro de Mensualidad</span>
+            </div>
+            <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase">
+                Recepción de Pagos y Renta
+            </h2>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="text-[9px] font-mono font-black text-gray-400 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md uppercase tracking-widest">
+                    ID TRANSACCIÓN: {{ $pagoId }}
+                </span>
+            </div>
         </div>
-        <a href="{{ route('dashboard') }}" class="text-sm font-bold text-gray-500 hover:text-indigo-600 transition">
-            <i class="ri-arrow-left-line"></i> Regresar
+        <a href="{{ route('dashboard') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-600 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-sm hover:bg-gray-50 transition-all group self-start">
+            <i class="ri-arrow-left-line group-hover:-translate-x-0.5 transition-transform"></i> Panel Principal
         </a>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <div class="lg:col-span-7 space-y-6">
-            
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {{-- ============================================================
+             COLUMNA IZQ — BÚSQUEDA Y EXPEDIENTE
+        ============================================================ --}}
+        <div class="lg:col-span-7 space-y-5">
+
+            {{-- Buscador --}}
             @if(!$clienteSeleccionado)
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Consultar por Nombre, Teléfono, ID o Dirección</label>
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-4 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                        <i class="ri-user-search-line text-indigo-600"></i>
+                    </div>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Consultar Suscriptor</p>
+                </div>
+                <div class="p-5 space-y-4">
                     <div class="relative">
-                        <i class="ri-search-2-line absolute left-4 top-3 text-gray-400 text-xl"></i>
-                        <input type="text" wire:model.live.debounce.300ms="busqueda" wire:keyup="buscarCliente"
-                            class="w-full pl-12 pr-4 py-3 bg-gray-50 border-gray-200 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-lg font-medium" 
-                            placeholder="Comience a escribir para buscar...">
+                        <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+                        <input type="text" wire:model.live.debounce.300ms="busqueda"
+                               wire:keyup="buscarCliente"
+                               placeholder="Nombre, teléfono, ID o dirección..."
+                               class="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors placeholder:text-gray-300">
                     </div>
 
+                    {{-- Resultados de búsqueda --}}
                     @if(count($resultados) > 0)
-                        <div class="mt-4 border border-gray-100 rounded-xl overflow-hidden shadow-lg animate-in fade-in slide-in-from-top-2">
-                            @foreach($resultados as $cliente)
-                                <button wire:click="seleccionarCliente({{ json_encode($cliente) }})" class="w-full p-4 text-left hover:bg-indigo-50 border-b flex justify-between items-center transition">
-                                    <div>
-                                        <p class="font-bold text-gray-900">{{ $cliente['nombre'] }}</p>
-                                        <p class="text-xs text-gray-500 italic">{{ $cliente['direccion'] }}</p>
-                                    </div>
-                                    <i class="ri-arrow-right-s-line text-indigo-300"></i>
-                                </button>
-                            @endforeach
-                        </div>
+                    <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        @foreach($resultados as $cliente)
+                        <button wire:click="seleccionarCliente({{ json_encode($cliente) }})"
+                                class="w-full px-4 py-3.5 text-left hover:bg-indigo-50 border-b border-gray-100 last:border-0 flex justify-between items-center transition-colors group">
+                            <div>
+                                <p class="text-sm font-black text-gray-900 uppercase tracking-tight group-hover:text-indigo-700">{{ $cliente['nombre'] }}</p>
+                                <p class="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase mt-0.5">
+                                    <i class="ri-map-pin-line text-orange-400"></i> {{ $cliente['direccion'] }}
+                                </p>
+                            </div>
+                            <i class="ri-arrow-right-circle-line text-gray-300 text-xl group-hover:text-indigo-400 transition-colors"></i>
+                        </button>
+                        @endforeach
+                    </div>
                     @endif
                 </div>
+            </div>
             @endif
 
+            {{-- Expediente del cliente seleccionado --}}
             @if($clienteSeleccionado)
-                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                    <div class="bg-indigo-900 p-6 text-white flex justify-between items-start">
-                        <div>
-                            <p class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Datos del Titular</p>
-                            <h3 class="text-2xl font-black uppercase">{{ $clienteSeleccionado['nombre'] }}</h3>
-                            <p class="text-sm text-indigo-100 mt-1"><i class="ri-map-pin-line mr-1"></i> {{ $clienteSeleccionado['direccion'] }}</p>
-                        </div>
-                        <button wire:click="$set('clienteSeleccionado', null)" class="text-white/50 hover:text-white transition"><i class="ri-close-circle-fill text-2xl"></i></button>
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                {{-- Header oscuro --}}
+                <div class="bg-gray-900 px-6 py-5 flex justify-between items-start">
+                    <div>
+                        <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Expediente del Suscriptor</p>
+                        <h3 class="text-xl font-black text-white uppercase tracking-tight">{{ $clienteSeleccionado['nombre'] }}</h3>
+                        <p class="flex items-center gap-1.5 text-xs text-gray-400 font-bold uppercase mt-1.5">
+                            <i class="ri-map-pin-line text-orange-400"></i> {{ $clienteSeleccionado['direccion'] }}
+                        </p>
                     </div>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50">
-                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Servicio Activo</p>
-                            <p class="font-bold text-gray-800 text-lg mt-1"><i class="ri-router-line text-tvt-orange mr-2"></i> {{ $clienteSeleccionado['servicio'] }}</p>
+                    <button wire:click="$set('clienteSeleccionado', null)"
+                            class="w-8 h-8 bg-white/10 hover:bg-red-500 text-white rounded-lg transition-all flex items-center justify-center">
+                        <i class="ri-close-line text-base"></i>
+                    </button>
+                </div>
+
+                {{-- KPIs del cliente --}}
+                <div class="grid grid-cols-2 divide-x divide-gray-100 border-t border-gray-800">
+                    <div class="p-5 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="ri-router-line text-indigo-600 text-lg"></i>
                         </div>
-                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Saldo Pendiente [cite: 1559]</p>
-                            <p class="font-black text-2xl text-red-600 mt-1">${{ number_format($clienteSeleccionado['saldo'], 2) }}</p>
+                        <div>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Servicio Vigente</p>
+                            <p class="text-xs font-black text-gray-800 uppercase tracking-tight mt-0.5">{{ $clienteSeleccionado['servicio'] }}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="ri-money-dollar-circle-line text-red-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Saldo Pendiente</p>
+                            <p class="text-xl font-black text-red-600 tracking-tight mt-0.5">${{ number_format($clienteSeleccionado['saldo'], 2) }}</p>
                         </div>
                     </div>
                 </div>
+            </div>
             @endif
+
         </div>
 
+        {{-- ============================================================
+             COLUMNA DER — FORMULARIO DE COBRO
+        ============================================================ --}}
         <div class="lg:col-span-5">
-            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-xl {{ !$clienteSeleccionado ? 'opacity-40 pointer-events-none' : '' }}">
-                <h3 class="text-sm font-bold text-gray-900 uppercase border-b pb-4 mb-6">Procesar Agregar Pago [cite: 1562]</h3>
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden {{ !$clienteSeleccionado ? 'opacity-40 pointer-events-none grayscale select-none' : '' }}">
 
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Concepto de Pago</label>
-                        <select wire:model="concepto" class="w-full rounded-xl border-gray-200 bg-gray-50 text-sm font-bold py-3">
-                            <option value="">Seleccione Concepto...</option>
-                            <option value="MENSUALIDAD">Mensualidad Ordinaria</option>
-                            <option value="ADEUDO">Pago de Adeudo</option>
-                            <option value="DIAS_USO">Cobro Días de Uso</option>
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-4 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <i class="ri-hand-coin-line text-emerald-600"></i>
+                    </div>
+                    <p class="text-[11px] font-black text-gray-800 uppercase tracking-widest">Procesar Recepción de Pago</p>
+                </div>
+
+                <div class="p-5 space-y-4">
+
+                    {{-- Concepto --}}
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Concepto de Cobro *</label>
+                        <select wire:model="concepto"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold uppercase py-2.5 px-4 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 transition-colors">
+                            <option value="">— Seleccione concepto —</option>
+                            <option value="MENSUALIDAD">Mensualidad ordinaria</option>
+                            <option value="ADEUDO">Liquidación de adeudo</option>
+                            <option value="DIAS_USO">Proporcional / días de uso</option>
                         </select>
-                        <p class="mt-2 text-[10px] text-indigo-600 font-bold uppercase">Tarifa según contrato: ${{ number_format($tarifaMonto, 2) }}</p>
+                        <p class="text-[9px] text-indigo-600 font-bold uppercase tracking-widest">
+                            Tarifa base según contrato: ${{ number_format($tarifaMonto, 2) }}
+                        </p>
                     </div>
 
-                    <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 relative overflow-hidden">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-bold text-indigo-900 uppercase">Importe a Cobrar</span>
+                    {{-- Monto --}}
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Monto a Liquidar</p>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <span class="text-[9px] font-bold text-indigo-400 uppercase">Monto Manual</span>
-                                <input type="checkbox" wire:model.live="modificarMonto" class="rounded text-indigo-600 focus:ring-indigo-600 h-4 w-4">
+                                <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Ajuste Manual</span>
+                                <div class="relative">
+                                    <input type="checkbox" wire:model.live="modificarMonto" class="sr-only peer">
+                                    <div class="w-8 h-5 bg-emerald-200 peer-checked:bg-emerald-600 rounded-full transition-colors"></div>
+                                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-3"></div>
+                                </div>
                             </label>
                         </div>
 
                         @if(!$modificarMonto)
-                            <div class="text-4xl font-black text-indigo-900">${{ number_format($montoCobro, 2) }}</div>
-                            <p class="text-[9px] text-indigo-400 mt-1 italic font-medium">Importe calculado automáticamente por tarifa.</p>
+                        <div class="text-center py-2">
+                            <p class="text-4xl font-black text-emerald-800 tracking-tight">${{ number_format($montoCobro, 2) }}</p>
+                            <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1">Calculado por sistema</p>
+                        </div>
                         @else
-                            <div class="space-y-4 mt-2">
-                                <div class="relative">
-                                    <span class="absolute left-4 top-2 text-xl font-bold text-gray-400">$</span>
-                                    <input type="number" wire:model="montoManual" class="w-full pl-9 pr-4 py-2 text-2xl font-black rounded-xl border-indigo-200 focus:ring-indigo-500">
-                                </div>
-                                <div class="p-3 bg-white rounded-xl border border-red-100">
-                                    <label class="block text-[9px] font-bold text-red-500 uppercase mb-1">Contraseña de Autorización Requerida </label>
-                                    <input type="password" wire:model="passwordAutorizacion" class="w-full px-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-red-500 focus:border-red-500">
-                                    @error('password') <span class="text-[10px] text-red-600 font-bold mt-1">{{ $message }}</span> @enderror
-                                </div>
+                        <div class="space-y-3">
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-black text-xl">$</span>
+                                <input type="number" wire:model="montoManual"
+                                       class="w-full pl-8 pr-4 py-3 text-2xl font-black bg-white border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 text-emerald-700">
                             </div>
+                            <div class="bg-white border border-red-200 rounded-lg p-3 space-y-1.5">
+                                <label class="block text-[9px] font-black text-red-500 uppercase tracking-widest">Contraseña Gerencial *</label>
+                                <input type="password" wire:model="passwordAutorizacion"
+                                       class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
+                                       placeholder="••••••••">
+                                @error('passwordAutorizacion') <p class="text-[10px] text-red-500 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
                         @endif
                     </div>
 
-                    <div class="pt-4 border-t border-gray-100">
-                        <label class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition mb-4">
-                            <input type="checkbox" wire:model.live="requiereFactura" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                            <span class="text-sm font-bold text-gray-700 uppercase tracking-tight">Solicitar Factura (API Facturama)</span>
+                    {{-- Factura --}}
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <label class="flex items-center justify-between p-3.5 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-lg bg-gray-200 flex items-center justify-center">
+                                    <i class="ri-bill-line text-gray-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Solicitar Factura (CFDI)</p>
+                                    <p class="text-[10px] text-gray-400">Conexión API Facturama</p>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" wire:model.live="requiereFactura" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-checked:bg-indigo-600 rounded-full transition-colors"></div>
+                                <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                            </div>
                         </label>
 
                         @if($requiereFactura)
-                            <div class="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-200 animate-in fade-in duration-300">
-                                <div class="col-span-2">
-                                    <label class="text-[9px] font-bold text-gray-400 uppercase">Nombre / Razón Social</label>
-                                    <input type="text" wire:model="datosFactura.nombre" class="w-full px-3 py-2 text-xs border-gray-200 rounded-lg uppercase font-bold">
-                                </div>
-                                <div>
-                                    <label class="text-[9px] font-bold text-gray-400 uppercase">RFC</label>
-                                    <input type="text" wire:model="datosFactura.rfc" class="w-full px-3 py-2 text-xs border-gray-200 rounded-lg uppercase">
-                                </div>
-                                <div>
-                                    <label class="text-[9px] font-bold text-gray-400 uppercase">Código Postal</label>
-                                    <input type="text" wire:model="datosFactura.cp" class="w-full px-3 py-2 text-xs border-gray-200 rounded-lg">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="text-[9px] font-bold text-gray-400 uppercase">Correo Electrónico</label>
-                                    <input type="email" wire:model="datosFactura.correo" class="w-full px-3 py-2 text-xs border-gray-200 rounded-lg">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="text-[9px] font-bold text-gray-400 uppercase">Uso CFDI</label>
-                                    <select wire:model="datosFactura.uso_cfdi" class="w-full px-3 py-2 text-xs border-gray-200 rounded-lg font-bold">
-                                        <option value="G03">G03 - GASTOS EN GENERAL</option>
-                                        <option value="S01">S01 - SIN EFECTOS FISCALES</option>
-                                    </select>
-                                </div>
+                        <div class="p-4 border-t border-gray-200 grid grid-cols-2 gap-3">
+                            <div class="col-span-2 space-y-1">
+                                <label class="block text-[9px] font-black text-gray-400 uppercase tracking-widest">Razón Social</label>
+                                <input type="text" wire:model="datosFactura.nombre"
+                                       class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg uppercase font-bold focus:ring-2 focus:ring-indigo-500/20">
                             </div>
+                            <div class="space-y-1">
+                                <label class="block text-[9px] font-black text-gray-400 uppercase tracking-widest">RFC</label>
+                                <input type="text" wire:model="datosFactura.rfc"
+                                       class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg uppercase font-black focus:ring-2 focus:ring-indigo-500/20">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[9px] font-black text-gray-400 uppercase tracking-widest">C.P. Fiscal</label>
+                                <input type="text" wire:model="datosFactura.cp"
+                                       class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg font-bold focus:ring-2 focus:ring-indigo-500/20">
+                            </div>
+                        </div>
                         @endif
                     </div>
 
-                    <label class="flex items-center gap-3 px-3 py-2 cursor-pointer group">
-                        <input type="checkbox" wire:model="enviarWhatsapp" class="w-4 h-4 text-green-500 border-gray-300 rounded focus:ring-green-500">
-                        <span class="text-xs font-bold text-gray-600 group-hover:text-green-600 transition"><i class="ri-whatsapp-line mr-1 text-green-500 text-lg align-middle"></i> Enviar recibo digital por WhatsApp</span>
+                    {{-- WhatsApp --}}
+                    <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                        <input type="checkbox" wire:model="enviarWhatsapp"
+                               class="h-5 w-5 text-emerald-500 border-gray-300 rounded focus:ring-0">
+                        <div class="flex items-center gap-2">
+                            <i class="ri-whatsapp-line text-emerald-500 text-lg"></i>
+                            <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Enviar recibo digital por WhatsApp</span>
+                        </div>
                     </label>
 
-                    <button wire:click="procesarPago" class="w-full py-4 bg-green-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-lg hover:bg-green-700 hover:shadow-green-500/20 transition-all flex items-center justify-center gap-3 transform active:scale-95">
-                        <i class="ri-shield-check-line text-xl"></i> Confirmar Ingreso a Caja
-                    </button>
                 </div>
+
+                <div class="bg-gray-50 border-t border-gray-200 p-5 space-y-2">
+                    <button wire:click="procesarPago"
+                            class="w-full py-3.5 bg-emerald-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ri-shield-check-line text-base"></i> Confirmar Ingreso a Caja
+                    </button>
+                    <p class="text-center text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                        Al confirmar se genera el registro contable y el folio fiscal automático
+                    </p>
+                </div>
+
             </div>
         </div>
+
     </div>
 </div>

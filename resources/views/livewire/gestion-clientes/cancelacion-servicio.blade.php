@@ -1,196 +1,364 @@
-<div class="w-full max-w-6xl mx-auto py-6 px-4 sm:px-6">
-    <div class="mb-6 border-b border-gray-200 pb-4">
-        <h2 class="text-xl font-bold text-gray-800 uppercase tracking-tight">Cancelación del Servicio</h2>
-        <p class="text-sm text-gray-500 font-medium">Baja definitiva y control de inventario de activos.</p>
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+
+    {{-- ENCABEZADO --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                <i class="ri-home-4-line text-indigo-400"></i>
+                <span>Gestión al Cliente</span>
+                <i class="ri-arrow-right-s-line"></i>
+                <span class="text-red-600">Cancelación Definitiva</span>
+            </div>
+            <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase">
+                Baja de Servicio y <span class="text-red-600">Activos</span>
+            </h2>
+            <p class="text-xs text-gray-400 mt-0.5">Cierre de expediente, recuperación de equipos y liberación de red</p>
+        </div>
+        <a href="{{ route('dashboard') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-600 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-sm hover:bg-gray-50 transition-all group self-start">
+            <i class="ri-arrow-left-line group-hover:-translate-x-0.5 transition-transform"></i> Panel Principal
+        </a>
     </div>
 
+    {{-- ================================================================
+         PASO 1 — BUSCAR SUSCRIPTOR
+    ================================================================ --}}
     @if($paso == 1)
-        <div wire:key="paso-1" class="bg-white p-8 border rounded-xl shadow-sm max-w-2xl mx-auto text-center animate-in fade-in duration-500">
-            <div class="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="ri-user-unfollow-line text-4xl"></i>
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white border border-red-100 rounded-xl shadow-sm overflow-hidden">
+            <div class="bg-red-50 border-b border-red-100 px-6 py-6 text-center">
+                <div class="w-14 h-14 bg-white border border-red-100 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
+                    <i class="ri-user-unfollow-line text-red-500 text-2xl"></i>
+                </div>
+                <p class="text-[11px] font-black text-red-800 uppercase tracking-widest">Proceso de Baja Definitiva</p>
+                <p class="text-[10px] text-red-400 mt-1 font-medium">Localizar suscriptor para cancelación</p>
             </div>
-            <label class="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">Identificar Cliente para la Baja</label>
-            <div class="flex flex-col sm:flex-row gap-2">
-                <input type="text" wire:model="busqueda" placeholder="Ej: Nombre, ID o Teléfono..." class="flex-1 rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500 w-full font-medium">
-                <button wire:click="buscarCliente" class="bg-gray-900 text-white px-8 py-2 rounded-lg font-bold hover:bg-black transition uppercase text-xs w-full sm:w-auto">Consultar</button>
+            <div class="p-5 space-y-3">
+                <div class="flex gap-3">
+                    <div class="relative flex-1">
+                        <i class="ri-search-eye-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+                        <input type="text" wire:model="busqueda"
+                               placeholder="Nombre, ID o teléfono..."
+                               wire:keydown.enter="buscarCliente"
+                               class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-colors placeholder:text-gray-300">
+                    </div>
+                    <button wire:click="buscarCliente"
+                            class="px-5 py-2.5 bg-gray-900 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-sm">
+                        Consultar
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
     @endif
 
+    {{-- ================================================================
+         PASO 2 — DATOS DEL SUSCRIPTOR + VALIDACIÓN DE SALDO
+    ================================================================ --}}
     @if($paso == 2)
-        <div wire:key="paso-2" class="grid grid-cols-1 md:grid-cols-12 gap-8 animate-in slide-in-from-bottom-4 duration-500">
-            <div class="md:col-span-7 space-y-6">
-                <div class="bg-white p-6 border rounded-xl shadow-sm">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase mb-4 border-b pb-2 tracking-[0.2em]">Expediente del Cliente</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Titular del Servicio:</p>
-                            <p class="font-bold text-gray-800 text-lg uppercase break-words">{{ $cliente['nombre'] }}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {{-- Expediente del cliente --}}
+        <div class="lg:col-span-7 space-y-4">
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-4 flex items-center gap-2">
+                    <i class="ri-file-user-line text-gray-500"></i>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Información del Suscriptor</p>
+                </div>
+                <div class="p-6 space-y-5">
+                    <div>
+                        <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Titular del Contrato</p>
+                        <h3 class="text-xl font-black text-gray-800 uppercase tracking-tight">{{ $cliente['nombre'] }}</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Servicio Actual</p>
+                            <p class="text-xs font-black text-indigo-600 uppercase">{{ $cliente['servicio_actual'] }}</p>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Servicio:</p><p class="font-bold text-indigo-600 uppercase">{{ $cliente['servicio_actual'] }}</p></div>
-                            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Estatus:</p><p class="font-bold text-green-600 uppercase">{{ $cliente['estado_actual'] }}</p></div>
+                        <div class="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Estatus Operativo</p>
+                            <p class="text-xs font-black text-emerald-600 uppercase">{{ $cliente['estado_actual'] }}</p>
                         </div>
-                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Saldo deudor actual:</p>
-                            <p class="text-3xl font-black {{ $cliente['saldo'] > 0 ? 'text-red-600' : 'text-green-600' }} tracking-tighter">
-                                ${{ number_format($cliente['saldo'], 2) }}
-                            </p>
+                    </div>
+                    {{-- Saldo con color semántico --}}
+                    <div class="rounded-xl overflow-hidden shadow-sm {{ $cliente['saldo'] > 0 ? 'bg-red-600' : 'bg-emerald-600' }}">
+                        <div class="px-6 py-5 text-white relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 opacity-10 font-black italic text-7xl">CASH</div>
+                            <p class="text-[9px] font-black uppercase tracking-widest mb-1 opacity-70">Saldo deudor para cierre</p>
+                            <p class="text-3xl font-black tracking-tight">${{ number_format($cliente['saldo'], 2) }}</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="md:col-span-5">
-                @if($cliente['saldo'] > 0)
-                    <div class="bg-red-50 border border-red-200 p-6 rounded-2xl text-center shadow-sm">
-                        <i class="ri-error-warning-fill text-red-500 text-5xl mb-3 block"></i>
-                        <p class="text-sm font-bold text-red-800 uppercase mb-2">Baja Bloqueada por Adeudo</p>
-                        <p class="text-xs text-red-700 leading-relaxed">El cliente debe estar al corriente para proceder. Liquide el adeudo en el módulo de cobro.</p>
-                        <a href="{{ route('pago.mensualidad') }}" class="mt-6 inline-block w-full py-3 bg-red-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-lg shadow-red-200">Ir a Cobro de Mensualidad</a>
+        {{-- Acción según saldo --}}
+        <div class="lg:col-span-5">
+
+            @if($cliente['saldo'] > 0)
+            {{-- Bloqueado por adeudo --}}
+            <div class="bg-white border-2 border-red-100 rounded-xl text-center shadow-sm overflow-hidden">
+                <div class="bg-red-50 px-6 py-8">
+                    <div class="w-14 h-14 bg-white border border-red-100 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4">
+                        <i class="ri-error-warning-fill text-red-500 text-2xl"></i>
                     </div>
-                @else
-                    <div class="bg-white p-6 border rounded-xl shadow-sm space-y-6">
-                        <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Asignar Técnico Responsable</label>
-                            <select wire:model="tecnicoAsignado" class="w-full rounded-lg border-gray-200 bg-gray-50 text-sm font-bold py-3">
-                                <option value="">Seleccione Técnico...</option>
-                                <option value="Roberto">Téc. Roberto Gómez</option>
-                                <option value="Brigada 1">Brigada 1 (Fibra)</option>
+                    <p class="text-base font-black text-red-800 uppercase tracking-tight">Baja Bloqueada por Adeudo</p>
+                </div>
+                <div class="px-6 pb-6 space-y-4">
+                    <p class="text-xs text-red-600 font-bold uppercase tracking-tight leading-relaxed">
+                        El suscriptor debe tener saldo $0.00 para proceder. Liquide el adeudo antes de continuar.
+                    </p>
+                    <a href="{{ route('pago.mensualidad') }}"
+                       class="block w-full py-3.5 bg-red-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-700 shadow-md shadow-red-200 transition-all active:scale-95 text-center">
+                        <i class="ri-coin-line mr-1"></i> Ir a Cobro de Mensualidad
+                    </a>
+                    <button wire:click="$set('paso', 1)"
+                            class="text-[10px] font-black text-gray-400 hover:text-gray-700 uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5 w-full">
+                        <i class="ri-arrow-left-line"></i> Elegir otro cliente
+                    </button>
+                </div>
+            </div>
+
+            @else
+            {{-- Libre de adeudo — asignar técnico --}}
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-checkbox-circle-fill text-emerald-500"></i>
+                    <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Saldo $0.00 — Puede proceder</p>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Técnico Asignado para Retiro *</label>
+                        <div class="relative">
+                            <i class="ri-truck-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+                            <select wire:model.live="tecnicoAsignado"
+                                    class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-xs font-black uppercase focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-colors">
+                                <option value="">— Seleccione responsable —</option>
+                                <option value="Roberto">ING. ROBERTO GÓMEZ</option>
+                                <option value="Brigada 1">BRIGADA 1 (OAXACA CENTRO)</option>
                             </select>
                         </div>
-                        <button wire:click="generarReporteBaja" @if(!$tecnicoAsignado) @endif 
-                            class="w-full py-4 bg-gray-900 text-white font-black uppercase text-xs tracking-[0.2em] rounded-xl hover:bg-black transition disabled:opacity-40 disabled:cursor-not-allowed shadow-xl">
-                            Generar Reporte de Baja
-                        </button>
                     </div>
-                @endif
+
+                    <button wire:click="generarReporteBaja"
+                            @if(!$tecnicoAsignado) disabled @endif
+                            class="w-full py-3.5 bg-gray-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black shadow-md transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <i class="ri-file-warning-line text-base"></i> Generar Reporte de Baja
+                    </button>
+
+                    <button wire:click="$set('paso', 1)"
+                            class="text-[10px] font-black text-gray-400 hover:text-gray-700 uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5 w-full">
+                        <i class="ri-arrow-left-line"></i> Elegir otro cliente
+                    </button>
+                </div>
             </div>
+            @endif
+
         </div>
+    </div>
     @endif
 
+    {{-- ================================================================
+         PASO 3 — FORMULARIO DE CANCELACIÓN TÉCNICA
+    ================================================================ --}}
     @if($paso == 3)
-        <div wire:key="paso-3" class="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-700">
-            
-            <div class="lg:col-span-4 space-y-4">
-                <div class="bg-gray-800 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 opacity-10"><i class="ri-file-list-3-line text-9xl"></i></div>
-                    <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4 border-b border-gray-700 pb-2">Información del Reporte</h4>
-                    <div class="space-y-3 text-[11px] font-medium leading-tight">
-                        <p><span class="text-gray-400 uppercase tracking-tighter">A. No. Reporte:</span> <span class="font-mono text-indigo-300 ml-1">{{ $numeroReporte }}</span></p>
-                        <p><span class="text-gray-400 uppercase tracking-tighter">B. Fecha Apertura:</span> <span class="ml-1">{{ $fechaReporte }}</span></p>
-                        <p><span class="text-gray-400 uppercase tracking-tighter">C. Sucursal:</span> <span class="ml-1 uppercase">{{ $cliente['sucursal'] }}</span></p>
-                        <p><span class="text-gray-400 uppercase tracking-tighter">D. Cliente:</span> <span class="ml-1 uppercase font-bold text-white">{{ $cliente['nombre'] }}</span></p>
-                        <p><span class="text-gray-400 uppercase tracking-tighter">E. Domicilio:</span> <span class="ml-1 italic text-gray-300">{{ $cliente['domicilio'] }}</span></p>
-                        <p><span class="text-gray-400 uppercase tracking-tighter">F. Servicio:</span> <span class="ml-1 font-black text-red-500 uppercase">CANCELACIÓN</span></p>
-                        <p><span class="text-gray-400 uppercase tracking-tighter">H. Técnico:</span> <span class="ml-1 uppercase text-indigo-300">{{ $tecnicoAsignado }}</span></p>
-                    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                    <div class="mt-6 pt-4 border-t border-gray-700 space-y-2 text-[10px]">
-                        <p class="font-black text-indigo-400 uppercase">G. Datos de Red (Actuales):</p>
-                        <p><span class="text-gray-400">NAP:</span> <span class="ml-1">{{ $cliente['nap'] }}</span></p>
-                        <p><span class="text-gray-400 italic">{{ $cliente['direccion_nap'] }}</span></p>
-                        <p><span class="text-gray-400">IP:</span> <span class="ml-1 font-mono tracking-tighter">{{ $cliente['ip_asignada'] }}</span></p>
-                    </div>
+        {{-- Panel izquierdo: datos previos --}}
+        <div class="lg:col-span-4 space-y-4">
+
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-900 px-5 py-3.5 flex items-center justify-between">
+                    <p class="text-[10px] font-black text-red-400 uppercase tracking-widest">Expediente de Cancelación</p>
+                    <span class="font-mono text-xs font-black text-white">{{ $numeroReporte }}</span>
                 </div>
+                <div class="divide-y divide-gray-100">
+                    @php
+                        $datosBaja = [
+                            ['icon' => 'ri-calendar-event-line', 'label' => 'Fecha Apertura',   'value' => $fechaReporte, 'mono' => true],
+                            ['icon' => 'ri-user-line',           'label' => 'Titular Legal',    'value' => $cliente['nombre'], 'bold' => true],
+                            ['icon' => 'ri-map-pin-line',        'label' => 'Domicilio',         'value' => $cliente['domicilio'], 'italic' => true],
+                            ['icon' => 'ri-user-star-line',      'label' => 'Técnico Asignado',  'value' => $tecnicoAsignado, 'badge' => 'indigo'],
+                        ];
+                    @endphp
+                    @foreach($datosBaja as $d)
+                    <div class="flex items-start gap-3 px-4 py-3">
+                        <i class="{{ $d['icon'] }} text-gray-400 text-sm flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ $d['label'] }}</p>
+                            @if(isset($d['bold']))
+                                <p class="text-xs font-black text-gray-900 uppercase mt-0.5">{{ $d['value'] }}</p>
+                            @elseif(isset($d['italic']))
+                                <p class="text-xs text-gray-500 italic leading-relaxed mt-0.5">{{ $d['value'] }}</p>
+                            @elseif(isset($d['mono']))
+                                <p class="font-mono text-xs font-black text-gray-800 mt-0.5">{{ $d['value'] }}</p>
+                            @elseif(isset($d['badge']))
+                                <span class="text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md uppercase">{{ $d['value'] }}</span>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
 
-                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 font-mono">
-                    <p class="text-[9px] font-black text-indigo-800 uppercase mb-2">I. Equipo Registrado Originalmente:</p>
-                    <p class="text-[11px] text-indigo-900">{{ $cliente['equipo_asignado'] }}</p>
-                    <p class="text-[12px] font-black text-indigo-600 mt-1 uppercase">{{ $cliente['serie_registrada'] }}</p>
+                    {{-- NAP --}}
+                    <div class="px-4 py-3 bg-indigo-50/60">
+                        <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Ubicación de Red</p>
+                        <p class="text-xs font-black text-gray-800 uppercase">{{ $cliente['nap'] }}</p>
+                        <p class="text-[10px] text-gray-500 italic mt-0.5">{{ $cliente['direccion_nap'] }}</p>
+                    </div>
+
+                    {{-- Equipo --}}
+                    <div class="px-4 py-3 bg-red-50/60">
+                        <p class="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">Activo a Recuperar</p>
+                        <p class="text-xs font-black text-gray-900 uppercase">{{ $cliente['equipo_asignado'] }}</p>
+                        <p class="font-mono text-[10px] text-indigo-600 font-black tracking-widest mt-0.5">{{ $cliente['serie_registrada'] }}</p>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="lg:col-span-8 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-10 space-y-8">
-                
-                <section class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-                    <h3 class="text-sm font-black text-gray-800 uppercase mb-4 flex items-center gap-2 italic">
-                        <i class="ri-router-line text-indigo-600 text-lg"></i> Recuperación de Equipos (SI/NO)
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <label class="cursor-pointer group">
+        {{-- Panel derecho: formulario técnico --}}
+        <div class="lg:col-span-8 space-y-4">
+
+            {{-- SECCIÓN A: Recuperación física del equipo --}}
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-router-line text-red-500 text-sm"></i>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Estado Físico de Recuperación de Equipos</p>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
                             <input type="radio" wire:model.live="recuperaEquipo" value="si" class="peer sr-only">
-                            <div class="p-4 text-center border-2 rounded-xl peer-checked:border-indigo-600 peer-checked:bg-white font-bold text-xs uppercase text-gray-400 peer-checked:text-indigo-900 transition-all shadow-sm">SÍ, RECUPERADO</div>
+                            <div class="text-center border-2 rounded-xl p-4 transition-all
+                                        peer-checked:border-emerald-500 peer-checked:bg-emerald-50
+                                        border-gray-200 hover:border-emerald-200 cursor-pointer">
+                                <i class="ri-checkbox-circle-line block text-2xl mb-1.5 text-gray-300 peer-checked:text-emerald-500"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 peer-checked:text-emerald-700">
+                                    SÍ, Equipo Recuperado
+                                </p>
+                            </div>
                         </label>
-                        <label class="cursor-pointer group">
+                        <label class="cursor-pointer">
                             <input type="radio" wire:model.live="recuperaEquipo" value="no" class="peer sr-only">
-                            <div class="p-4 text-center border-2 rounded-xl peer-checked:border-red-600 peer-checked:bg-white font-bold text-xs uppercase text-gray-400 peer-checked:text-red-900 transition-all shadow-sm">NO RECUPERADO</div>
+                            <div class="text-center border-2 rounded-xl p-4 transition-all
+                                        peer-checked:border-red-500 peer-checked:bg-red-50
+                                        border-gray-200 hover:border-red-200 cursor-pointer">
+                                <i class="ri-close-circle-line block text-2xl mb-1.5 text-gray-300 peer-checked:text-red-500"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 peer-checked:text-red-700">
+                                    NO Recuperado
+                                </p>
+                            </div>
                         </label>
                     </div>
 
                     @if($recuperaEquipo == 'si')
-                        <div class="space-y-3 animate-in fade-in">
-                            <label class="block text-[10px] font-black text-indigo-700 uppercase tracking-widest">Confirmar Serie Recuperada (Validar en Sistema)</label>
-                            <input type="text" wire:model="serieConfirmada" class="w-full rounded-xl border-gray-200 bg-white font-mono text-sm uppercase p-3" placeholder="Escanee o escriba la serie del equipo físico...">
-                            <p class="text-[9px] text-indigo-400 italic">Si la serie es diferente a la original, el sistema la re-vinculará antes de marcarla como recuperada.</p>
-                        </div>
-                    @else
-                        <div class="p-4 bg-red-100 rounded-xl border border-red-200 animate-in fade-in">
-                            <label class="flex items-start gap-3 cursor-pointer">
-                                <input type="checkbox" wire:model.live="pagoPerdida" class="h-5 w-5 text-red-600 rounded mt-1">
-                                <div class="text-xs text-red-800 leading-relaxed">
-                                    <span class="block font-black uppercase mb-1">Registrar como: EQUIPO PAGADO POR PÉRDIDA</span>
-                                    Al marcar esta opción, se debe registrar el cobro en el módulo de ingresos y se liberará el activo del inventario del cliente.
-                                </div>
-                            </label>
-                        </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest">Validar Serie Recuperada (escaneo o manual)</label>
+                        <input type="text" wire:model="serieConfirmada"
+                               class="w-full bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm uppercase py-2.5 px-4 font-black tracking-widest text-indigo-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+                               placeholder="SERIE DEL EQUIPO RECUPERADO...">
+                    </div>
                     @endif
-                </section>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t pt-8">
-                    <div class="space-y-4">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b pb-1">Validación Sucursal (Software)</h4>
-                        <div class="space-y-3">
-                            <label class="flex items-center gap-3 text-xs font-bold text-gray-700 cursor-pointer">
-                                <input type="checkbox" wire:model="bajaWinboxNombre" class="rounded text-indigo-600 w-5 h-5"> Baja Nombre en Winbox
-                            </label>
-                            <label class="flex items-center gap-3 text-xs font-bold text-gray-700 cursor-pointer">
-                                <input type="checkbox" wire:model="bajaWinboxPlan" class="rounded text-indigo-600 w-5 h-5"> Baja Plan Datos en Winbox
-                            </label>
-                            <label class="flex items-center gap-3 text-xs font-bold text-gray-700 cursor-pointer">
-                                <input type="checkbox" wire:model="bajaOLT" class="rounded text-indigo-600 w-5 h-5"> Baja de Datos en OLT
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b pb-1">Validación Técnico (Físico)</h4>
-                        <div class="space-y-3">
-                            <label class="flex items-center gap-3 text-xs font-bold text-red-600 uppercase cursor-pointer">
-                                <input type="checkbox" wire:model="desconexionFisica" class="rounded text-red-600 w-5 h-5"> Confirmar Desconexión en NAP
-                            </label>
+                    @if($recuperaEquipo == 'no')
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" wire:model.live="pagoPerdida"
+                                   class="mt-0.5 h-5 w-5 text-red-600 rounded border-red-300 focus:ring-0">
                             <div>
-                                <label class="block text-[10px] font-black text-gray-500 uppercase mb-1">Puerto NAP Liberado (Ej. Salida 4)</label>
-                                <input type="text" class="w-full rounded-lg border-gray-300 bg-gray-50 text-xs py-2 font-bold" placeholder="Escriba la salida que quedó disponible">
+                                <p class="text-[11px] font-black text-red-900 uppercase tracking-widest mb-1">Registro de Pérdida Liquidada</p>
+                                <p class="text-[10px] text-red-700 leading-relaxed font-medium">
+                                    Al marcar, se certifica que el cliente pagó el valor del equipo no recuperado. El activo será liberado del inventario del suscriptor.
+                                </p>
                             </div>
-                        </div>
+                        </label>
                     </div>
-                </div>
-
-                <div class="border-t pt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-1">Calificación del Usuario (Default: Excelente)</label>
-                        <select wire:model="calificacion" class="w-full rounded-xl border-gray-200 bg-gray-50 text-sm font-bold">
-                            <option value="Excelente">Excelente</option>
-                            <option value="Bueno">Bueno</option>
-                            <option value="Malo">Malo</option>
-                        </select>
-                    </div>
-                    <div class="flex flex-col justify-end">
-                        <p class="text-[9px] text-gray-400 font-bold text-center mb-1 uppercase tracking-widest">Horas Transcurridas: 0.5 Hrs (Auto)</p>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <button class="w-full sm:flex-1 py-4 bg-white border-2 border-gray-200 text-gray-600 font-black rounded-2xl text-[10px] uppercase hover:bg-gray-50 transition shadow-sm tracking-widest">
-                        Guardar Precierre (Pendiente)
-                    </button>
-                    <button wire:click="finalizarCancelacion" class="w-full sm:flex-1 py-4 bg-red-600 text-white font-black rounded-2xl text-[10px] uppercase shadow-xl hover:bg-red-700 transition transform active:scale-95 tracking-widest">
-                        Cierre Total y Liberación NAP
-                    </button>
+                    @endif
                 </div>
             </div>
+
+            {{-- SECCIÓN B + C: Gestión Software + Campo --}}
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5">
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Checklist de Desactivación</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+
+                    {{-- Software --}}
+                    <div class="p-5 space-y-3">
+                        <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                            <i class="ri-computer-line"></i> A. Gestión Software (Sucursal)
+                        </p>
+                        @foreach([
+                            ['label' => 'Baja nombre en Winbox',     'key' => 'bajaWinbox'],
+                            ['label' => 'Baja plan datos en Winbox', 'key' => 'bajaPlanWinbox'],
+                            ['label' => 'Baja de datos en OLT',      'key' => 'bajaOLT'],
+                        ] as $check)
+                        <label class="flex items-center gap-3 text-[10px] font-black text-gray-700 uppercase cursor-pointer hover:text-indigo-600 transition-colors group">
+                            <input type="checkbox" class="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-0 group-hover:border-indigo-400">
+                            {{ $check['label'] }}
+                        </label>
+                        @endforeach
+                    </div>
+
+                    {{-- Campo --}}
+                    <div class="p-5 space-y-3">
+                        <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                            <i class="ri-tools-line"></i> B. Gestión Campo (Técnico)
+                        </p>
+                        <label class="flex items-center gap-3 text-[10px] font-black text-red-700 uppercase cursor-pointer hover:text-red-800 transition-colors group">
+                            <input type="checkbox" wire:model="desconexionFisica"
+                                   class="h-5 w-5 text-red-600 rounded border-red-300 focus:ring-0">
+                            Confirmar desconexión en NAP
+                        </label>
+                        <div class="space-y-1.5">
+                            <label class="block text-[9px] font-black text-gray-500 uppercase tracking-widest">Puerto NAP Liberado</label>
+                            <input type="text"
+                                   class="w-full bg-gray-50 border border-gray-200 rounded-lg text-xs py-2.5 px-4 font-black uppercase focus:ring-2 focus:ring-red-500/20 focus:border-red-400 placeholder:text-gray-300"
+                                   placeholder="Ej. Salida 4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- SECCIÓN D: Calificación + Horas + Cierre --}}
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5">
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Evaluación y Cierre</p>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Calificación del Servicio</label>
+                            <select wire:model="calificacion"
+                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg text-xs font-black uppercase py-2.5 px-3 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
+                                <option value="Excelente">Excelente</option>
+                                <option value="Bueno">Bueno</option>
+                                <option value="Malo">Malo</option>
+                            </select>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 flex flex-col justify-center">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Tiempo de Respuesta</p>
+                            <p class="text-lg font-black text-gray-800 font-mono">{{ $horasAtencion ?? '0.5' }}h</p>
+                            <p class="text-[9px] text-gray-400 font-medium">Cálculo automático</p>
+                        </div>
+                    </div>
+
+                    {{-- Botones de cierre --}}
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <button class="flex-1 py-3 bg-white border-2 border-gray-200 text-gray-600 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="ri-save-2-line"></i> Guardar Precierre
+                        </button>
+                        <button wire:click="finalizarCancelacion"
+                                class="flex-1 py-3 bg-red-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-md shadow-red-200 hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="ri-checkbox-circle-line text-base"></i> Cierre Total y Liberación NAP
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
+    </div>
     @endif
+
 </div>
