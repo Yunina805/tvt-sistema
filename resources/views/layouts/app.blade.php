@@ -53,319 +53,169 @@
 
         <div class="flex h-screen overflow-hidden">
 
-            {{-- ================================================================
-                 SIDEBAR
-            ================================================================ --}}
-            <aside
-                :class="[
-                    'flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-30 flex-shrink-0',
-                    sidebarOpen ? 'w-64' : 'sidebar-collapsed w-16',
-                    mobileSidebarOpen ? 'fixed inset-y-0 left-0 !w-64 shadow-2xl' : 'hidden lg:flex'
-                ]"
-            >
-                {{-- Logo --}}
-                <div class="flex items-center h-16 px-4 border-b border-gray-100 flex-shrink-0 sidebar-logo">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        <div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                            <i class="ri-tv-line text-white text-lg"></i>
-                        </div>
-                        <span class="hide-collapsed font-bold text-gray-900 text-lg whitespace-nowrap">
-                            TVT <span class="text-indigo-600">Sistema</span>
-                        </span>
+        {{-- ================================================================
+            SIDEBAR: CATÁLOGOS MAESTROS ERP
+        ================================================================ --}}
+        <aside 
+            :class="[
+                'flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-30 flex-shrink-0',
+                sidebarOpen ? 'w-64' : 'sidebar-collapsed w-16',
+                mobileSidebarOpen ? 'fixed inset-y-0 left-0 !w-64 shadow-2xl' : 'hidden lg:flex'
+            ]"
+        >
+            {{-- Logo Corporativo --}}
+            <div class="flex items-center h-16 px-4 border-b border-gray-100 flex-shrink-0 sidebar-logo bg-gray-50/50">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <div class="flex-shrink-0 w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-200">
+                        <i class="ri-tv-2-fill text-white text-lg"></i>
+                    </div>
+                    <span class="hide-collapsed font-black text-gray-900 text-sm uppercase tracking-tighter whitespace-nowrap">
+                        Tu Visión <span class="text-red-600">Telecable</span>
+                    </span>
+                </div>
+            </div>
+
+            {{-- Navegación Maestra --}}
+            <nav class="flex-1 overflow-y-auto sidebar-scroll py-4 px-2 space-y-1">
+
+                {{-- ── OPERACIÓN DIARIA ────────────────────────────────── --}}
+                <a href="{{ route('dashboard') }}"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all
+                        {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-gray-500 hover:bg-gray-100' }}">
+                    <i class="ri-dashboard-3-line text-lg flex-shrink-0"></i>
+                    <span class="hide-collapsed">Centro de Operaciones</span>
+                </a>
+
+                <div class="my-4 border-t border-gray-100 mx-2"></div>
+
+                {{-- ── SECCIÓN: CATÁLOGOS ERP ────────────────────────────── --}}
+                <p class="hide-collapsed px-3 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Módulos de Configuración</p>
+
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-pink-50 hover:text-pink-700 transition-all">
+                        <i class="ri-map-pin-range-line text-lg text-pink-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Sedes e Infraestructura</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-pink-100">
+                        <a href="#" class="block px-4 py-1.5 text-[10px] font-bold text-gray-500 hover:text-pink-600 uppercase">Geografía (INEGI)</a>
+                        <a href="#" class="block px-4 py-1.5 text-[10px] font-bold text-gray-500 hover:text-pink-600 uppercase">Crear Sucursal</a>
+                        <a href="#" class="block px-4 py-1.5 text-[10px] font-bold text-gray-500 hover:text-pink-600 uppercase">Registro de Calles</a>
+                        <a href="#" class="block px-4 py-1.5 text-[10px] font-bold text-gray-500 hover:text-pink-600 uppercase">Inventario Postes</a>
                     </div>
                 </div>
 
-                {{-- Navegación --}}
-                <nav class="flex-1 overflow-y-auto sidebar-scroll py-3 px-2 space-y-0.5">
-
-                    {{-- Dashboard --}}
-                    <a href="{{ route('dashboard') }}"
-                       class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                              {{ request()->routeIs('dashboard') ? 'nav-active' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-                        <i class="ri-dashboard-line text-lg flex-shrink-0 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-indigo-400' }}"></i>
-                        <span class="hide-collapsed">Inicio</span>
-                    </a>
-
-                    {{-- ── CLIENTES ──────────────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-team-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Clientes</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-list-unordered text-sm text-gray-400"></i><span class="hide-collapsed">Lista de Clientes</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-user-add-line text-sm text-gray-400"></i><span class="hide-collapsed">Contratación Nueva</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-arrow-go-back-line text-sm text-gray-400"></i><span class="hide-collapsed">Reconexión</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-percent-line text-sm text-gray-400"></i><span class="hide-collapsed">Contrat. Promociones</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-file-text-line text-sm text-gray-400"></i><span class="hide-collapsed">Estado de Cuenta</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-secure-payment-line text-sm text-gray-400"></i><span class="hide-collapsed">Cobro Mensualidad</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-add-box-line text-sm text-gray-400"></i><span class="hide-collapsed">Servicios Adicionales</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── REPORTES DE SERVICIO ──────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-file-list-3-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Reportes de Servicio</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-eye-line text-sm text-gray-400"></i><span class="hide-collapsed">Ver Reportes</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-forbid-2-line text-sm text-gray-400"></i><span class="hide-collapsed">Suspensión</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-close-circle-line text-sm text-gray-400"></i><span class="hide-collapsed">Cancelación</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-arrow-down-circle-line text-sm text-gray-400"></i><span class="hide-collapsed">Recuperación Equipo</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-error-warning-line text-sm text-gray-400"></i><span class="hide-collapsed">Fallas de Servicio</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-map-pin-line text-sm text-gray-400"></i><span class="hide-collapsed">Cambio de Domicilio</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── PLANTA EXTERNA ────────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-tools-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Planta Externa</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-signal-tower-line text-sm text-gray-400"></i><span class="hide-collapsed">Postes</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-node-tree text-sm text-gray-400"></i><span class="hide-collapsed">NAPs</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-router-line text-sm text-gray-400"></i><span class="hide-collapsed">ONUs</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-server-line text-sm text-gray-400"></i><span class="hide-collapsed">OLTs</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-share-line text-sm text-gray-400"></i><span class="hide-collapsed">Fibra Óptica</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-building-2-line text-sm text-gray-400"></i><span class="hide-collapsed">CTC</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── TELEVISIÓN ────────────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-tv-2-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Televisión</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-hard-drive-2-line text-sm text-gray-400"></i><span class="hide-collapsed">Mininodos</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-remote-control-line text-sm text-gray-400"></i><span class="hide-collapsed">Receptores</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-live-line text-sm text-gray-400"></i><span class="hide-collapsed">Canales</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-settings-4-line text-sm text-gray-400"></i><span class="hide-collapsed">Moduladores</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-broadcast-line text-sm text-gray-400"></i><span class="hide-collapsed">Transmisores</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-global-line text-sm text-gray-400"></i><span class="hide-collapsed">Satélites / Antenas</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-wifi-line text-sm text-gray-400"></i><span class="hide-collapsed">Prov. de Señal</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── INTERNET ──────────────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-wifi-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Internet</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-star-line text-sm text-gray-400"></i><span class="hide-collapsed">Starlinks</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-share-circle-line text-sm text-gray-400"></i><span class="hide-collapsed">CCR / Switches</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-links-line text-sm text-gray-400"></i><span class="hide-collapsed">VLANs</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-terminal-box-line text-sm text-gray-400"></i><span class="hide-collapsed">Winbox</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-cloud-line text-sm text-gray-400"></i><span class="hide-collapsed">ISP / Telmex</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── FINANZAS ──────────────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-money-dollar-circle-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Finanzas</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-safe-line text-sm text-gray-400"></i><span class="hide-collapsed">Caja</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-arrow-down-circle-line text-sm text-gray-400"></i><span class="hide-collapsed">Ingresos</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-arrow-up-circle-line text-sm text-gray-400"></i><span class="hide-collapsed">Egresos</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-bank-line text-sm text-gray-400"></i><span class="hide-collapsed">Depósitos</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-transfer-line text-sm text-gray-400"></i><span class="hide-collapsed">Traspasos</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-scissors-cut-line text-sm text-gray-400"></i><span class="hide-collapsed">Cortes Mensuales</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-price-tag-3-line text-sm text-gray-400"></i><span class="hide-collapsed">Tarifas y Promo.</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-file-pdf-line text-sm text-gray-400"></i><span class="hide-collapsed">Facturación</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── CATÁLOGOS ─────────────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-book-2-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Catálogos</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-store-line text-sm text-gray-400"></i><span class="hide-collapsed">Sucursales</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-map-2-line text-sm text-gray-400"></i><span class="hide-collapsed">Calles / Localidades</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-truck-line text-sm text-gray-400"></i><span class="hide-collapsed">Proveedores</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-bank-card-line text-sm text-gray-400"></i><span class="hide-collapsed">Bancos</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-service-line text-sm text-gray-400"></i><span class="hide-collapsed">Servicios</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-task-line text-sm text-gray-400"></i><span class="hide-collapsed">Actividades</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── RECURSOS HUMANOS ──────────────────────────────────── --}}
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                            <i class="ri-group-line text-lg flex-shrink-0 text-indigo-400"></i>
-                            <span class="hide-collapsed flex-1 text-left">Recursos Humanos</span>
-                            <i class="hide-collapsed ri-arrow-down-s-line text-base text-gray-400 transition-transform duration-200" :class="open && 'rotate-180'"></i>
-                        </button>
-                        <div x-show="open" x-cloak class="sub-nav mt-0.5 space-y-0.5">
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-user-3-line text-sm text-gray-400"></i><span class="hide-collapsed">Empleados</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-key-line text-sm text-gray-400"></i><span class="hide-collapsed">Accesos al Sistema</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-calendar-check-line text-sm text-gray-400"></i><span class="hide-collapsed">Vacaciones</span>
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                                <i class="ri-calendar-event-line text-sm text-gray-400"></i><span class="hide-collapsed">Permisos y Descansos</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- ── SECCIÓN: REPORTES ─────────────────────────────────── --}}
-                    <div class="section-label pt-3 pb-1 px-3">
-                        <span class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Reportes</span>
-                    </div>
-
-                    <a href="#"
-                       class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                        <i class="ri-bar-chart-box-line text-lg flex-shrink-0 text-indigo-400"></i>
-                        <span class="hide-collapsed">Reportes de Clientes</span>
-                    </a>
-
-                    <a href="#"
-                       class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                        <i class="ri-line-chart-line text-lg flex-shrink-0 text-indigo-400"></i>
-                        <span class="hide-collapsed">Reportes Financieros</span>
-                    </a>
-
-                </nav>
-
-                {{-- Footer usuario --}}
-                <div class="flex-shrink-0 border-t border-gray-100 p-3">
-                    <div class="flex items-center gap-3">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </div>
-                        <div class="hide-collapsed overflow-hidden flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
-                        </div>
-                        <button @click="sidebarOpen = !sidebarOpen"
-                                class="hide-collapsed p-1 text-gray-400 hover:text-gray-600 rounded transition-colors flex-shrink-0 hidden lg:flex">
-                            <i :class="sidebarOpen ? 'ri-arrow-left-s-line' : 'ri-arrow-right-s-line'" class="text-xl"></i>
-                        </button>
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-700 transition-all">
+                        <i class="ri-team-line text-lg text-blue-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Recursos Humanos</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-blue-100 uppercase text-[10px] font-bold text-gray-500">
+                        <a href="#" class="block px-4 py-1.5 hover:text-blue-600">Registro Empleados</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-blue-600">Vacaciones</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-blue-600">Descanso Mensual</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-blue-600">Permisos</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-blue-600">Accesos Sistema</a>
                     </div>
                 </div>
 
-            </aside>
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all">
+                        <i class="ri-money-dollar-box-line text-lg text-emerald-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Financieros</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-emerald-100 uppercase text-[10px] font-bold text-gray-500">
+                        <a href="#" class="block px-4 py-1.5 hover:text-emerald-600">Tarifas Principales</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-emerald-600">Tarifas Adicionales</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-emerald-600">Promociones</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-emerald-600">Descuentos</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-emerald-600">Ingresos / Egresos</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-emerald-600">Proveedores y Bancos</a>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-purple-50 hover:text-purple-700 transition-all">
+                        <i class="ri-router-line text-lg text-purple-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Red e Internet</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-purple-100 uppercase text-[10px] font-bold text-gray-500">
+                        <a href="#" class="block px-4 py-1.5 hover:text-purple-600">Administrar NAPs</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-purple-600">OLT (Ext/Int)</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-purple-600">Administración ONUs</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-purple-600">Winbox / VLANs</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-purple-600">CCR / Switches</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-purple-600">Starlinks / ISP Telmex</a>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-orange-50 hover:text-orange-700 transition-all">
+                        <i class="ri-broadcast-line text-lg text-orange-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Catálogo TV</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-orange-100 uppercase text-[10px] font-bold text-gray-500">
+                        <a href="#" class="block px-4 py-1.5 hover:text-orange-600">Canales y Satélites</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-orange-600">Moduladores (An/Dig)</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-orange-600">Transmisores (Todos)</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-orange-600">PON EDFA</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-orange-600">Mininodos y Antenas</a>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-all">
+                        <i class="ri-settings-5-line text-lg text-gray-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Servicios / Tareas</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-gray-200 uppercase text-[10px] font-bold text-gray-500">
+                        <a href="#" class="block px-4 py-1.5 hover:text-indigo-600">Registro de Servicios</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-indigo-600">Matriz de Actividades</a>
+                    </div>
+                </div>
+
+                <div class="my-4 border-t border-gray-100 mx-2"></div>
+
+                <div x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 transition-all">
+                        <i class="ri-flashlight-line text-lg text-yellow-500"></i>
+                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Energía y Enlaces</span>
+                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 ml-4 border-l-2 border-yellow-100 uppercase text-[10px] font-bold text-gray-500">
+                        <a href="#" class="block px-4 py-1.5 hover:text-yellow-600">Enlaces Fibra</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-yellow-600">Catálogo CTC</a>
+                        <a href="#" class="block px-4 py-1.5 hover:text-yellow-600">UPS / Plantas</a>
+                    </div>
+                </div>
+
+            </nav>
+
+            {{-- Footer Usuario (Mantenido de tu vista original) --}}
+            <div class="flex-shrink-0 border-t border-gray-100 p-3 bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-indigo-100">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </div>
+                    <div class="hide-collapsed overflow-hidden flex-1 min-w-0">
+                        <p class="text-[10px] font-black text-gray-900 uppercase truncate leading-none">{{ Auth::user()->name }}</p>
+                        <p class="text-[9px] font-bold text-gray-400 truncate mt-1 italic uppercase tracking-tighter">ADMINISTRADOR</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
 
             {{-- ================================================================
                  CONTENIDO PRINCIPAL

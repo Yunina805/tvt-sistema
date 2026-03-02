@@ -4,50 +4,187 @@ namespace App\Livewire\GestionClientes;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
+use Carbon\Carbon;
 
+#[Layout('layouts.app')]
 class SuspensionClientes extends Component
 {
     use WithPagination;
 
-    public $busqueda = '';
+    public string $search          = '';
+    public string $filterSucursal  = '';
+    public string $filterStatus    = '';
+    public string $filterServicio  = '';
 
-    public function generarReporteSuspension($clienteId)
+    public function updatingSearch(): void { $this->resetPage(); }
+
+    public function resetFilters(): void
     {
-        // 1. Lógica para crear el reporte en la BD con tipo "SUSPENSION FALTA DE PAGO" 
-        // 2. Conectar API SMS para notificar al cliente [cite: 1244]
-        // 3. Notificar al técnico por SMS si requiere desconexión física [cite: 1243]
-        
-        session()->flash('mensaje', 'Reporte de suspensión generado y notificaciones enviadas.');
+        $this->search         = '';
+        $this->filterSucursal = '';
+        $this->filterStatus   = '';
+        $this->filterServicio = '';
+        $this->resetPage();
+    }
+
+    public function generarReporteSuspension(string $clienteId): void
+    {
+        // ─────────────────────────────────────────────────────────────
+        // TODO: DB::transaction(function() use ($clienteId) {
+        //
+        //   $cliente = Cliente::with(['servicio','equipo','nap'])->findOrFail($clienteId);
+        //
+        //   1. Crear ReporteServicio con tipo SUSPENSION:
+        //      $reporte = ReporteServicio::create([
+        //          'folio'        => 'SUP-' . now()->format('Y') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT),
+        //          'tipo_reporte' => 'SUSPENSION',
+        //          'tipo_servicio'=> $cliente->tipo_servicio,   // TV | INTERNET | TV+INTERNET
+        //          'cliente_id'   => $clienteId,
+        //          'sucursal_id'  => auth()->user()->sucursal_id,
+        //          'estado'       => 'Pendiente',
+        //          'fecha'        => now(),
+        //          // soporta_remoto: si ONU puede cortar lógicamente
+        //          'soporta_remoto' => $cliente->equipo->soporta_suspension_remota ?? false,
+        //      ]);
+        //
+        //   2. SMS al CLIENTE (obligatorio al generar):
+        //      SmsService::enviar($cliente->telefono,
+        //          "Tu Vision Telecable: Su servicio ha sido SUSPENDIDO por falta de pago. " .
+        //          "Saldo pendiente: $" . number_format($cliente->saldo, 2) . ". " .
+        //          "Regularice su situacion llamando al {$sucursal->telefono}.");
+        //
+        //   3. SMS al TÉCNICO (solo si requiere desconexion fisica — TV o TV+Internet sin remoto):
+        //      if (!$reporte->soporta_remoto || $cliente->tipo_servicio === 'TV') {
+        //          SmsService::enviar($tecnico->telefono,
+        //              "Nuevo reporte de suspension asignado: {$reporte->folio}. " .
+        //              "Requiere desconexion FISICA en NAP. Cliente: {$cliente->nombre}.");
+        //      }
+        //      // Para Internet y TV+Internet con remoto: la sucursal hace el corte lógico,
+        //      // no requiere técnico en campo.
+        //
+        //   4. Actualizar estado cliente a SUSPENDIDO (no afecta corte mensual):
+        //      $cliente->update(['estado' => 'SUSPENDIDO']);
+        //
+        // });
+        // ─────────────────────────────────────────────────────────────
+
+        session()->flash('exito',
+            "Reporte de suspensión generado para cliente {$clienteId}. SMS enviado al cliente y al técnico.");
     }
 
     public function render()
     {
-        // Simulación de la vista de deudores > 31 días [cite: 1239, 1240]
-        $clientesDeudores = collect([
+        // ─────────────────────────────────────────────────────────────
+        // TODO: Vista automática nocturna — tarea programada (scheduler)
+        // php artisan schedule:run  ←  ejecuta cada noche
+        //
+        // $clientes = Cliente::with(['servicio','equipo','nap','sucursal'])
+        //     ->where('estado', 'Activo')
+        //     ->whereHas('estadoCuenta', function($q) {
+        //         $q->where('saldo_pendiente', '>', 0)
+        //           ->where('fecha_ultimo_pago', '<=', now()->subDays(31));
+        //     })
+        //     ->when($this->search, fn($q) =>
+        //         $q->where(fn($q) =>
+        //             $q->where('nombre','LIKE',"%{$this->search}%")
+        //               ->orWhere('id_cliente','LIKE',"%{$this->search}%")
+        //               ->orWhere('telefono','LIKE',"%{$this->search}%")
+        //         ))
+        //     ->when($this->filterSucursal, fn($q) => $q->where('sucursal_id', $this->filterSucursal))
+        //     ->when($this->filterStatus,   fn($q) => $q->where('estado', $this->filterStatus))
+        //     ->when($this->filterServicio, fn($q) => $q->where('tipo_servicio', $this->filterServicio))
+        //     ->orderBy('fecha_ultimo_pago', 'asc')   // más antiguo (más crítico) arriba
+        //     ->paginate(20);
+        // ─────────────────────────────────────────────────────────────
+
+        $todos = collect([
             [
-                'id' => '01-0004567',
-                'nombre' => 'PEDRO ARMENDARIZ',
-                'sucursal' => 'Oaxaca Centro',
-                'saldo' => 960.00,
-                'servicio' => 'Retro TV + Internet',
-                'estatus' => 'Activo',
-                'ultimo_pago' => '2026-01-15',
-                'soporta_remoto' => true // Define si se puede suspender por OLT/Winbox
+                'id'              => '01-0004567',
+                'nombre'          => 'PEDRO ARMENDÁRIZ RUIZ',
+                'sucursal'        => 'Oaxaca Centro',
+                'saldo'           => 960.00,
+                'servicio'        => 'TV + Internet 30 Mbps',
+                'tipo_servicio'   => 'TV+INTERNET',   // TV | INTERNET | TV+INTERNET
+                'estatus'         => 'Activo',
+                'ultimo_pago'     => '2026-01-15',
+                // soporta_remoto: ONU puede cortar TV+Internet vía Winbox/OLT
+                // false = requiere técnico en campo para desconexión física
+                'soporta_remoto'  => true,
+                'equipo'          => 'ONU ZTE F660',
+                'serie_equipo'    => 'ZTE2023-045',
+                'nap'             => 'NAP-OAX-03',
+                'dir_nap'         => 'Poste 8, Calle Alcalá',
             ],
             [
-                'id' => '01-0008910',
-                'nombre' => 'LUCÍA MÉNDEZ',
-                'sucursal' => 'San Pedro Amuzgos',
-                'saldo' => 480.00,
-                'servicio' => 'Retro TV',
-                'estatus' => 'Activo',
-                'ultimo_pago' => '2026-01-10',
-                'soporta_remoto' => false // Requiere técnico para desconexión física
-            ]
+                'id'              => '01-0008910',
+                'nombre'          => 'LUCÍA MÉNDEZ SANTOS',
+                'sucursal'        => 'San Pedro Amuzgos',
+                'saldo'           => 480.00,
+                'servicio'        => 'Retro TV',
+                'tipo_servicio'   => 'TV',             // Solo TV = siempre físico
+                'estatus'         => 'Activo',
+                'ultimo_pago'     => '2026-01-10',
+                'soporta_remoto'  => false,            // TV nunca puede ser remoto
+                'equipo'          => 'Mininodo ARRIS',
+                'serie_equipo'    => 'ARR2022-089',
+                'nap'             => 'NAP-SPA-01',
+                'dir_nap'         => 'Poste 3, Esquina Hidalgo',
+            ],
+            [
+                'id'              => '02-0033211',
+                'nombre'          => 'GABRIEL ORTEGA LUNA',
+                'sucursal'        => 'Oaxaca Norte',
+                'saldo'           => 1440.00,
+                'servicio'        => 'Internet 50 Mbps',
+                'tipo_servicio'   => 'INTERNET',       // Internet = siempre lógico (Winbox/OLT)
+                'estatus'         => 'Activo',
+                'ultimo_pago'     => '2026-01-05',
+                'soporta_remoto'  => true,
+                'equipo'          => 'ONU Huawei HG8310M',
+                'serie_equipo'    => 'HW2022-210',
+                'nap'             => 'NAP-OAN-05',
+                'dir_nap'         => 'Poste 14, Av. Ferrocarril',
+            ],
+            [
+                'id'              => '01-0019872',
+                'nombre'          => 'CARMEN FUENTES DÍAZ',
+                'sucursal'        => 'Oaxaca Centro',
+                'saldo'           => 720.00,
+                'servicio'        => 'TV + Internet 30 Mbps',
+                'tipo_servicio'   => 'TV+INTERNET',
+                'estatus'         => 'Activo',
+                'ultimo_pago'     => '2026-01-08',
+                'soporta_remoto'  => false,            // ONU antigua, no soporta corte remoto
+                'equipo'          => 'ONU CALIX (sin función remota)',
+                'serie_equipo'    => 'CAL2021-003',
+                'nap'             => 'NAP-OAX-07',
+                'dir_nap'         => 'Poste 15, Calle Alcalá',
+            ],
         ]);
 
-        return view('livewire.gestion-clientes.suspension-clientes', [
-            'clientes' => $clientesDeudores
-        ])->layout('layouts.app');
+        $filtrados = $todos
+            ->when($this->search, fn($c) => $c->filter(fn($r) =>
+                stripos($r['nombre'],  $this->search) !== false ||
+                stripos($r['id'],      $this->search) !== false
+            ))
+            ->when($this->filterSucursal, fn($c) => $c->where('sucursal', $this->filterSucursal))
+            ->when($this->filterStatus,   fn($c) => $c->where('estatus', $this->filterStatus))
+            ->when($this->filterServicio, fn($c) => $c->where('tipo_servicio', $this->filterServicio))
+            ->sortBy('ultimo_pago');   // más antiguo arriba (más urgente)
+
+        // KPIs
+        $totalDeudores        = $filtrados->count();
+        $montoTotal           = $filtrados->sum('saldo');
+        $suspendidosHoy       = 0;  // TODO: contar reportes tipo SUSPENSION generados hoy
+        $pendientesSuspension = $filtrados->count(); // aún sin reporte generado
+
+        return view('livewire.gestion-clientes.suspension-clientes', compact(
+            'filtrados',
+            'totalDeudores',
+            'montoTotal',
+            'suspendidosHoy',
+            'pendientesSuspension',
+        ));
     }
 }
