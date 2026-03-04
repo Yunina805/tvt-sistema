@@ -2,12 +2,13 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class ContratacionNueva extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, WithToasts;
 
     public $paso = 1;
 
@@ -98,7 +99,7 @@ class ContratacionNueva extends Component
 
     public function finalizarProceso()
     {
-        session()->flash('mensaje', '¡Contratación Exitosa! El reporte de servicio ha sido generado.');
+        $this->toastExito('¡Contratación Exitosa! El reporte de servicio ha sido generado.');
         return redirect()->route('dashboard');
     }
 

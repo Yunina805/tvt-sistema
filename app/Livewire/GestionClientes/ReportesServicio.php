@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 #[Layout('layouts.app')]
 class ReportesServicio extends Component
 {
-    use WithPagination;
+    use WithPagination, WithToasts;
 
     public string $busqueda       = '';
     public string $filtroEstado   = 'Todos';
@@ -36,14 +37,14 @@ class ReportesServicio extends Component
     {
         // TODO: generar Excel/PDF con los reportes filtrados actuales
         // \Maatwebsite\Excel\Facades\Excel::download(new ReportesExport(...), 'reportes.xlsx');
-        session()->flash('exito', 'Generando exportación total de reportes...');
+        $this->toastExito('Generando exportación total de reportes...');
     }
 
     public function exportarIndividual(string $folio): void
     {
         // TODO: generar PDF del reporte individual
         // return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte', compact('folio'))->download("reporte-{$folio}.pdf");
-        session()->flash('exito', "Generando PDF del reporte {$folio}...");
+        $this->toastExito("Generando PDF del reporte {$folio}...");
     }
 
     public function render()

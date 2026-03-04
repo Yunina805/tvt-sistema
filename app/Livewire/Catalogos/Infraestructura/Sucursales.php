@@ -2,10 +2,11 @@
 
 namespace App\Livewire\Catalogos\Infraestructura;
 
-use App\Models\InegEstado;
-use App\Models\InegLocalidad;
-use App\Models\InegMunicipio;
-use App\Models\Sucursal;
+use App\Models\Infraestructura\InegEstado;
+use App\Models\Infraestructura\InegLocalidad;
+use App\Models\Infraestructura\InegMunicipio;
+use App\Models\Infraestructura\Sucursal;
+use App\Traits\WithToasts;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -13,7 +14,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class Sucursales extends Component
 {
-    use WithPagination;
+    use WithPagination, WithToasts;
 
     public string $modo = 'lista'; // lista | crear | editar
     public string $search = '';
@@ -138,7 +139,7 @@ class Sucursales extends Component
                 'activa'       => true,
             ]);
 
-            session()->flash('exito', "Sucursal \"{$this->nombre}\" creada correctamente.");
+            $this->toastExito("Sucursal \"{$this->nombre}\" creada correctamente.");
         } else {
             Sucursal::findOrFail($this->editandoId)->update([
                 'nombre'       => $this->nombre,
@@ -149,7 +150,7 @@ class Sucursales extends Component
                 'codigo_postal' => $this->codigoPostal ?: null,
             ]);
 
-            session()->flash('exito', "Sucursal \"{$this->nombre}\" actualizada correctamente.");
+            $this->toastExito("Sucursal \"{$this->nombre}\" actualizada correctamente.");
         }
 
         $this->cancelar();
@@ -159,7 +160,7 @@ class Sucursales extends Component
     {
         $sucursal = Sucursal::findOrFail($id);
         $sucursal->update(['activa' => false]);
-        session()->flash('info', "Sucursal \"{$sucursal->nombre}\" desactivada.");
+        $this->toastInfo("Sucursal \"{$sucursal->nombre}\" desactivada.");
     }
 
     public function cancelar(): void

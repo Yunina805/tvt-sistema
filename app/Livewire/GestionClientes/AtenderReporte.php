@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Carbon\Carbon;
@@ -9,6 +10,7 @@ use Carbon\Carbon;
 #[Layout('layouts.app')]
 class AtenderReporte extends Component
 {
+    use WithToasts;
     // ── Datos del reporte (cargados en mount) ─────────────────────────
     public array $reporte = [];
 
@@ -429,7 +431,7 @@ class AtenderReporte extends Component
         //     SmsService::enviar($responsable->telefono, "Equipo listo para técnico {$this->reporte['folio']}");
         // });
 
-        session()->flash('exito', 'Equipo asignado. Comodato generado automáticamente. SMS enviado al responsable de sucursal.');
+        $this->toastExito('Equipo asignado. Comodato generado automáticamente. SMS enviado al responsable de sucursal.');
     }
 
     // ── Precierre (guarda avance sin cerrar el reporte) ───────────────
@@ -437,7 +439,7 @@ class AtenderReporte extends Component
     public function guardarPrecierre(): void
     {
         // TODO: ReporteServicio::where('folio', $this->reporte['folio'])->update(['estado' => 'En Proceso', ...]);
-        session()->flash('info', 'Avance guardado. El reporte permanece en proceso (Precierre).');
+        $this->toastInfo('Avance guardado. El reporte permanece en proceso (Precierre).');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -459,7 +461,7 @@ class AtenderReporte extends Component
         // SmsService::enviar($nuevoTecnico->telefono, "Nuevo reporte asignado: {$this->reporte['folio']}");
 
         $this->mostrarCambioTecnico = false;
-        session()->flash('exito', 'Técnico reasignado. SMS enviado al nuevo responsable.');
+        $this->toastExito('Técnico reasignado. SMS enviado al nuevo responsable.');
     }
 
     // ── Cierre de suspensión ──────────────────────────────────────────
@@ -472,7 +474,7 @@ class AtenderReporte extends Component
         // ReporteServicio::where('folio',...)->update(['estado' => 'Cerrado', 'horas' => $this->horasAtencion]);
         // SmsService::enviar($cliente->telefono, "Su servicio fue suspendido por falta de pago...");
 
-        session()->flash('exito', 'Suspensión registrada. Estado del cliente actualizado. SMS enviado.');
+        $this->toastExito('Suspensión registrada. Estado del cliente actualizado. SMS enviado.');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -486,7 +488,7 @@ class AtenderReporte extends Component
         // NapSalida::where(...)->update(['estado' => 'LIBRE']);
         // SmsService::enviar($cliente->telefono, "Su servicio fue cancelado...");
 
-        session()->flash('exito', 'Cancelación registrada. Inventarios actualizados. SMS enviado al cliente.');
+        $this->toastExito('Cancelación registrada. Inventarios actualizados. SMS enviado al cliente.');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -504,7 +506,7 @@ class AtenderReporte extends Component
         // NapSalida::where(...)->update(['estado' => 'LIBRE']);
         // Cliente::where('id', $this->reporte['cliente_id'])->update(['estado' => 'CANCELADO']);
 
-        session()->flash('exito', 'Recuperación registrada. Equipo ingresado al inventario.');
+        $this->toastExito('Recuperación registrada. Equipo ingresado al inventario.');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -561,7 +563,7 @@ class AtenderReporte extends Component
         //     SmsService::enviar($cliente->telefono, "Su reporte fue atendido. ¡Gracias por su preferencia!");
         // });
 
-        session()->flash('exito', 'Reporte cerrado exitosamente. Cliente notificado por SMS.');
+        $this->toastExito('Reporte cerrado exitosamente. Cliente notificado por SMS.');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -570,7 +572,7 @@ class AtenderReporte extends Component
     public function exportarPDF(): void
     {
         // TODO: return Pdf::loadView('pdf.reporte', ['reporte' => $this->reporte])->download("reporte-{$this->reporte['folio']}.pdf");
-        session()->flash('exito', "Generando PDF del reporte {$this->reporte['folio']}...");
+        $this->toastExito("Generando PDF del reporte {$this->reporte['folio']}...");
     }
 
     // ── Render ────────────────────────────────────────────────────────

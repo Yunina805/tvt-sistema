@@ -3,9 +3,10 @@
 namespace App\Livewire\Catalogos\Infraestructura;
 
 use App\Imports\InegLocalidadesImport;
-use App\Models\InegEstado;
-use App\Models\InegLocalidad;
-use App\Models\InegMunicipio;
+use App\Models\Infraestructura\InegEstado;
+use App\Models\Infraestructura\InegLocalidad;
+use App\Models\Infraestructura\InegMunicipio;
+use App\Traits\WithToasts;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -15,7 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 #[Layout('layouts.app')]
 class GeografiaInegi extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, WithToasts;
 
     public string $search = '';
     public string $filtroEstadoId = '';
@@ -134,7 +135,7 @@ class GeografiaInegi extends Component
             'codigo_postal'   => $this->nuevoCp ?: null,
         ]);
 
-        session()->flash('exito', "Localidad \"{$this->nuevaLocalidad}\" agregada correctamente.");
+        $this->toastExito("Localidad \"{$this->nuevaLocalidad}\" agregada correctamente.");
         $this->cancelar();
     }
 
@@ -166,9 +167,9 @@ class GeografiaInegi extends Component
             $this->archivoExcel = null;
 
             if ($import->insertados > 0) {
-                session()->flash('exito', "Importación completada: {$import->insertados} localidades nuevas agregadas.");
+                $this->toastExito("Importación completada: {$import->insertados} localidades nuevas agregadas.");
             } else {
-                session()->flash('info', "El archivo fue procesado. Sin localidades nuevas (pueden existir ya en la base de datos).");
+                $this->toastInfo("El archivo fue procesado. Sin localidades nuevas (pueden existir ya en la base de datos).");
             }
 
             $this->modo = 'lista';
@@ -217,7 +218,7 @@ class GeografiaInegi extends Component
             ->when($this->filtroMunicipioId, fn($q) => $q->where('municipio_id', $this->filtroMunicipioId))
             ->orderBy('nombre_localidad');
 
-        $localidades = $query->paginate(10);
+        $localidades = $query->paginate(15);
 
         return view('livewire.catalogos.infraestructura.geografia-inegi', [
             'totalEstados'     => $totalEstados,

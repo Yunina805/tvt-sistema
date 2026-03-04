@@ -8,20 +8,6 @@
         <span class="text-gray-600">Sucursales</span>
     </nav>
 
-    {{-- Flash --}}
-    @if(session('exito'))
-        <div class="mb-4 flex items-center gap-3 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-            <i class="ri-checkbox-circle-line text-emerald-500 text-lg"></i>
-            <p class="text-xs font-bold text-emerald-700">{{ session('exito') }}</p>
-        </div>
-    @endif
-    @if(session('info'))
-        <div class="mb-4 flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-            <i class="ri-information-line text-amber-500 text-lg"></i>
-            <p class="text-xs font-bold text-amber-700">{{ session('info') }}</p>
-        </div>
-    @endif
-
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <div>
@@ -217,8 +203,7 @@
                                         <i class="ri-edit-line text-sm"></i>
                                     </button>
                                     @if($s->activa)
-                                        <button wire:click="eliminar({{ $s->id }})"
-                                            wire:confirm="¿Desactivar esta sucursal?"
+                                        <button @click="$confirm('¿Desactivar esta sucursal?', () => $wire.eliminar({{ $s->id }}))"
                                             class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Desactivar">
                                             <i class="ri-toggle-fill text-sm"></i>
                                         </button>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 #[Layout('layouts.app')]
 class SuspensionClientes extends Component
 {
-    use WithPagination;
+    use WithPagination, WithToasts;
 
     public string $search          = '';
     public string $filterSucursal  = '';
@@ -69,8 +70,7 @@ class SuspensionClientes extends Component
         // });
         // ─────────────────────────────────────────────────────────────
 
-        session()->flash('exito',
-            "Reporte de suspensión generado para cliente {$clienteId}. SMS enviado al cliente y al técnico.");
+        $this->toastExito("Reporte de suspensión generado para cliente {$clienteId}.");
     }
 
     public function render()

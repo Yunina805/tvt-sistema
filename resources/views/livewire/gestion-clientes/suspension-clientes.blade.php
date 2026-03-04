@@ -21,13 +21,6 @@
         </a>
     </div>
 
-    {{-- Flash --}}
-    @if(session()->has('exito'))
-    <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-        <i class="ri-checkbox-circle-fill text-emerald-500 text-xl flex-shrink-0"></i>
-        <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">{{ session('exito') }}</p>
-    </div>
-    @endif
 
     {{-- ================================================================ LEYENDA DE TIPOS DE SUSPENSIÓN ================================================================ --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
@@ -245,8 +238,7 @@
 
                         {{-- Acción --}}
                         <td class="px-5 py-4 whitespace-nowrap text-right">
-                            <button wire:click="generarReporteSuspension('{{ $cliente['id'] }}')"
-                                    wire:confirm="¿Generar reporte de suspensión para {{ $cliente['nombre'] }}?\n\nSe enviará SMS al cliente y {{ $tipoCorte === 'fisico' ? 'al técnico para desconexión física' : 'la sucursal hará el corte lógico' }}."
+                            <button @click="$confirm('¿Suspender a {{ $cliente['nombre'] }}? Se generará el reporte y se notificará al cliente.', () => $wire.generarReporteSuspension('{{ $cliente['id'] }}'), { confirmText: 'Sí, suspender' })"
                                     class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-red-200 hover:bg-red-700 transition-all active:scale-95 whitespace-nowrap">
                                 <i class="ri-pause-circle-line text-sm"></i> Suspender
                             </button>

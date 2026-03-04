@@ -2,8 +2,9 @@
 
 namespace App\Livewire\Catalogos\Infraestructura;
 
-use App\Models\Calle;
-use App\Models\Sucursal;
+use App\Models\Infraestructura\Calle;
+use App\Models\Infraestructura\Sucursal;
+use App\Traits\WithToasts;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -11,7 +12,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class RegistroCalles extends Component
 {
-    use WithPagination;
+    use WithPagination, WithToasts;
 
     public string $modo = 'lista'; // lista | crear | editar
     public string $search = '';
@@ -93,13 +94,13 @@ class RegistroCalles extends Component
                 'sucursal_id'  => $this->sucursalId,
                 'activa'       => true,
             ]);
-            session()->flash('exito', "Calle \"{$this->nombreCalle}\" registrada correctamente.");
+            $this->toastExito("Calle \"{$this->nombreCalle}\" registrada correctamente.");
         } else {
             Calle::findOrFail($this->editandoId)->update([
                 'nombre_calle' => $this->nombreCalle,
                 'sucursal_id'  => $this->sucursalId,
             ]);
-            session()->flash('exito', "Calle \"{$this->nombreCalle}\" actualizada correctamente.");
+            $this->toastExito("Calle \"{$this->nombreCalle}\" actualizada correctamente.");
         }
 
         $this->cancelar();
@@ -109,7 +110,7 @@ class RegistroCalles extends Component
     {
         $calle = Calle::findOrFail($id);
         $calle->update(['activa' => false]);
-        session()->flash('info', "Calle \"{$calle->nombre_calle}\" desactivada.");
+        $this->toastInfo("Calle \"{$calle->nombre_calle}\" desactivada.");
     }
 
     public function cancelar(): void

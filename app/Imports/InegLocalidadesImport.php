@@ -2,9 +2,9 @@
 
 namespace App\Imports;
 
-use App\Models\InegEstado;
-use App\Models\InegLocalidad;
-use App\Models\InegMunicipio;
+use App\Models\Infraestructura\InegEstado;
+use App\Models\Infraestructura\InegLocalidad;
+use App\Models\Infraestructura\InegMunicipio;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;

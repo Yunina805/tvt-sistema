@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Infraestructura;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,10 +26,10 @@ class Poste extends Model
     ];
 
     protected $casts = [
-        'activo' => 'boolean',
-        'latitud_utm' => 'decimal:8',
-        'longitud_utm' => 'decimal:8',
-        'latitud_grados' => 'decimal:8',
+        'activo'          => 'boolean',
+        'latitud_utm'     => 'decimal:8',
+        'longitud_utm'    => 'decimal:8',
+        'latitud_grados'  => 'decimal:8',
         'longitud_grados' => 'decimal:8',
     ];
 

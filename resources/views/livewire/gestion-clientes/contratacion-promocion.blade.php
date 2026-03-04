@@ -20,13 +20,6 @@
         </a>
     </div>
 
-    {{-- Flash --}}
-    @if(session()->has('exito'))
-    <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-        <i class="ri-checkbox-circle-fill text-emerald-500 text-xl flex-shrink-0"></i>
-        <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">{{ session('exito') }}</p>
-    </div>
-    @endif
 
     {{-- ================================================================ INDICADOR DE PASOS ================================================================ --}}
     <div class="mb-8">
@@ -358,8 +351,7 @@
                                 Días de uso + {{ $promoSeleccionada['meses_pago'] }} meses anticipados
                             </p>
                         </div>
-                        <button wire:click="confirmarContratacion"
-                                wire:confirm="¿Confirmar la contratación de {{ $promoSeleccionada['nombre'] }} para {{ $cliente['nombre'] }}? Se aplicará el cobro de ${{ number_format($calculos['total'], 2) }}."
+                        <button @click="$confirm('¿Confirmar promo {{ $promoSeleccionada['nombre'] }} para {{ $cliente['nombre'] }}? Cobro: ${{ number_format($calculos['total'], 2) }}.', () => $wire.confirmarContratacion(), { confirmText: 'Sí, confirmar', title: 'Confirmar Contratación' })"
                                 class="w-full sm:w-auto px-8 py-3.5 bg-orange-500 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-orange-600 shadow-lg shadow-orange-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">
                             <i class="ri-shield-check-line text-base"></i> Confirmar y Activar Promo
                         </button>

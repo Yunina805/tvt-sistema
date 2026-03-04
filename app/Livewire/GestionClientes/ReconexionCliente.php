@@ -2,10 +2,12 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 
 class ReconexionCliente extends Component
 {
+    use WithToasts;
     public $paso = 1; // 1: Tipo, 2: Búsqueda, 3: Datos/Adeudo, 4: Cobro/Nuevo Servicio, 5: Firma/Técnico
     public $tipoReconexion = ''; // 'mismo' o 'otro'
     
@@ -83,7 +85,7 @@ class ReconexionCliente extends Component
 
     public function finalizar()
     {
-        session()->flash('mensaje', 'Reconexión procesada. Reporte enviado al técnico.');
+        $this->toastExito('Reconexión procesada. Reporte enviado al técnico.');
         return redirect()->route('reportes.servicio');
     }
 

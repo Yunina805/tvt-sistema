@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 #[Layout('layouts.app')]
 class RecuperacionEquipos extends Component
 {
-    use WithPagination;
+    use WithPagination, WithToasts;
 
     public string $search          = '';
     public string $filterSucursal  = '';
@@ -51,8 +52,7 @@ class RecuperacionEquipos extends Component
         //          "Nuevo reporte de recuperacion asignado: {$folio}. Cliente: {$cliente->nombre}.");
         // });
 
-        session()->flash('exito',
-            "Reporte de recuperación generado para cliente {$clienteId}. SMS enviado al cliente.");
+        $this->toastExito("Reporte de recuperación generado para cliente {$clienteId}.");
     }
 
     public function render()

@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Catalogos\Infraestructura;
 
-use App\Models\Calle;
-use App\Models\Poste;
-use App\Models\Sucursal;
+use App\Models\Infraestructura\Calle;
+use App\Models\Infraestructura\Poste;
+use App\Models\Infraestructura\Sucursal;
+use App\Traits\WithToasts;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,7 +13,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class InventarioPostes extends Component
 {
-    use WithPagination;
+    use WithPagination, WithToasts;
 
     public string $modo = 'lista'; // lista | crear | editar
     public string $search = '';
@@ -144,10 +145,10 @@ class InventarioPostes extends Component
             $payload['activo']   = true;
 
             Poste::create($payload);
-            session()->flash('exito', "Poste \"{$idPoste}\" registrado correctamente.");
+            $this->toastExito("Poste \"{$idPoste}\" registrado correctamente.");
         } else {
             Poste::findOrFail($this->editandoId)->update($payload);
-            session()->flash('exito', 'Poste actualizado correctamente.');
+            $this->toastExito('Poste actualizado correctamente.');
         }
 
         $this->cancelar();
@@ -157,7 +158,7 @@ class InventarioPostes extends Component
     {
         $poste = Poste::findOrFail($id);
         $poste->update(['activo' => false]);
-        session()->flash('info', "Poste \"{$poste->id_poste}\" desactivado.");
+        $this->toastInfo("Poste \"{$poste->id_poste}\" desactivado.");
     }
 
     public function cancelar(): void

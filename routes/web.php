@@ -64,10 +64,22 @@ use App\Livewire\Catalogos\Television\PonEdfa;
 use App\Livewire\Catalogos\Television\MiniNodosAntenas;
 
 // ─────────────────────────────────────────────────────────────────────────────
+// CATÁLOGOS — CLIENTES
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Catalogos\Clientes\RegistroClientes;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — SERVICIOS / TAREAS
 // ─────────────────────────────────────────────────────────────────────────────
 use App\Livewire\Catalogos\Servicios\RegistroServicios;
 use App\Livewire\Catalogos\Servicios\MatrizActividades;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CATÁLOGOS — PLANTA EXTERNA
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Catalogos\PlantaExterna\TipoFibra;
+use App\Livewire\Catalogos\PlantaExterna\Amplificadores;
+use App\Livewire\Catalogos\PlantaExterna\NodosOpticos;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — ENERGÍA Y ENLACES
@@ -164,11 +176,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // =========================================================================
+    // CATÁLOGOS: CLIENTES
+    // =========================================================================
+    Route::prefix('clientes')->name('clientes.')->group(function () {
+        Route::get('/registro', RegistroClientes::class)->name('registro');
+    });
+
+    // =========================================================================
     // CATÁLOGOS: SERVICIOS / TAREAS
     // =========================================================================
     Route::prefix('servicios')->name('cat.servicios.')->group(function () {
         Route::get('/registro', RegistroServicios::class)->name('registro');
         Route::get('/actividades', MatrizActividades::class)->name('actividades');
+    });
+
+    // =========================================================================
+    // CATÁLOGOS: PLANTA EXTERNA
+    // =========================================================================
+    Route::prefix('planta-externa')->name('planta.')->group(function () {
+        Route::get('/tipo-fibra', TipoFibra::class)->name('tipo-fibra');
+        Route::get('/amplificadores', Amplificadores::class)->name('amplificadores');
+        Route::get('/nodos-opticos', NodosOpticos::class)->name('nodos-opticos');
     });
 
     // =========================================================================

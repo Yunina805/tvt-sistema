@@ -2,10 +2,12 @@
 
 namespace App\Livewire\GestionClientes;
 
+use App\Traits\WithToasts;
 use Livewire\Component;
 
 class CancelacionServicio extends Component
 {
+    use WithToasts;
     public $paso = 1; 
     public $busqueda = '';
     public $cliente = null;
@@ -56,14 +58,14 @@ class CancelacionServicio extends Component
 
     public function generarReporteBaja() {
         if ($this->cliente['saldo'] > 0) {
-            session()->flash('error', 'Debe liquidar el adeudo antes de cancelar.');
+            $this->toastError('Debe liquidar el adeudo antes de cancelar.');
             return;
         }
         $this->paso = 3;
     }
 
     public function finalizarCancelacion() {
-        session()->flash('mensaje', 'Cancelación completada y puerto NAP liberado.');
+        $this->toastExito('Cancelación completada y puerto NAP liberado.');
         return redirect()->route('reportes.servicio');
     }
 

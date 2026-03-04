@@ -20,13 +20,6 @@
         </a>
     </div>
 
-    {{-- Flash --}}
-    @if(session()->has('exito'))
-    <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-        <i class="ri-checkbox-circle-fill text-emerald-500 text-xl flex-shrink-0"></i>
-        <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">{{ session('exito') }}</p>
-    </div>
-    @endif
 
     {{-- Aviso automático nocturno --}}
     <div class="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
@@ -185,8 +178,7 @@
 
                         {{-- Acción --}}
                         <td class="px-5 py-4 whitespace-nowrap text-right">
-                            <button wire:click="generarReporteRecuperacion('{{ $cliente['id'] }}')"
-                                    wire:confirm="¿Generar reporte de recuperación de equipo para {{ $cliente['nombre'] }}? Se enviará SMS al cliente y al técnico asignado."
+                            <button @click="$confirm('¿Recuperar equipo de {{ $cliente['nombre'] }}? Se notificará al cliente y al técnico asignado.', () => $wire.generarReporteRecuperacion('{{ $cliente['id'] }}'), { confirmText: 'Sí, recuperar' })"
                                     class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-amber-200 hover:bg-amber-700 transition-all active:scale-95">
                                 <i class="ri-arrow-down-circle-line text-sm"></i> Recuperar Equipo
                             </button>
