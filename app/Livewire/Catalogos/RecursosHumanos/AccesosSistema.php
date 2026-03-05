@@ -23,7 +23,8 @@ class AccesosSistema extends Component
     // Formulario base
     public string $empleadoId = '';
     public string $rol = '';
-    public array  $modulos = [];
+    public array  $modulos = [];     // módulos habilitados: ['GestionClientes', 'Financiero']
+    public array  $submodulos = [];  // sub-links por módulo: ['Financiero' => ['financiero.tarifas.principales']]
     public bool   $activo = true;
 
     // Credenciales nuevas (modo crear)
@@ -39,18 +40,106 @@ class AccesosSistema extends Component
     public ?string $userEmail = null;
     public ?string $userName  = null;
 
+    /** Módulos disponibles (orden del sidebar) */
     const MODULOS_DISPONIBLES = [
         'GestionClientes', 'Infraestructura', 'RRHH',
-        'Financiero', 'Red', 'Television', 'Energia',
+        'Financiero', 'Clientes', 'Servicios', 'PlantaExterna',
+        'Television', 'Red', 'Energia',
+    ];
+
+    /** Labels amigables para cada módulo */
+    const MODULOS_LABELS = [
+        'GestionClientes' => 'Gestión al Cliente',
+        'Infraestructura' => 'Infraestructura',
+        'RRHH'            => 'Recursos Humanos',
+        'Financiero'      => 'Financiero',
+        'Clientes'        => 'Clientes',
+        'Servicios'       => 'Servicios',
+        'PlantaExterna'   => 'Planta Externa',
+        'Television'      => 'Televisión',
+        'Red'             => 'Internet / Red',
+        'Energia'         => 'Energía',
+    ];
+
+    /** Sub-links disponibles por módulo (clave de ruta => label) */
+    const SUBMODULOS_DISPONIBLES = [
+        'GestionClientes' => [
+            'contrataciones-nuevas'   => 'Contrataciones Nuevas',
+            'servicios-adicionales'   => 'Servicios Adicionales',
+            'contratacion-promocion'  => 'Contratación Promocional',
+            'pago-mensualidad'        => 'Pago Mensualidad',
+            'estado-cuenta'           => 'Estado de Cuenta',
+            'suspension-falta-pago'   => 'Suspensión por Falta de Pago',
+            'reconexion-cliente'      => 'Reconexión de Cliente',
+            'cancelacion-servicio'    => 'Cancelación de Servicio',
+            'recuperacion-equipos'    => 'Recuperación de Equipos',
+            'reportes-servicio'       => 'Reportes de Servicio',
+        ],
+        'Infraestructura' => [
+            'infraestructura.geografia'  => 'Geografía INEGI',
+            'infraestructura.sucursales' => 'Sucursales',
+            'infraestructura.calles'     => 'Registro de Calles',
+            'infraestructura.postes'     => 'Inventario de Postes',
+        ],
+        'RRHH' => [
+            'rrhh.empleados'  => 'Registro Empleados',
+            'rrhh.vacaciones' => 'Vacaciones',
+            'rrhh.descanso'   => 'Descanso Mensual',
+            'rrhh.accesos'    => 'Accesos al Sistema',
+            'rrhh.permisos'   => 'Permisos',
+        ],
+        'Financiero' => [
+            'financiero.tarifas.principales' => 'Tarifas Principales',
+            'financiero.tarifas.adicionales' => 'Tarifas Adicionales',
+            'financiero.promociones'         => 'Promociones Estacionales',
+            'financiero.descuentos'          => 'Descuentos',
+            'financiero.ingresos.egresos'    => 'Tipo Ingresos / Egresos',
+            'financiero.proveedores'         => 'Proveedores / Bancos',
+        ],
+        'Clientes' => [
+            'clientes.registro' => 'Registro de Clientes',
+        ],
+        'Servicios' => [
+            'cat.servicios.registro'    => 'Registro de Servicios',
+            'cat.servicios.actividades' => 'Actividades de Servicio',
+        ],
+        'PlantaExterna' => [
+            'planta.tipo-fibra'      => 'Tipo de Fibra',
+            'planta.amplificadores'  => 'Amplificadores',
+            'planta.nodos-opticos'   => 'Nodos Ópticos',
+        ],
+        'Television' => [
+            'tv.mininodos'   => 'Mininodos y Antenas',
+            'tv.canales'     => 'Canales y Satélites',
+            'tv.moduladores' => 'Moduladores',
+            'tv.transmisores'=> 'Transmisores',
+            'tv.pon-edfa'    => 'PON EDFA',
+        ],
+        'Red' => [
+            'red.onus'     => 'ONUs',
+            'red.naps'     => 'NAPs',
+            'red.olt'      => 'OLT',
+            'red.starlinks'=> 'Starlinks / ISP Telmex',
+            'red.ccr'      => 'CCR / Switches',
+            'red.vlans'    => 'Winbox / VLANs',
+        ],
+        'Energia' => [
+            'energia.ctc'   => 'Catálogo CTC',
+            'energia.ups'   => 'UPS / Plantas de Emergencia',
+            'energia.fibra' => 'Enlaces de Fibra',
+        ],
     ];
 
     protected function rules(): array
     {
+        $valoresModulos = implode(',', self::MODULOS_DISPONIBLES);
+
         $base = [
             'empleadoId' => 'required|exists:empleados,id',
             'rol'        => 'required|in:ADMINISTRADOR,GERENTE,SUPERVISOR,OPERADOR,CAJA,LECTURA',
             'modulos'    => 'nullable|array',
-            'modulos.*'  => 'in:GestionClientes,Infraestructura,RRHH,Financiero,Red,Television,Energia',
+            'modulos.*'  => "in:{$valoresModulos}",
+            'submodulos' => 'nullable|array',
         ];
 
         if ($this->modo === 'crear') {
@@ -70,6 +159,26 @@ class AccesosSistema extends Component
 
     public function updatedSearch(): void { $this->resetPage(); }
 
+    /**
+     * Cuando cambia el array de módulos habilitados:
+     * - Inicializa sub-array vacío para módulos recién marcados
+     * - Elimina sub-links de módulos desmarcados
+     */
+    public function updatedModulos(): void
+    {
+        foreach ($this->modulos as $mod) {
+            if (!isset($this->submodulos[$mod])) {
+                $this->submodulos[$mod] = [];
+            }
+        }
+
+        foreach (array_keys($this->submodulos) as $mod) {
+            if (!in_array($mod, $this->modulos)) {
+                unset($this->submodulos[$mod]);
+            }
+        }
+    }
+
     public function nuevoAcceso(): void
     {
         $this->resetForm();
@@ -82,16 +191,37 @@ class AccesosSistema extends Component
         $this->editandoId = $id;
         $this->empleadoId = (string) $acc->empleado_id;
         $this->rol        = $acc->rol;
-        $this->modulos    = $acc->modulos ?? [];
         $this->activo     = $acc->activo;
         $this->userEmail  = $acc->usuario?->email;
         $this->userName   = $acc->usuario?->name;
+
+        // Cargar permisos: soporta formato viejo (array plano) y nuevo (objeto)
+        $permisos = $acc->modulos ?? [];
+        if (!empty($permisos) && array_is_list($permisos)) {
+            // Formato viejo: ['GestionClientes', 'Financiero'] → convertir
+            $this->modulos    = $permisos;
+            $this->submodulos = array_fill_keys($permisos, []);
+        } else {
+            // Formato nuevo: ['GestionClientes' => [], 'Financiero' => [...]]
+            $this->modulos    = array_keys($permisos);
+            $this->submodulos = $permisos;
+        }
+
         $this->modo = 'editar';
     }
 
     public function guardar(): void
     {
         $this->validate();
+
+        // Construir objeto de permisos: módulo => [sub-links] (vacío = todos)
+        $permisos = null;
+        if (!empty($this->modulos)) {
+            $permisos = [];
+            foreach ($this->modulos as $modulo) {
+                $permisos[$modulo] = array_values($this->submodulos[$modulo] ?? []);
+            }
+        }
 
         if ($this->modo === 'crear') {
             if ($this->password !== $this->passwordConfirmation) {
@@ -117,7 +247,7 @@ class AccesosSistema extends Component
                 'empleado_id' => $this->empleadoId,
                 'user_id'     => $user->id,
                 'rol'         => $this->rol,
-                'modulos'     => $this->modulos ?: null,
+                'modulos'     => $permisos,
                 'activo'      => $this->activo,
             ]);
 
@@ -141,7 +271,7 @@ class AccesosSistema extends Component
 
             $acc->update([
                 'rol'     => $this->rol,
-                'modulos' => $this->modulos ?: null,
+                'modulos' => $permisos,
                 'activo'  => $this->activo,
             ]);
 
@@ -169,7 +299,7 @@ class AccesosSistema extends Component
     private function resetForm(): void
     {
         $this->reset([
-            'empleadoId', 'rol', 'modulos', 'editandoId',
+            'empleadoId', 'rol', 'modulos', 'submodulos', 'editandoId',
             'email', 'password', 'passwordConfirmation',
             'newPassword', 'newPasswordConfirmation',
             'userEmail', 'userName',
@@ -205,13 +335,15 @@ class AccesosSistema extends Component
             ->paginate(15);
 
         return view('livewire.catalogos.recursos-humanos.accesos-sistema', [
-            'totalAccesos'       => $totalAccesos,
-            'totalActivos'       => $totalActivos,
-            'porRol'             => $porRol,
-            'empleadosSinAcceso' => $empleadosSinAcceso,
-            'empleados'          => $empleados,
-            'accesos'            => $accesos,
-            'modulosDisponibles' => self::MODULOS_DISPONIBLES,
+            'totalAccesos'          => $totalAccesos,
+            'totalActivos'          => $totalActivos,
+            'porRol'                => $porRol,
+            'empleadosSinAcceso'    => $empleadosSinAcceso,
+            'empleados'             => $empleados,
+            'accesos'               => $accesos,
+            'modulosDisponibles'    => self::MODULOS_DISPONIBLES,
+            'modulosLabels'         => self::MODULOS_LABELS,
+            'submodulosDisponibles' => self::SUBMODULOS_DISPONIBLES,
         ]);
     }
 }

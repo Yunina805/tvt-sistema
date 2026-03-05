@@ -190,16 +190,82 @@
                 </div>
             @endif
 
-            {{-- Módulos --}}
+            {{-- Módulos y sub-links --}}
             <div class="border-t border-dashed border-gray-100 pt-4">
-                <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-2">Módulos Permitidos <span class="text-gray-300 font-medium normal-case tracking-normal">(vacío = todos)</span></label>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        Módulos y Accesos Permitidos
+                        <span class="text-gray-300 font-medium normal-case tracking-normal ml-1">(vacío = acceso total)</span>
+                    </label>
+                    @if(!empty($modulos))
+                        <span class="text-[9px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
+                            {{ count($modulos) }} módulo(s) seleccionado(s)
+                        </span>
+                    @else
+                        <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <i class="ri-check-line"></i> Acceso completo al sistema
+                        </span>
+                    @endif
+                </div>
+
+                <div class="space-y-2">
                     @foreach($modulosDisponibles as $modulo)
-                        <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-indigo-50 border border-gray-100">
-                            <input wire:model="modulos" type="checkbox" value="{{ $modulo }}"
-                                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300">
-                            <span class="text-[10px] text-gray-700 font-medium">{{ $modulo }}</span>
-                        </label>
+                        @php
+                            $checked    = in_array($modulo, $modulos);
+                            $subs       = $submodulosDisponibles[$modulo] ?? [];
+                            $subChecked = $submodulos[$modulo] ?? [];
+                            $label      = $modulosLabels[$modulo] ?? $modulo;
+                            $todosLos   = empty($subChecked);
+                        @endphp
+                        <div class="border rounded-xl overflow-hidden transition-colors
+                            {{ $checked ? 'border-indigo-200 bg-indigo-50/20' : 'border-gray-100 bg-white' }}">
+
+                            {{-- Cabecera del módulo --}}
+                            <label class="flex items-center gap-3 cursor-pointer px-3 py-2.5 hover:bg-indigo-50/40 transition-colors">
+                                <input wire:model.live="modulos" type="checkbox" value="{{ $modulo }}"
+                                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300 shrink-0">
+                                <span class="flex-1 text-[10px] font-black uppercase tracking-wide
+                                    {{ $checked ? 'text-indigo-700' : 'text-gray-600' }}">
+                                    {{ $label }}
+                                </span>
+                                @if($checked)
+                                    @if($todosLos)
+                                        <span class="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                                            <i class="ri-check-double-line"></i> Todas las páginas
+                                        </span>
+                                    @else
+                                        <span class="text-[8px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                                            {{ count($subChecked) }}/{{ count($subs) }} páginas
+                                        </span>
+                                    @endif
+                                @endif
+                            </label>
+
+                            {{-- Panel de sub-links (solo si módulo activo y tiene sub-links) --}}
+                            @if($checked && count($subs) > 0)
+                                <div class="border-t border-indigo-100 bg-white px-4 py-3">
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-1.5">
+                                        <i class="ri-layout-grid-line text-indigo-300"></i>
+                                        Páginas permitidas
+                                        <span class="font-normal normal-case text-gray-300 tracking-normal">(vacío = todas)</span>
+                                    </p>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+                                        @foreach($subs as $key => $sublabel)
+                                            <label class="flex items-center gap-1.5 cursor-pointer px-2 py-1.5 rounded-lg
+                                                hover:bg-indigo-50 transition-colors
+                                                {{ in_array($key, $subChecked) ? 'bg-indigo-50/60' : '' }}">
+                                                <input wire:model="submodulos.{{ $modulo }}" type="checkbox" value="{{ $key }}"
+                                                    class="rounded border-gray-300 text-indigo-500 focus:ring-indigo-300 w-3 h-3 shrink-0">
+                                                <span class="text-[9px] font-medium leading-tight
+                                                    {{ in_array($key, $subChecked) ? 'text-indigo-700' : 'text-gray-500' }}">
+                                                    {{ $sublabel }}
+                                                </span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -268,13 +334,27 @@
                             </td>
                             <td class="px-5 py-3">
                                 @if($acc->modulos)
+                                    @php
+                                        // Soporte para formato viejo (array plano) y nuevo (objeto)
+                                        $permisos = $acc->modulos;
+                                        $esViejo  = !empty($permisos) && array_is_list($permisos);
+                                    @endphp
                                     <div class="flex flex-wrap gap-1">
-                                        @foreach($acc->modulos as $mod)
-                                            <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[8px] font-bold">{{ $mod }}</span>
-                                        @endforeach
+                                        @if($esViejo)
+                                            @foreach($permisos as $mod)
+                                                <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[8px] font-bold">{{ $mod }}</span>
+                                            @endforeach
+                                        @else
+                                            @foreach($permisos as $mod => $subs)
+                                                <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[8px] font-bold"
+                                                    title="{{ empty($subs) ? 'Todas las páginas' : implode(', ', $subs) }}">
+                                                    {{ $mod }}{{ !empty($subs) ? ' ·' . count($subs) : '' }}
+                                                </span>
+                                            @endforeach
+                                        @endif
                                     </div>
                                 @else
-                                    <span class="text-gray-300 text-[9px]">Todos</span>
+                                    <span class="text-gray-300 text-[9px]">Acceso total</span>
                                 @endif
                             </td>
                             <td class="px-5 py-3 text-gray-500 font-mono">
