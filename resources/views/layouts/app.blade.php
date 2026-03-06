@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    x-data="{
+        sidebarOpen: true,
+        mobileSidebarOpen: false,
+        darkMode: localStorage.getItem('tvtDarkMode') === '1',
+        toggleDark() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('tvtDarkMode', this.darkMode ? '1' : '0');
+        }
+    }"
+    :class="{ dark: darkMode }"
+>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        {{-- Anti-FOUC: aplica dark class antes de que Alpine cargue --}}
+        <script>if(localStorage.getItem('tvtDarkMode')==='1')document.documentElement.classList.add('dark');</script>
 
         <title>{{ config('app.name', 'TVT Sistema') }}</title>
         <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
@@ -656,7 +669,13 @@
 
                     </div>
 
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        {{-- Toggle modo oscuro --}}
+                        <button @click="toggleDark()"
+                                :title="darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                                class="p-2.5 text-gray-500 bg-white border border-gray-200 shadow-sm hover:text-amber-500 hover:bg-amber-50 hover:border-amber-200 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-100">
+                            <i class="text-lg leading-none" :class="darkMode ? 'ri-sun-line' : 'ri-moon-line'"></i>
+                        </button>
                         <livewire:layout.notificaciones-top-bar />
                         <livewire:layout.navigation />
                     </div>

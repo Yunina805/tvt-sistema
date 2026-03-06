@@ -52,77 +52,124 @@
     </div>
 
     {{-- ================================================================
-         PASO 1 — IDENTIFICAR CLIENTE
-    ================================================================ --}}
-    @if($paso == 1)
-    <div class="max-w-2xl mx-auto">
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+     PASO 1 — IDENTIFICAR CLIENTE
+================================================================ --}}
+@if($paso == 1)
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
 
-            {{-- Header --}}
-            <div class="bg-orange-50 border-b border-orange-100 px-6 py-5 text-center">
-                <div class="w-14 h-14 bg-white border border-orange-100 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
-                    <i class="ri-star-smile-line text-orange-500 text-2xl"></i>
-                </div>
-                <p class="text-[11px] font-black text-orange-800 uppercase tracking-widest">Identificar Cliente para Aplicar Promoción</p>
-                <p class="text-[10px] text-orange-500 mt-1 font-medium">Solo clientes con estado Activo pueden contratar promociones</p>
+        {{-- Header --}}
+        <div class="bg-orange-50/50 border-b border-orange-100 px-6 py-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <i class="ri-star-smile-line text-orange-500 text-lg"></i>
             </div>
-
-            {{-- Búsqueda --}}
-            <div class="p-5 space-y-3">
-                <div class="flex gap-3">
-                    <div class="relative flex-1">
-                        <i class="ri-user-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
-                        <input type="text" wire:model="search"
-                               placeholder="Nombre, ID o teléfono del cliente..."
-                               wire:keydown.enter="buscarCliente"
-                               class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-colors placeholder:text-gray-300">
-                    </div>
-                    <button wire:click="buscarCliente"
-                            class="px-5 py-2.5 bg-gray-900 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-sm">
-                        Consultar
-                    </button>
-                </div>
-
-                {{-- Resultados de búsqueda --}}
-                @if(count($resultados) > 0)
-                <div class="space-y-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
-                        {{ count($resultados) }} resultado(s) — Seleccione un cliente
-                    </p>
-                    @foreach($resultados as $r)
-                    <button wire:click="seleccionarCliente({{ json_encode($r) }})"
-                            class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl hover:border-orange-300 hover:bg-orange-50/40 transition-all text-left group">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-black text-gray-900 uppercase tracking-tight group-hover:text-orange-700 transition-colors">{{ $r['nombre'] }}</p>
-                                <div class="flex items-center gap-3 mt-1 flex-wrap">
-                                    <span class="font-mono text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">{{ $r['id'] }}</span>
-                                    <span class="text-[10px] font-bold text-gray-500 uppercase">{{ $r['servicio'] }}</span>
-                                    <span class="text-[10px] font-bold text-gray-400">{{ $r['sucursal'] }}</span>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-end gap-1.5 flex-shrink-0 ml-3">
-                                <span class="text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">{{ $r['estado'] }}</span>
-                                <span class="text-sm font-black text-gray-800">${{ number_format($r['tarifa'], 2) }}<span class="text-[9px] text-gray-400 font-bold">/mes</span></span>
-                            </div>
-                        </div>
-                        <div class="mt-2 flex items-center gap-1 text-[9px] font-black text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i class="ri-arrow-right-circle-line"></i> Clic para seleccionar
-                        </div>
-                    </button>
-                    @endforeach
-                </div>
-                @elseif(strlen($search) >= 2 && count($resultados) === 0)
-                <div class="text-center py-8">
-                    <i class="ri-user-unfollow-line text-3xl text-gray-200 block mb-2"></i>
-                    <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest">Sin coincidencias para "{{ $search }}"</p>
-                </div>
-                @endif
+            <div>
+                <p class="text-xs font-black text-gray-800 uppercase tracking-widest">Identificar Cliente</p>
+                <p class="text-[10px] font-bold text-orange-500 mt-0.5 uppercase tracking-wider">Solo clientes activos aplican para promoción</p>
             </div>
         </div>
-    </div>
-    @endif
 
+        {{-- Búsqueda --}}
+        <div class="p-6">
+            <div class="flex gap-3 mb-4">
+                <div class="relative flex-1">
+                    <i class="ri-user-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                    <input type="text" wire:model="search"
+                           placeholder="Nombre, ID o teléfono del cliente..."
+                           wire:keydown.enter="buscarCliente"
+                           class="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:ring-4 focus:ring-orange-50 focus:border-orange-300 transition-all placeholder:text-gray-300 placeholder:font-medium shadow-sm">
+                    
+                    {{-- Spinner de carga --}}
+                    <div wire:loading wire:target="buscarCliente" class="absolute right-4 top-1/2 -translate-y-1/2">
+                        <i class="ri-loader-4-line animate-spin text-orange-500 text-lg"></i>
+                    </div>
+                </div>
+                <button wire:click="buscarCliente"
+                        class="px-5 py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-sm">
+                    Consultar
+                </button>
+            </div>
+
+            {{-- Estado inicial / Vacío --}}
+            @if(strlen($search) < 2 && count($resultados) === 0)
+            <div class="text-center py-10 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-gray-100">
+                    <i class="ri-keyboard-line text-xl text-gray-300"></i>
+                </div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Ingrese los datos y presione consultar</p>
+            </div>
+            @endif
+
+            {{-- Sin resultados --}}
+            @if(strlen($search) >= 2 && count($resultados) === 0)
+            <div class="text-center py-10 bg-red-50/30 rounded-xl border border-dashed border-red-100">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-red-100">
+                    <i class="ri-user-unfollow-line text-xl text-red-300"></i>
+                </div>
+                <p class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Sin coincidencias para "<span class="text-red-500">{{ $search }}</span>"</p>
+            </div>
+            @endif
+
+            {{-- Resultados (Lista Compacta con Scroll) --}}
+            @if(count($resultados) > 0)
+            <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                
+                {{-- Encabezado de la tablita --}}
+                <div class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-100">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Resultados ({{ count($resultados) }})</span>
+                </div>
+
+                {{-- Contenedor con Scroll --}}
+                <div class="max-h-[280px] overflow-y-auto sidebar-scroll divide-y divide-gray-100">
+                    @foreach($resultados as $r)
+                    <div class="flex items-center justify-between p-3 hover:bg-orange-50/50 transition-colors group">
+                        
+                        {{-- Info Compacta --}}
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
+                                <i class="ri-user-3-line text-gray-400 group-hover:text-orange-500"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <p class="text-xs font-black text-gray-900 uppercase tracking-tight truncate">
+                                        {{ $r['nombre'] }}
+                                    </p>
+                                    <span class="text-[8px] font-black px-1.5 py-0.5 rounded uppercase
+                                        {{ $r['estado'] === 'Activo' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100' }}">
+                                        {{ $r['estado'] }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 text-[9px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <span class="font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-600">{{ $r['id'] }}</span>
+                                    <span>•</span>
+                                    <span class="truncate max-w-[120px]" title="{{ $r['sucursal'] }}"><i class="ri-store-2-line mr-0.5"></i> {{ $r['sucursal'] }}</span>
+                                    <span>•</span>
+                                    <span class="text-orange-600"><i class="ri-router-line mr-0.5"></i> {{ $r['servicio'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Botón de Acción (Con tarifa) --}}
+                        <div class="flex items-center gap-3 flex-shrink-0 ml-3">
+                            <div class="hidden sm:block text-right">
+                                <p class="text-sm font-black text-gray-900 leading-none">${{ number_format($r['tarifa'], 2) }}</p>
+                                <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Mensualidad</p>
+                            </div>
+                            <button wire:click="seleccionarCliente({{ json_encode($r) }})"
+                                    class="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-sm">
+                                Seleccionar
+                            </button>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+        </div>
+    </div>
+</div>
+@endif
     {{-- ================================================================
          PASO 2 — SELECCIONAR PROMOCIÓN + LIQUIDACIÓN
     ================================================================ --}}

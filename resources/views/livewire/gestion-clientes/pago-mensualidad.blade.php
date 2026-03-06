@@ -60,87 +60,112 @@
     </div>
 
     {{-- ================================================================
-         PASO 1 — BÚSQUEDA DE CLIENTE
+     PASO 1 — BÚSQUEDA DE CLIENTE
     ================================================================ --}}
     @if($paso === 1)
     <div class="max-w-2xl mx-auto">
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            
+            {{-- Cabecera --}}
+            <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <i class="ri-user-search-line text-indigo-600 text-lg"></i>
                 </div>
                 <div>
-                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Consultar Suscriptor</p>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Busque por nombre, teléfono, ID de cliente o dirección</p>
+                    <p class="text-xs font-black text-gray-800 uppercase tracking-widest">Consultar Suscriptor</p>
+                    <p class="text-[10px] font-bold text-gray-400 mt-0.5 uppercase tracking-wider">Busque por nombre, teléfono o ID</p>
                 </div>
             </div>
 
-            <div class="p-6 space-y-4">
+            <div class="p-6">
                 {{-- Campo de búsqueda --}}
-                <div class="relative">
-                    <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                <div class="relative mb-4">
+                    <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
                     <input type="text"
-                           wire:model.live.debounce.350ms="busqueda"
-                           wire:keyup="buscarCliente"
-                           placeholder="Ej: Juan Pérez, 9511234567, 01-0001234, Independencia..."
-                           autofocus
-                           class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium
-                                  focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors placeholder:text-gray-300">
+                        wire:model.live.debounce.350ms="busqueda"
+                        wire:keyup="buscarCliente"
+                        placeholder="Ej: Juan Pérez, 9511234567, 01-0001234..."
+                        autofocus
+                        class="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800
+                                focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all placeholder:text-gray-300 placeholder:font-medium shadow-sm">
+                    
+                    {{-- Spinner de carga de Livewire (Feedback visual) --}}
+                    <div wire:loading wire:target="busqueda" class="absolute right-4 top-1/2 -translate-y-1/2">
+                        <i class="ri-loader-4-line animate-spin text-indigo-500 text-lg"></i>
+                    </div>
                 </div>
 
                 {{-- Estado inicial --}}
                 @if(strlen($busqueda) < 3)
-                <div class="text-center py-8">
-                    <i class="ri-search-2-line text-5xl text-gray-200 block mb-2"></i>
-                    <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Ingrese al menos 3 caracteres</p>
+                <div class="text-center py-10 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-gray-100">
+                        <i class="ri-keyboard-line text-xl text-gray-300"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Ingrese al menos 3 caracteres para buscar</p>
                 </div>
                 @endif
 
                 {{-- Sin resultados --}}
                 @if(strlen($busqueda) >= 3 && count($resultados) === 0)
-                <div class="text-center py-8">
-                    <i class="ri-user-unfollow-line text-4xl text-gray-200 block mb-2"></i>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Sin resultados para "{{ $busqueda }}"</p>
-                    <p class="text-[10px] text-gray-300 mt-1">Intente con nombre, teléfono o ID del cliente</p>
+                <div class="text-center py-10 bg-red-50/30 rounded-xl border border-dashed border-red-100">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-red-100">
+                        <i class="ri-user-unfollow-line text-xl text-red-300"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Sin resultados para "<span class="text-red-500">{{ $busqueda }}</span>"</p>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-1">Verifique la ortografía o intente con el teléfono</p>
                 </div>
                 @endif
 
-                {{-- Resultados --}}
+                {{-- Resultados (Lista Compacta con Scroll) --}}
                 @if(count($resultados) > 0)
-                <div class="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
-                    @foreach($resultados as $cliente)
-                    <button wire:click="seleccionarCliente({{ json_encode($cliente) }})"
-                            class="w-full px-5 py-4 text-left hover:bg-indigo-50 transition-colors group flex items-center justify-between gap-3">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap mb-1">
-                                <p class="text-sm font-black text-gray-900 uppercase tracking-tight group-hover:text-indigo-700">
-                                    {{ $cliente['nombre'] }}
-                                </p>
-                                <span class="text-[9px] font-mono font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                                    {{ $cliente['id'] }}
-                                </span>
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded uppercase
-                                    {{ $cliente['estado'] === 'Activo' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600' }}">
-                                    {{ $cliente['estado'] }}
-                                </span>
+                <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                    
+                    {{-- Encabezado de la tablita --}}
+                    <div class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-100">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Suscriptores Encontrados ({{ count($resultados) }})</span>
+                    </div>
+
+                    {{-- Contenedor con Scroll --}}
+                    <div class="max-h-[280px] overflow-y-auto sidebar-scroll divide-y divide-gray-100">
+                        @foreach($resultados as $cliente)
+                        <div class="flex items-center justify-between p-3 hover:bg-indigo-50/50 transition-colors group">
+                            
+                            {{-- Info Compacta --}}
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                                    <i class="ri-user-3-line text-gray-400 group-hover:text-indigo-500"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 mb-0.5">
+                                        <p class="text-xs font-black text-gray-900 uppercase tracking-tight truncate">
+                                            {{ $cliente['nombre'] }}
+                                        </p>
+                                        <span class="text-[8px] font-black px-1.5 py-0.5 rounded uppercase
+                                            {{ $cliente['estado'] === 'Activo' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100' }}">
+                                            {{ $cliente['estado'] }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-[9px] font-bold text-gray-500 uppercase tracking-wider">
+                                        <span class="font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-600">{{ $cliente['id'] }}</span>
+                                        <span>•</span>
+                                        <span class="truncate max-w-[150px]" title="{{ $cliente['direccion'] }}">{{ $cliente['direccion'] }}</span>
+                                        <span>•</span>
+                                        <span class="{{ $cliente['saldo'] > 0 ? 'text-red-500' : 'text-emerald-500' }}">Saldo: ${{ number_format($cliente['saldo'], 2) }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1 truncate">
-                                <i class="ri-map-pin-2-line text-orange-400 flex-shrink-0"></i> {{ $cliente['direccion'] }}
-                            </p>
-                            <div class="flex items-center gap-4 mt-1">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1">
-                                    <i class="ri-router-line text-indigo-400"></i> {{ $cliente['servicio'] }}
-                                </p>
-                                <p class="text-[10px] font-black text-red-500 flex items-center gap-1 flex-shrink-0">
-                                    <i class="ri-money-dollar-circle-line"></i> ${{ number_format($cliente['saldo'], 2) }}
-                                </p>
-                            </div>
+
+                            {{-- Botón de Acción --}}
+                            <button wire:click="seleccionarCliente({{ json_encode($cliente) }})"
+                                    class="flex-shrink-0 ml-3 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-sm">
+                                Seleccionar
+                            </button>
                         </div>
-                        <i class="ri-arrow-right-circle-line text-gray-300 text-2xl group-hover:text-indigo-400 transition-colors flex-shrink-0"></i>
-                    </button>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
                 @endif
+
             </div>
         </div>
     </div>
