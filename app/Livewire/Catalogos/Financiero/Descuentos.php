@@ -127,6 +127,14 @@ class Descuentos extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroEstado = '';
+        $this->filtroPrincipal = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $descuentos = DescuentoTarifa::with(['tarifaPrincipal', 'usuario'])

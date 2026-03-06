@@ -19,6 +19,7 @@ class InventarioPostes extends Component
     public string $search = '';
     public string $filtroSucursalId = '';
     public string $filtroTipo = '';
+    public string $filtroEstado = '';
     public ?int $editandoId = null;
 
     // Formulario
@@ -175,6 +176,15 @@ class InventarioPostes extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroSucursalId = '';
+        $this->filtroTipo = '';
+        $this->filtroEstado = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $totalPostes = Poste::where('activo', true)->count();
@@ -185,7 +195,7 @@ class InventarioPostes extends Component
         $sucursales = Sucursal::where('activa', true)->orderBy('nombre')->get(['id', 'clave', 'nombre']);
 
         $postes = Poste::with(['sucursal', 'calle'])
-            ->where('activo', true)
+            ->when($this->filtroEstado !== '', fn($q) => $q->where('activo', $this->filtroEstado === '1'), fn($q) => $q->where('activo', true))
             ->when($this->search, fn($q) => $q->where(function ($sub) {
                 $sub->where('id_poste', 'like', "%{$this->search}%")
                     ->orWhere('numero_poste', 'like', "%{$this->search}%")

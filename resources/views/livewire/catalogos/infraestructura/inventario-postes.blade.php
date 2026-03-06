@@ -219,30 +219,77 @@
         </div>
     @endif
 
+    {{-- Panel de Filtros --}}
+    @php $hayFiltros = $search || $filtroSucursalId || $filtroTipo || $filtroEstado !== ''; @endphp
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-4" x-data="{ openFilters: true }">
+        <button type="button" @click="openFilters = !openFilters"
+            class="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50/60 transition-colors rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-pink-50 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="ri-equalizer-2-line text-pink-500 text-base"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs font-black uppercase tracking-widest text-gray-700">Filtros de Búsqueda</p>
+                    <p class="text-[9px] font-bold uppercase tracking-widest mt-0.5 {{ $hayFiltros ? 'text-pink-500' : 'text-gray-400' }}">
+                        {{ $hayFiltros ? 'Filtros activos · resultados filtrados' : 'Sin filtros · mostrando todo el catálogo' }}
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                @if($hayFiltros)
+                <span wire:click.stop="limpiarFiltros"
+                    class="flex items-center gap-1 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer">
+                    <i class="ri-close-circle-line text-xs"></i> Limpiar filtros
+                </span>
+                @endif
+                <i class="ri-arrow-down-s-line text-gray-400 text-lg transition-transform duration-200" :class="openFilters && 'rotate-180'"></i>
+            </div>
+        </button>
+        <div x-show="openFilters" x-cloak class="border-t border-gray-100 px-5 pt-4 pb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="sm:col-span-2">
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Búsqueda General</label>
+                    <div class="relative">
+                        <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"></i>
+                        <input wire:model.live.debounce.300ms="search" type="text" placeholder="ID, número, zona..."
+                            class="w-full pl-9 pr-3 py-2.5 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Sucursal</label>
+                    <select wire:model.live="filtroSucursalId"
+                        class="w-full py-2.5 px-3 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all">
+                        <option value="">Todas las sucursales</option>
+                        @foreach($sucursales as $s)
+                            <option value="{{ $s->id }}">{{ $s->clave }} — {{ $s->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Tipo de Poste</label>
+                    <select wire:model.live="filtroTipo"
+                        class="w-full py-2.5 px-3 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all">
+                        <option value="">Todos los tipos</option>
+                        <option value="CFE">CFE</option>
+                        <option value="TELMEX">Telmex</option>
+                        <option value="PROPIO_TVT">Propio TVT</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Estado</label>
+                    <select wire:model.live="filtroEstado"
+                        class="w-full py-2.5 px-3 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all">
+                        <option value="">Activos</option>
+                        <option value="1">Activos</option>
+                        <option value="0">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Tabla --}}
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
-        <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-3 flex-wrap">
-            <div class="flex-1 min-w-[180px] relative">
-                <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"></i>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar por ID, número, zona..."
-                    class="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300">
-            </div>
-            <select wire:model.live="filtroSucursalId"
-                class="border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 min-w-[160px]">
-                <option value="">Todas las sucursales</option>
-                @foreach($sucursales as $s)
-                    <option value="{{ $s->id }}">{{ $s->clave }} — {{ $s->nombre }}</option>
-                @endforeach
-            </select>
-            <select wire:model.live="filtroTipo"
-                class="border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300">
-                <option value="">Todos los tipos</option>
-                <option value="CFE">CFE</option>
-                <option value="TELMEX">Telmex</option>
-                <option value="PROPIO_TVT">Propio TVT</option>
-            </select>
-        </div>
-
         <div class="overflow-x-auto">
             <table class="w-full text-xs">
                 <thead>

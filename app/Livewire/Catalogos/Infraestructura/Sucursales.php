@@ -18,6 +18,8 @@ class Sucursales extends Component
 
     public string $modo = 'lista'; // lista | crear | editar
     public string $search = '';
+    public string $filtroTipoRed = '';
+    public string $filtroEstado  = '';
     public ?int $editandoId = null;
 
     // Formulario
@@ -52,10 +54,9 @@ class Sucursales extends Component
         'codigoPostal' => 'código postal',
     ];
 
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
+    public function updatedSearch(): void { $this->resetPage(); }
+    public function updatedFiltroTipoRed(): void { $this->resetPage(); }
+    public function updatedFiltroEstado(): void { $this->resetPage(); }
 
     public function updatedEstadoId(): void
     {
@@ -176,6 +177,14 @@ class Sucursales extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroTipoRed = '';
+        $this->filtroEstado = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $estados = InegEstado::orderBy('nombre_estado')->get(['id', 'clave_estado', 'nombre_estado']);
@@ -185,6 +194,8 @@ class Sucursales extends Component
                 $sub->where('nombre', 'like', "%{$this->search}%")
                     ->orWhere('clave', 'like', "%{$this->search}%");
             }))
+            ->when($this->filtroTipoRed, fn($q) => $q->where('tipo_red', $this->filtroTipoRed))
+            ->when($this->filtroEstado !== '', fn($q) => $q->where('activa', $this->filtroEstado === '1'))
             ->orderBy('clave')
             ->paginate(15);
 

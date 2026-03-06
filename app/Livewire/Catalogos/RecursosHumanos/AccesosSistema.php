@@ -18,6 +18,8 @@ class AccesosSistema extends Component
 
     public string $modo = 'lista'; // lista | crear | editar
     public string $search = '';
+    public string $filtroRol    = '';
+    public string $filtroActivo = '';
     public ?int $editandoId = null;
 
     // Formulario base
@@ -100,8 +102,14 @@ class AccesosSistema extends Component
             'clientes.registro' => 'Registro de Clientes',
         ],
         'Servicios' => [
-            'cat.servicios.registro'    => 'Registro de Servicios',
-            'cat.servicios.actividades' => 'Actividades de Servicio',
+            'cat.servicios.tarifas-principales'   => 'Servicios para Tarifas Principales',
+            'cat.servicios.tarifas-adicionales'   => 'Servicios para Tarifas Adicionales',
+            'cat.servicios.fallas'                => 'Servicios para Fallas',
+            'cat.servicios.personal'              => 'Servicios para Personal TV',
+            'cat.actividades.tarifas-principales' => 'Actividades para Tarifas Principales',
+            'cat.actividades.tarifas-adicionales' => 'Actividades para Tarifas Adicionales',
+            'cat.actividades.fallas'              => 'Actividades para Fallas',
+            'cat.actividades.personal'            => 'Actividades para Personal TV',
         ],
         'PlantaExterna' => [
             'planta.tipo-fibra'      => 'Tipo de Fibra',
@@ -308,6 +316,22 @@ class AccesosSistema extends Component
         $this->resetValidation();
     }
 
+    public function eliminar(int $id): void
+    {
+        $acc = AccesoSistema::with('usuario')->findOrFail($id);
+        $acc->usuario?->delete();
+        $acc->delete();
+        $this->toastExito('Acceso al sistema eliminado.');
+    }
+
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroRol = '';
+        $this->filtroActivo = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $totalAccesos = AccesoSistema::count();
@@ -331,6 +355,8 @@ class AccesosSistema extends Component
                 $e->where('nombre', 'like', "%{$this->search}%")
                   ->orWhere('apellido_paterno', 'like', "%{$this->search}%")
             ))
+            ->when($this->filtroRol, fn($q) => $q->where('rol', $this->filtroRol))
+            ->when($this->filtroActivo !== '', fn($q) => $q->where('activo', $this->filtroActivo === '1'))
             ->orderByDesc('created_at')
             ->paginate(15);
 

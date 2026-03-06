@@ -153,6 +153,13 @@ class TarifasPrincipales extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroEstado = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = TarifaPrincipal::query()

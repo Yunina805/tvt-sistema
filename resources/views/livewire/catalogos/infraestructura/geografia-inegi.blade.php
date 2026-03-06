@@ -261,37 +261,74 @@
         </div>
     @endif
 
-    {{-- ═══ Filtros + Tabla ════════════════════════════════════════════════ --}}
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-4">
-        <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-3 flex-wrap">
-            <div class="flex-1 min-w-[180px] relative">
-                <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"></i>
-                <input wire:model.live.debounce.300ms="search" type="text"
-                    placeholder="Buscar localidad, municipio, estado o C.P...."
-                    class="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300">
+    {{-- Panel de Filtros --}}
+    @php $hayFiltros = $search || $filtroEstadoId || $filtroMunicipioId; @endphp
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-4" x-data="{ openFilters: true }">
+        <button type="button" @click="openFilters = !openFilters"
+            class="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50/60 transition-colors rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-pink-50 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="ri-equalizer-2-line text-pink-500 text-base"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs font-black uppercase tracking-widest text-gray-700">Filtros de Búsqueda</p>
+                    <p class="text-[9px] font-bold uppercase tracking-widest mt-0.5 {{ $hayFiltros ? 'text-pink-500' : 'text-gray-400' }}">
+                        {{ $hayFiltros ? 'Filtros activos · resultados filtrados' : 'Sin filtros · mostrando todo el catálogo' }}
+                    </p>
+                </div>
             </div>
-            <select wire:model.live="filtroEstadoId"
-                class="border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 min-w-[180px]">
-                <option value="">Todos los estados</option>
-                @foreach($estados as $e)
-                    <option value="{{ $e->id }}">{{ $e->nombre_estado }}</option>
-                @endforeach
-            </select>
-            <div class="relative">
-                <select wire:model.live="filtroMunicipioId"
-                    class="border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 min-w-[200px] disabled:bg-gray-50 disabled:text-gray-400"
-                    @disabled(!$filtroEstadoId)>
-                    <option value="">Todos los municipios</option>
-                    @foreach($municipiosFiltrados as $m)
-                        <option value="{{ $m['id'] }}">{{ $m['nombre_municipio'] }}</option>
-                    @endforeach
-                </select>
-                <span wire:loading wire:target="updatedFiltroEstadoId" class="absolute right-3 top-1/2 -translate-y-1/2">
-                    <i class="ri-loader-4-line animate-spin text-gray-400 text-xs"></i>
+            <div class="flex items-center gap-3">
+                @if($hayFiltros)
+                <span wire:click.stop="limpiarFiltros"
+                    class="flex items-center gap-1 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer">
+                    <i class="ri-close-circle-line text-xs"></i> Limpiar filtros
                 </span>
+                @endif
+                <i class="ri-arrow-down-s-line text-gray-400 text-lg transition-transform duration-200" :class="openFilters && 'rotate-180'"></i>
+            </div>
+        </button>
+        <div x-show="openFilters" x-cloak class="border-t border-gray-100 px-5 pt-4 pb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="sm:col-span-2">
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Búsqueda General</label>
+                    <div class="relative">
+                        <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"></i>
+                        <input wire:model.live.debounce.300ms="search" type="text" placeholder="Localidad, municipio, estado o C.P...."
+                            class="w-full pl-9 pr-3 py-2.5 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Estado</label>
+                    <select wire:model.live="filtroEstadoId"
+                        class="w-full py-2.5 px-3 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all">
+                        <option value="">Todos los estados</option>
+                        @foreach($estados as $e)
+                            <option value="{{ $e->id }}">{{ $e->nombre_estado }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Municipio</label>
+                    <div class="relative">
+                        <select wire:model.live="filtroMunicipioId"
+                            class="w-full py-2.5 px-3 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all disabled:bg-gray-50 disabled:text-gray-300"
+                            @disabled(!$filtroEstadoId)>
+                            <option value="">{{ $filtroEstadoId ? 'Todos los municipios' : 'Selecciona un estado primero' }}</option>
+                            @foreach($municipiosFiltrados as $m)
+                                <option value="{{ $m['id'] }}">{{ $m['nombre_municipio'] }}</option>
+                            @endforeach
+                        </select>
+                        <span wire:loading wire:target="updatedFiltroEstadoId" class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <i class="ri-loader-4-line animate-spin text-pink-400 text-xs"></i>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
+    {{-- Tabla --}}
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-xs">
                 <thead>

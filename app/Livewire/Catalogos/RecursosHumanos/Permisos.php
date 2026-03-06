@@ -142,6 +142,20 @@ class Permisos extends Component
         $this->resetValidation();
     }
 
+    public function eliminar(int $id): void
+    {
+        Permiso::findOrFail($id)->delete();
+        $this->toastExito('Permiso eliminado.');
+    }
+
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroTipo = '';
+        $this->filtroEstado = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $anioActual  = now()->year;

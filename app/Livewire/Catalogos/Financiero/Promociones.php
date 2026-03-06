@@ -145,6 +145,14 @@ class Promociones extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroEstado = '';
+        $this->filtroPrincipal = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $promociones = PromocionEstacional::with('tarifaPrincipal')

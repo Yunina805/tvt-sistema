@@ -15,8 +15,9 @@ class IngresosEgresos extends Component
     use WithPagination, WithToasts;
 
     public string $modo       = 'lista';
-    public string $search     = '';
-    public string $filtroTipo = '';
+    public string $search      = '';
+    public string $filtroTipo  = '';
+    public string $filtroActivo = '';
     public ?int $editandoId   = null;
 
     // Formulario
@@ -134,11 +135,20 @@ class IngresosEgresos extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroTipo = '';
+        $this->filtroActivo = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $registros = TipoIngresoEgreso::with('usuario')
             ->when($this->search, fn($q) => $q->where('nombre', 'like', "%{$this->search}%"))
             ->when($this->filtroTipo, fn($q) => $q->where('tipo', $this->filtroTipo))
+            ->when($this->filtroActivo !== '', fn($q) => $q->where('activo', $this->filtroActivo === '1'))
             ->orderBy('tipo')->orderBy('nombre')
             ->paginate(15);
 

@@ -100,6 +100,9 @@ class AtenderReporte extends Component
     public string $calificacion         = 'Excelente';
     public string|int|null $horasAtencion = null;
 
+    // ── Precierre (dd.) ───────────────────────────────────────────────
+    public string $motivoPrecierre = '';
+
     // ─────────────────────────────────────────────────────────────────
     public function mount(string $folio = 'REP-2026-0001'): void
     {
@@ -438,8 +441,17 @@ class AtenderReporte extends Component
 
     public function guardarPrecierre(): void
     {
-        // TODO: ReporteServicio::where('folio', $this->reporte['folio'])->update(['estado' => 'En Proceso', ...]);
-        $this->toastInfo('Avance guardado. El reporte permanece en proceso (Precierre).');
+        if (!$this->motivoPrecierre) {
+            $this->addError('motivoPrecierre', 'Seleccione el motivo del precierre.');
+            return;
+        }
+
+        // TODO: ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //     'estado' => 'En Proceso',
+        //     'motivo_precierre' => $this->motivoPrecierre,
+        //     'descripcion_solucion' => $this->descripcionSolucion,
+        // ]);
+        $this->toastInfo('Avance guardado. El reporte permanece en proceso (Precierre: ' . $this->motivoPrecierre . ').');
         $this->redirect(route('reportes.servicio'));
     }
 

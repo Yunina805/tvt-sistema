@@ -71,8 +71,14 @@ use App\Livewire\Catalogos\Clientes\RegistroClientes;
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — SERVICIOS / TAREAS
 // ─────────────────────────────────────────────────────────────────────────────
-use App\Livewire\Catalogos\Servicios\RegistroServicios;
-use App\Livewire\Catalogos\Servicios\MatrizActividades;
+use App\Livewire\Catalogos\Servicios\ServiciosTarifasPrincipales;
+use App\Livewire\Catalogos\Servicios\ServiciosTarifasAdicionales;
+use App\Livewire\Catalogos\Servicios\ServiciosFallas;
+use App\Livewire\Catalogos\Servicios\ServiciosPersonal;
+use App\Livewire\Catalogos\Servicios\ActividadesTarifasPrincipales;
+use App\Livewire\Catalogos\Servicios\ActividadesTarifasAdicionales;
+use App\Livewire\Catalogos\Servicios\ActividadesFallas;
+use App\Livewire\Catalogos\Servicios\ActividadesPersonal;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — PLANTA EXTERNA
@@ -92,7 +98,7 @@ use App\Livewire\Catalogos\Energia\UpsPlanta;
 
 Route::view('/', 'welcome');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
 
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
@@ -186,8 +192,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // CATÁLOGOS: SERVICIOS / TAREAS
     // =========================================================================
     Route::prefix('servicios')->name('cat.servicios.')->group(function () {
-        Route::get('/registro', RegistroServicios::class)->name('registro');
-        Route::get('/actividades', MatrizActividades::class)->name('actividades');
+        Route::get('/tarifas-principales', ServiciosTarifasPrincipales::class)->name('tarifas-principales');
+        Route::get('/tarifas-adicionales', ServiciosTarifasAdicionales::class)->name('tarifas-adicionales');
+        Route::get('/fallas',              ServiciosFallas::class)->name('fallas');
+        Route::get('/personal',            ServiciosPersonal::class)->name('personal');
+    });
+
+    // =========================================================================
+    // CATÁLOGOS: ACTIVIDADES
+    // =========================================================================
+    Route::prefix('actividades')->name('cat.actividades.')->group(function () {
+        Route::get('/tarifas-principales', ActividadesTarifasPrincipales::class)->name('tarifas-principales');
+        Route::get('/tarifas-adicionales', ActividadesTarifasAdicionales::class)->name('tarifas-adicionales');
+        Route::get('/fallas',              ActividadesFallas::class)->name('fallas');
+        Route::get('/personal',            ActividadesPersonal::class)->name('personal');
     });
 
     // =========================================================================

@@ -18,6 +18,7 @@ class ProveedoresBancos extends Component
     public string $search           = '';
     public string $filtroTipo       = '';
     public string $filtroPago       = '';
+    public string $filtroActivo     = '';
     public ?int $editandoId         = null;
 
     // Formulario
@@ -139,6 +140,15 @@ class ProveedoresBancos extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroTipo = '';
+        $this->filtroPago = '';
+        $this->filtroActivo = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $proveedores = Proveedor::with('usuario')
@@ -146,6 +156,7 @@ class ProveedoresBancos extends Component
                 ->orWhere('rfc_cuenta_motivo', 'like', "%{$this->search}%"))
             ->when($this->filtroTipo, fn($q) => $q->where('tipo_servicio', $this->filtroTipo))
             ->when($this->filtroPago, fn($q) => $q->where('tipo_pago', $this->filtroPago))
+            ->when($this->filtroActivo !== '', fn($q) => $q->where('activo', $this->filtroActivo === '1'))
             ->orderBy('nombre')
             ->paginate(15);
 

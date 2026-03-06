@@ -140,6 +140,14 @@ class TarifasAdicionales extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroEstado = '';
+        $this->filtroPrincipal = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $tarifas = TarifaAdicional::with('tarifaPrincipal')

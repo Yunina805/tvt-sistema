@@ -18,6 +18,7 @@ class RegistroEmpleados extends Component
     public string $search = '';
     public string $filtroSucursal = '';
     public string $filtroArea = '';
+    public string $filtroContrato = '';
     public ?int $editandoId = null;
 
     // Formulario
@@ -155,6 +156,14 @@ class RegistroEmpleados extends Component
         $this->toastInfo("Empleado \"{$emp->nombre_completo}\" desactivado.");
     }
 
+    public function borrar(int $id): void
+    {
+        $emp = Empleado::findOrFail($id);
+        $nombre = $emp->nombre_completo;
+        $emp->delete();
+        $this->toastExito("Empleado \"{$nombre}\" eliminado permanentemente.");
+    }
+
     public function cancelar(): void
     {
         $this->resetForm();
@@ -170,6 +179,15 @@ class RegistroEmpleados extends Component
             'editandoId',
         ]);
         $this->resetValidation();
+    }
+
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroSucursal = '';
+        $this->filtroArea = '';
+        $this->filtroContrato = '';
+        $this->resetPage();
     }
 
     public function render()
@@ -194,6 +212,7 @@ class RegistroEmpleados extends Component
             }))
             ->when($this->filtroSucursal, fn($q) => $q->where('sucursal_id', $this->filtroSucursal))
             ->when($this->filtroArea, fn($q) => $q->where('area', $this->filtroArea))
+            ->when($this->filtroContrato, fn($q) => $q->where('tipo_contrato', $this->filtroContrato))
             ->orderBy('apellido_paterno')
             ->paginate(15);
 

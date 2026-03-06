@@ -15,6 +15,7 @@ class DescansoMensual extends Component
     use WithPagination, WithToasts;
 
     public string $modo = 'lista'; // lista | crear | editar
+    public string $search = '';
     public string $filtroAnio = '';
     public string $filtroMes = '';
     public string $filtroEstado = '';
@@ -45,6 +46,7 @@ class DescansoMensual extends Component
         'diasAsignados' => 'días asignados',
     ];
 
+    public function updatedSearch(): void { $this->resetPage(); }
     public function updatedFiltroAnio(): void { $this->resetPage(); }
     public function updatedFiltroMes(): void { $this->resetPage(); }
     public function updatedFiltroEstado(): void { $this->resetPage(); }
@@ -124,6 +126,21 @@ class DescansoMensual extends Component
         $this->resetValidation();
     }
 
+    public function eliminar(int $id): void
+    {
+        DescansoMensualModel::findOrFail($id)->delete();
+        $this->toastExito('Registro de descanso eliminado.');
+    }
+
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroAnio = '';
+        $this->filtroMes = '';
+        $this->filtroEstado = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $anioActual = now()->year;
@@ -139,6 +156,7 @@ class DescansoMensual extends Component
         $empleados = Empleado::where('activo', true)->orderBy('apellido_paterno')->get(['id', 'nombre', 'apellido_paterno', 'apellido_materno']);
 
         $descansos = DescansoMensualModel::with('empleado')
+            ->when($this->search, fn($q) => $q->whereHas('empleado', fn($e) => $e->where('nombre', 'like', "%{$this->search}%")->orWhere('apellido_paterno', 'like', "%{$this->search}%")->orWhere('apellido_materno', 'like', "%{$this->search}%")))
             ->when($this->filtroAnio, fn($q) => $q->where('anio', $this->filtroAnio))
             ->when($this->filtroMes, fn($q) => $q->where('mes', $this->filtroMes))
             ->when($this->filtroEstado, fn($q) => $q->where('estado', $this->filtroEstado))

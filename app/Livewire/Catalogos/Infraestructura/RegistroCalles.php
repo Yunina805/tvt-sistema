@@ -17,6 +17,7 @@ class RegistroCalles extends Component
     public string $modo = 'lista'; // lista | crear | editar
     public string $search = '';
     public string $filtroSucursalId = '';
+    public string $filtroEstado = '';
     public ?int $editandoId = null;
 
     // Formulario
@@ -42,10 +43,8 @@ class RegistroCalles extends Component
         $this->resetPage();
     }
 
-    public function updatedFiltroSucursalId(): void
-    {
-        $this->resetPage();
-    }
+    public function updatedFiltroSucursalId(): void { $this->resetPage(); }
+    public function updatedFiltroEstado(): void { $this->resetPage(); }
 
     public function updatedSucursalId(): void
     {
@@ -125,12 +124,20 @@ class RegistroCalles extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroSucursalId = '';
+        $this->filtroEstado = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $sucursales = Sucursal::where('activa', true)->orderBy('nombre')->get(['id', 'clave', 'nombre']);
 
         $calles = Calle::with(['sucursal.localidad', 'sucursal.municipio', 'sucursal.estado'])
-            ->where('activa', true)
+            ->when($this->filtroEstado !== '', fn($q) => $q->where('activa', $this->filtroEstado === '1'), fn($q) => $q->where('activa', true))
             ->when($this->search, fn($q) => $q->where('nombre_calle', 'like', "%{$this->search}%"))
             ->when($this->filtroSucursalId, fn($q) => $q->where('sucursal_id', $this->filtroSucursalId))
             ->orderBy('nombre_calle')

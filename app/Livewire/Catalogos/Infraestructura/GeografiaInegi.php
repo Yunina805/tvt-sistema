@@ -195,6 +195,15 @@ class GeografiaInegi extends Component
         $this->resetValidation();
     }
 
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroEstadoId = '';
+        $this->filtroMunicipioId = '';
+        $this->municipiosFiltrados = [];
+        $this->resetPage();
+    }
+
     // ─── Render ───────────────────────────────────────────────────────────────
 
     public function render()

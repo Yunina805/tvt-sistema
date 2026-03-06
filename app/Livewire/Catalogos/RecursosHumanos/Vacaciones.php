@@ -132,6 +132,20 @@ class Vacaciones extends Component
         $this->resetValidation();
     }
 
+    public function eliminar(int $id): void
+    {
+        Vacacion::findOrFail($id)->delete();
+        $this->toastExito('Solicitud de vacaciones eliminada.');
+    }
+
+    public function limpiarFiltros(): void
+    {
+        $this->search = '';
+        $this->filtroEstado = '';
+        $this->filtroEmpleadoId = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $totalSolicitudes = Vacacion::count();
