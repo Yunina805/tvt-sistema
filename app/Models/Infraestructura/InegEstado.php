@@ -2,6 +2,9 @@
 
 namespace App\Models\Infraestructura;
 
+use App\Models\Infraestructura\InegMunicipio;
+use App\Models\Infraestructura\InegLocalidad;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

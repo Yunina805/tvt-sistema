@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\InegEstado;
-use App\Models\InegLocalidad;
-use App\Models\InegMunicipio;
+// Se corrigieron las rutas para que apunten a la subcarpeta Infraestructura
+use App\Models\Infraestructura\InegEstado;
+use App\Models\Infraestructura\InegLocalidad;
+use App\Models\Infraestructura\InegMunicipio;
 use Illuminate\Database\Seeder;
 
 class InegGeografiaSeeder extends Seeder
@@ -12,7 +13,6 @@ class InegGeografiaSeeder extends Seeder
     public function run(): void
     {
         // Datos de la Costa Chica de Oaxaca — zona de cobertura de TVT
-        // Clave INEGI: Oaxaca = 20
         $estados = [
             [
                 'clave_estado' => '20',
