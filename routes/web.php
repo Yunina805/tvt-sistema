@@ -43,25 +43,39 @@ use App\Livewire\Catalogos\Financiero\Promociones;
 use App\Livewire\Catalogos\Financiero\Descuentos;
 use App\Livewire\Catalogos\Financiero\IngresosEgresos;
 use App\Livewire\Catalogos\Financiero\ProveedoresBancos;
+use App\Livewire\Catalogos\Financiero\Bancos;
+use App\Livewire\Catalogos\Financiero\Facturas;
+use App\Livewire\Catalogos\Financiero\MotivosTraspaso;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — RED E INTERNET
 // ─────────────────────────────────────────────────────────────────────────────
 use App\Livewire\Catalogos\Red\AdministrarNaps;
 use App\Livewire\Catalogos\Red\OltAdmin;
+use App\Livewire\Catalogos\Red\OltInterna;
 use App\Livewire\Catalogos\Red\AdministracionOnus;
 use App\Livewire\Catalogos\Red\WinboxVlans;
 use App\Livewire\Catalogos\Red\CcrSwitches;
+use App\Livewire\Catalogos\Red\Ccr1;
+use App\Livewire\Catalogos\Red\Switches;
 use App\Livewire\Catalogos\Red\StarlinksIsp;
+use App\Livewire\Catalogos\Red\IspTelmex;
+use App\Livewire\Catalogos\Red\Encapsulamiento;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — TELEVISIÓN
 // ─────────────────────────────────────────────────────────────────────────────
 use App\Livewire\Catalogos\Television\CanalesSatelites;
 use App\Livewire\Catalogos\Television\Moduladores;
+use App\Livewire\Catalogos\Television\ModuladoresDigitales;
 use App\Livewire\Catalogos\Television\Transmisores;
 use App\Livewire\Catalogos\Television\PonEdfa;
 use App\Livewire\Catalogos\Television\MiniNodosAntenas;
+use App\Livewire\Catalogos\Television\Antenas;
+use App\Livewire\Catalogos\Television\Satelites;
+use App\Livewire\Catalogos\Television\ProveedoresSenal;
+use App\Livewire\Catalogos\Television\Receptores;
+use App\Livewire\Catalogos\Television\Divisores;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — CLIENTES
@@ -75,10 +89,17 @@ use App\Livewire\Catalogos\Servicios\ServiciosTarifasPrincipales;
 use App\Livewire\Catalogos\Servicios\ServiciosTarifasAdicionales;
 use App\Livewire\Catalogos\Servicios\ServiciosFallas;
 use App\Livewire\Catalogos\Servicios\ServiciosPersonal;
+use App\Livewire\Catalogos\Servicios\ServiciosClientes;
 use App\Livewire\Catalogos\Servicios\ActividadesTarifasPrincipales;
 use App\Livewire\Catalogos\Servicios\ActividadesTarifasAdicionales;
 use App\Livewire\Catalogos\Servicios\ActividadesFallas;
 use App\Livewire\Catalogos\Servicios\ActividadesPersonal;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CATÁLOGOS — PLAN DE TRABAJO
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Catalogos\PlanTrabajo\Actividades as PlanActividades;
+use App\Livewire\Catalogos\PlanTrabajo\AsignacionPlan;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — PLANTA EXTERNA
@@ -86,6 +107,7 @@ use App\Livewire\Catalogos\Servicios\ActividadesPersonal;
 use App\Livewire\Catalogos\PlantaExterna\TipoFibra;
 use App\Livewire\Catalogos\PlantaExterna\Amplificadores;
 use App\Livewire\Catalogos\PlantaExterna\NodosOpticos;
+use App\Livewire\Catalogos\PlantaExterna\Dfo;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — ENERGÍA Y ENLACES
@@ -93,6 +115,14 @@ use App\Livewire\Catalogos\PlantaExterna\NodosOpticos;
 use App\Livewire\Catalogos\Energia\EnlacesFibra;
 use App\Livewire\Catalogos\Energia\CatalogoCTC;
 use App\Livewire\Catalogos\Energia\UpsPlanta;
+use App\Livewire\Catalogos\Energia\PlantasEmergencia;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CATÁLOGOS — REGULATORIO
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Catalogos\Regulatorio\EntidadesRegulatorias;
+use App\Livewire\Catalogos\Regulatorio\Documentos as DocumentosReg;
+use App\Livewire\Catalogos\Regulatorio\EnvioObligaciones;
 
 // =============================================================================
 
@@ -156,6 +186,9 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/descuentos', Descuentos::class)->name('descuentos');
         Route::get('/ingresos-egresos', IngresosEgresos::class)->name('ingresos.egresos');
         Route::get('/proveedores', ProveedoresBancos::class)->name('proveedores');
+        Route::get('/bancos', Bancos::class)->name('bancos');
+        Route::get('/facturas', Facturas::class)->name('facturas');
+        Route::get('/motivos-traspaso', MotivosTraspaso::class)->name('motivos-traspaso');
     });
 
     // =========================================================================
@@ -164,21 +197,32 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
     Route::prefix('red')->name('red.')->group(function () {
         Route::get('/naps', AdministrarNaps::class)->name('naps');
         Route::get('/olt', OltAdmin::class)->name('olt');
+        Route::get('/olt-interna', OltInterna::class)->name('olt-interna');
         Route::get('/onus', AdministracionOnus::class)->name('onus');
         Route::get('/vlans', WinboxVlans::class)->name('vlans');
         Route::get('/ccr', CcrSwitches::class)->name('ccr');
+        Route::get('/ccr1', Ccr1::class)->name('ccr1');
+        Route::get('/switches', Switches::class)->name('switches');
         Route::get('/starlinks', StarlinksIsp::class)->name('starlinks');
+        Route::get('/isp-telmex', IspTelmex::class)->name('isp-telmex');
+        Route::get('/encapsulamiento', Encapsulamiento::class)->name('encapsulamiento');
     });
 
     // =========================================================================
     // CATÁLOGOS: TELEVISIÓN
     // =========================================================================
     Route::prefix('television')->name('tv.')->group(function () {
+        Route::get('/mininodos', MiniNodosAntenas::class)->name('mininodos');
+        Route::get('/antenas', Antenas::class)->name('antenas');
+        Route::get('/satelites', Satelites::class)->name('satelites');
+        Route::get('/proveedores-senal', ProveedoresSenal::class)->name('proveedores-senal');
+        Route::get('/receptores', Receptores::class)->name('receptores');
         Route::get('/canales', CanalesSatelites::class)->name('canales');
         Route::get('/moduladores', Moduladores::class)->name('moduladores');
+        Route::get('/moduladores-digitales', ModuladoresDigitales::class)->name('moduladores-digitales');
         Route::get('/transmisores', Transmisores::class)->name('transmisores');
         Route::get('/pon-edfa', PonEdfa::class)->name('pon-edfa');
-        Route::get('/mininodos', MiniNodosAntenas::class)->name('mininodos');
+        Route::get('/divisores', Divisores::class)->name('divisores');
     });
 
     // =========================================================================
@@ -196,6 +240,7 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/tarifas-adicionales', ServiciosTarifasAdicionales::class)->name('tarifas-adicionales');
         Route::get('/fallas',              ServiciosFallas::class)->name('fallas');
         Route::get('/personal',            ServiciosPersonal::class)->name('personal');
+        Route::get('/clientes',            ServiciosClientes::class)->name('clientes');
     });
 
     // =========================================================================
@@ -215,6 +260,7 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/tipo-fibra', TipoFibra::class)->name('tipo-fibra');
         Route::get('/amplificadores', Amplificadores::class)->name('amplificadores');
         Route::get('/nodos-opticos', NodosOpticos::class)->name('nodos-opticos');
+        Route::get('/dfo', Dfo::class)->name('dfo');
     });
 
     // =========================================================================
@@ -224,6 +270,24 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/fibra', EnlacesFibra::class)->name('fibra');
         Route::get('/ctc', CatalogoCTC::class)->name('ctc');
         Route::get('/ups', UpsPlanta::class)->name('ups');
+        Route::get('/plantas', PlantasEmergencia::class)->name('plantas');
+    });
+
+    // =========================================================================
+    // CATÁLOGOS: PLAN DE TRABAJO
+    // =========================================================================
+    Route::prefix('plan')->name('plan.')->group(function () {
+        Route::get('/actividades', PlanActividades::class)->name('actividades');
+        Route::get('/asignacion', AsignacionPlan::class)->name('trabajo');
+    });
+
+    // =========================================================================
+    // CATÁLOGOS: REGULATORIO
+    // =========================================================================
+    Route::prefix('regulatorio')->name('regulatorio.')->group(function () {
+        Route::get('/entidades', EntidadesRegulatorias::class)->name('entidades');
+        Route::get('/documentos', DocumentosReg::class)->name('documentos');
+        Route::get('/obligaciones', EnvioObligaciones::class)->name('obligaciones');
     });
 
 });

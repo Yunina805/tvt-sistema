@@ -46,7 +46,7 @@ class RegistroEmpleados extends Component
             'nombre'          => 'required|string|max:80',
             'apellidoPaterno' => 'required|string|max:80',
             'apellidoMaterno' => 'nullable|string|max:80',
-            'curp'            => 'nullable|string|size:18|unique:empleados,curp' . ($this->editandoId ? ",{$this->editandoId}" : ''),
+            'curp'            => 'nullable|string|size:18|unique:empleados,curp' . ($this->editandoId ? "," . $this->editandoId : ''),
             'rfc'             => 'nullable|string|max:13',
             'nss'             => 'nullable|string|max:11',
             'fechaNacimiento' => 'nullable|date',
@@ -112,6 +112,11 @@ class RegistroEmpleados extends Component
 
     public function guardar(): void
     {
+        // Normalizar campos sensibles
+        $this->curp = $this->curp ? strtoupper(trim($this->curp)) : '';
+        $this->rfc = $this->rfc ? strtoupper(trim($this->rfc)) : '';
+        $this->nss = $this->nss ? trim($this->nss) : '';
+
         $this->validate();
 
         $data = [
@@ -135,8 +140,11 @@ class RegistroEmpleados extends Component
         ];
 
         if ($this->modo === 'crear') {
-            $count = Empleado::withoutGlobalScopes()->count();
-            $data['clave_empleado'] = 'EMP-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+            $ultimo = Empleado::withoutGlobalScopes()
+                ->whereNotNull('clave_empleado')
+                ->selectRaw("MAX(CAST(SUBSTRING(clave_empleado, 5) AS UNSIGNED)) as ultimo")
+                ->value('ultimo') ?? 0;
+            $data['clave_empleado'] = 'EMP-' . str_pad($ultimo + 1, 3, '0', STR_PAD_LEFT);
             $data['activo'] = true;
 
             Empleado::create($data);
