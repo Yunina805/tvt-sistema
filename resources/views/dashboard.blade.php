@@ -143,6 +143,17 @@
                         </div>
                     </a>
 
+                    <a href="{{ route('cambio.servicio') }}"
+                       class="group relative flex flex-col justify-between p-5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-2xl hover:bg-indigo-100 dark:hover:bg-indigo-900/60 hover:border-indigo-200 dark:hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-100/50 dark:hover:shadow-indigo-900/40 hover:-translate-y-1 transition-all duration-300 min-h-[120px]">
+                        <div class="flex justify-between items-start">
+                            <i class="ri-exchange-line text-2xl text-indigo-500 dark:text-indigo-400 transition-colors"></i>
+                            <i class="ri-arrow-right-up-line text-indigo-400 dark:text-indigo-500 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1"></i>
+                        </div>
+                        <div class="mt-4">
+                            <span class="block text-xs font-black text-indigo-950 dark:text-indigo-100 uppercase tracking-tight transition-colors">Cambio<br>de Servicio</span>
+                        </div>
+                    </a>
+
                 </div>
             </div>
 

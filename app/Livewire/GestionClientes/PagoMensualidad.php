@@ -2,35 +2,40 @@
 
 namespace App\Livewire\GestionClientes;
 
-use Livewire\Component;
+use App\Traits\WithToasts;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 class PagoMensualidad extends Component
 {
-    // ── Folio de la transacción ───────────────────────────────────────
+    use WithToasts;
+
+    // ── Folio de la transacción ───────────────────────────────────────────────
     public string $folioRecibo = '';
 
-    // ── Paso del flujo (1=Búsqueda · 2=Cobro · 3=Recibo) ────────────
+    // ── Paso del flujo ────────────────────────────────────────────────────────
     public int $paso = 1;
 
-    // ── Búsqueda y selección ─────────────────────────────────────────
-    public string $busqueda           = '';
-    public array  $resultados         = [];
+    // ── Búsqueda y selección ──────────────────────────────────────────────────
+    public string $busqueda            = '';
+    public array  $resultados          = [];
     public ?array $clienteSeleccionado = null;
 
-    // ── Detalle del cobro ─────────────────────────────────────────────
-    public string $concepto    = '';
-    public float  $tarifaMonto = 0.0;
-    public float  $montoCobro  = 0.0;
-    public string $formaPago   = 'efectivo';
+    // ── Detalle del cobro ─────────────────────────────────────────────────────
+    public string $concepto     = '';
+    public string $periodoLabel = '';     // Período que se está pagando (ej. "MARZO 2026")
+    public float  $tarifaMonto  = 0.0;
+    public float  $montoCobro   = 0.0;
+    public string $formaPago    = 'efectivo';
 
-    // ── Ajuste manual de monto ────────────────────────────────────────
-    public bool   $modificarMonto        = false;
-    public float  $montoManual           = 0.0;
-    public string $passwordAutorizacion  = '';
+    // ── Ajuste manual de monto ────────────────────────────────────────────────
+    public bool   $modificarMonto       = false;
+    public float  $montoManual          = 0.0;
+    public string $motivoAjuste         = '';
+    public string $passwordAutorizacion = '';
 
-    // ── Facturación (Facturama) ───────────────────────────────────────
+    // ── Facturación (Facturama) ───────────────────────────────────────────────
     public bool  $requiereFactura = false;
     public array $datosFactura    = [
         'nombre'   => '',
@@ -40,16 +45,21 @@ class PagoMensualidad extends Component
         'correo'   => '',
     ];
 
-    // ── WhatsApp ──────────────────────────────────────────────────────
+    // ── WhatsApp ──────────────────────────────────────────────────────────────
     public bool   $enviarWhatsapp   = true;
     public string $telefonoWhatsapp = '';
     public bool   $whatsappEnviado  = false;
 
-    // ── Datos del recibo generado ─────────────────────────────────────
-    public float  $montoFinal = 0.0;
-    public string $fechaPago  = '';
+    // ── Datos del recibo generado (paso 3) ────────────────────────────────────
+    public float  $montoFinal      = 0.0;
+    public float  $subtotalRecibo  = 0.0;
+    public float  $ivaRecibo       = 0.0;
+    public float  $totalRecibo     = 0.0;
+    public bool   $montoAjustado   = false;
+    public string $fechaPago       = '';
 
-    // ─────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+
     public function mount(): void
     {
         $this->folioRecibo = $this->generarFolio();
@@ -60,7 +70,8 @@ class PagoMensualidad extends Component
         return 'PAG-' . date('Y') . '-' . strtoupper(bin2hex(random_bytes(3)));
     }
 
-    // ── Búsqueda ──────────────────────────────────────────────────────
+    // ── Búsqueda ──────────────────────────────────────────────────────────────
+
     public function buscarCliente(): void
     {
         if (strlen(trim($this->busqueda)) < 3) {
@@ -69,12 +80,12 @@ class PagoMensualidad extends Component
         }
 
         // TODO: Reemplazar con Eloquent real:
-        // $this->resultados = Cliente::with(['servicio', 'sucursal'])
+        // $this->resultados = Cliente::with(['suscripcionActiva.tarifa', 'sucursal'])
         //     ->where(fn($q) =>
-        //         $q->where('nombre',     'LIKE', "%{$this->busqueda}%")
-        //           ->orWhere('telefono', 'LIKE', "%{$this->busqueda}%")
+        //         $q->where('nombre',      'LIKE', "%{$this->busqueda}%")
+        //           ->orWhere('telefono',  'LIKE', "%{$this->busqueda}%")
         //           ->orWhere('id_cliente','LIKE', "%{$this->busqueda}%")
-        //           ->orWhere('direccion','LIKE', "%{$this->busqueda}%")
+        //           ->orWhere('direccion', 'LIKE', "%{$this->busqueda}%")
         //     )
         //     ->where('estado', '!=', 'CANCELADO')
         //     ->limit(8)->get()->toArray();
@@ -88,7 +99,7 @@ class PagoMensualidad extends Component
                 'servicio'     => 'RETRO TV + INTERNET 30 MBPS',
                 'tarifa'       => 480.00,
                 'saldo'        => 960.00,
-                'estado'       => 'Activo',
+                'estado'       => 'ACTIVO',
                 'sucursal'     => 'Oaxaca Centro',
                 'meses_adeudo' => 2,
             ],
@@ -100,7 +111,7 @@ class PagoMensualidad extends Component
                 'servicio'     => 'RETRO TV',
                 'tarifa'       => 250.00,
                 'saldo'        => 250.00,
-                'estado'       => 'Activo',
+                'estado'       => 'ACTIVO',
                 'sucursal'     => 'San Pedro Amuzgos',
                 'meses_adeudo' => 1,
             ],
@@ -112,7 +123,7 @@ class PagoMensualidad extends Component
                 'servicio'     => 'INTERNET 50 MBPS',
                 'tarifa'       => 350.00,
                 'saldo'        => 700.00,
-                'estado'       => 'Suspendido',
+                'estado'       => 'SUSPENDIDO',
                 'sucursal'     => 'Oaxaca Norte',
                 'meses_adeudo' => 2,
             ],
@@ -124,18 +135,18 @@ class PagoMensualidad extends Component
                 'servicio'     => 'INTERNET 100 MBPS',
                 'tarifa'       => 550.00,
                 'saldo'        => 550.00,
-                'estado'       => 'Activo',
+                'estado'       => 'ACTIVO',
                 'sucursal'     => 'Oaxaca Centro',
                 'meses_adeudo' => 1,
             ],
         ];
 
-        $term = strtolower(trim($this->busqueda));
+        $term = mb_strtolower(trim($this->busqueda));
         $this->resultados = array_values(array_filter($mock, fn($c) =>
-            str_contains(strtolower($c['nombre']),   $term) ||
-            str_contains($c['telefono'],              $term) ||
-            str_contains(strtolower($c['id']),        $term) ||
-            str_contains(strtolower($c['direccion']), $term)
+            str_contains(mb_strtolower($c['nombre']),    $term) ||
+            str_contains($c['telefono'],                 $term) ||
+            str_contains(mb_strtolower($c['id']),        $term) ||
+            str_contains(mb_strtolower($c['direccion']), $term)
         ));
     }
 
@@ -143,12 +154,14 @@ class PagoMensualidad extends Component
     {
         $this->clienteSeleccionado    = $cliente;
         $this->tarifaMonto            = $cliente['tarifa'];
-        $this->montoCobro             = $cliente['saldo'];
-        $this->montoManual            = $cliente['saldo'];
+        $this->montoCobro             = $cliente['tarifa'];   // default: 1 mensualidad
+        $this->montoManual            = $cliente['tarifa'];
         $this->telefonoWhatsapp       = $cliente['telefono'];
         $this->datosFactura['nombre'] = $cliente['nombre'];
         $this->busqueda               = '';
         $this->resultados             = [];
+        $this->concepto               = 'MENSUALIDAD';        // pre-seleccionar concepto principal
+        $this->actualizarPeriodo();
         $this->paso                   = 2;
     }
 
@@ -156,10 +169,12 @@ class PagoMensualidad extends Component
     {
         $this->clienteSeleccionado  = null;
         $this->concepto             = '';
+        $this->periodoLabel         = '';
         $this->tarifaMonto          = 0.0;
         $this->montoCobro           = 0.0;
         $this->montoManual          = 0.0;
         $this->modificarMonto       = false;
+        $this->motivoAjuste         = '';
         $this->passwordAutorizacion = '';
         $this->requiereFactura      = false;
         $this->formaPago            = 'efectivo';
@@ -167,7 +182,8 @@ class PagoMensualidad extends Component
         $this->paso                 = 1;
     }
 
-    // ── Watcher concepto: actualiza monto automáticamente ─────────────
+    // ── Watcher concepto: actualiza monto + período ───────────────────────────
+
     public function updatedConcepto(string $value): void
     {
         // TODO: Cargar desde tabla tarifas según concepto y servicio del cliente
@@ -184,9 +200,34 @@ class PagoMensualidad extends Component
         };
 
         $this->montoManual = $this->montoCobro;
+        $this->actualizarPeriodo();
     }
 
-    // ── Procesar pago (valida y pasa a paso 3 — recibo) ──────────────
+    private function actualizarPeriodo(): void
+    {
+        $meses = [
+            1  => 'ENERO', 2  => 'FEBRERO', 3  => 'MARZO',    4  => 'ABRIL',
+            5  => 'MAYO',  6  => 'JUNIO',   7  => 'JULIO',    8  => 'AGOSTO',
+            9  => 'SEPTIEMBRE', 10 => 'OCTUBRE', 11 => 'NOVIEMBRE', 12 => 'DICIEMBRE',
+        ];
+        $mesActual  = (int) now()->format('n');
+        $anioActual = now()->format('Y');
+        $mesesAdeudo = $this->clienteSeleccionado['meses_adeudo'] ?? 1;
+
+        $this->periodoLabel = match ($this->concepto) {
+            'MENSUALIDAD' => $meses[$mesActual] . ' ' . $anioActual,
+            'ADEUDO'      => $mesesAdeudo > 1
+                ? $meses[max(1, $mesActual - $mesesAdeudo + 1)] . ' — ' . $meses[$mesActual] . ' ' . $anioActual
+                : $meses[$mesActual] . ' ' . $anioActual,
+            'DIAS_USO'    => '1 al ' . now()->day . ' de ' . $meses[$mesActual] . ' ' . $anioActual,
+            'RECONEXION'  => 'Cargo de reconexión · ' . now()->format('d/m/Y'),
+            'INSTALACION' => 'Cargo de instalación · ' . now()->format('d/m/Y'),
+            default       => '',
+        };
+    }
+
+    // ── Procesar pago ─────────────────────────────────────────────────────────
+
     public function procesarPago(): void
     {
         $this->validate([
@@ -198,20 +239,25 @@ class PagoMensualidad extends Component
         ]);
 
         if ($this->modificarMonto) {
-            $this->validate([
+            $rules = [
                 'montoManual'          => 'required|numeric|min:1',
+                'motivoAjuste'         => 'required|min:5',
                 'passwordAutorizacion' => 'required',
-            ], [
+            ];
+            $messages = [
                 'montoManual.required'          => 'Ingrese el monto.',
                 'montoManual.min'               => 'El monto debe ser mayor a $0.',
+                'motivoAjuste.required'         => 'Registre el motivo del ajuste.',
+                'motivoAjuste.min'              => 'El motivo debe tener al menos 5 caracteres.',
                 'passwordAutorizacion.required' => 'Se requiere contraseña gerencial para ajustar el monto.',
-            ]);
+            ];
+            $this->validate($rules, $messages);
 
             // TODO: Validar password contra tabla de usuarios con rol gerencial
             // $valida = Hash::check($this->passwordAutorizacion,
             //     User::where('rol', 'gerente')->where('sucursal_id', auth()->user()->sucursal_id)->first()?->password
             // );
-            if ($this->passwordAutorizacion !== 'admin123') {
+            if ($this->passwordAutorizacion !== config('tvt.password_supervisor', 'supervisor123')) {
                 $this->addError('passwordAutorizacion', 'Contraseña gerencial incorrecta.');
                 return;
             }
@@ -236,13 +282,20 @@ class PagoMensualidad extends Component
             ]);
         }
 
-        $this->montoFinal = $this->modificarMonto
+        // Monto final
+        $monto = $this->modificarMonto
             ? (float) $this->montoManual
             : (float) $this->montoCobro;
 
-        $this->fechaPago = now()->format('d/m/Y H:i');
+        // Desglose IVA: el monto del contrato incluye IVA, lo desglosamos para el recibo
+        $this->montoFinal     = $monto;
+        $this->subtotalRecibo = round($monto / 1.16, 2);
+        $this->ivaRecibo      = round($monto - $this->subtotalRecibo, 2);
+        $this->totalRecibo    = $monto;
+        $this->montoAjustado  = $this->modificarMonto;
+        $this->fechaPago      = now()->format('d/m/Y H:i');
 
-        // TODO: DB::transaction(function () {
+        // TODO: DB::transaction(function () use ($monto) {
         //
         //   1. Generar folio correlativo por año
         //      $seq = Ingreso::whereYear('created_at', now()->year)->count() + 1;
@@ -252,7 +305,8 @@ class PagoMensualidad extends Component
         //      $ingreso = Ingreso::create([
         //          'folio'        => $this->folioRecibo,
         //          'concepto'     => $this->concepto,
-        //          'monto'        => $this->montoFinal,
+        //          'periodo'      => $this->periodoLabel,
+        //          'monto'        => $monto,
         //          'forma_pago'   => $this->formaPago,
         //          'cliente_id'   => $this->clienteSeleccionado['id'],
         //          'sucursal_id'  => auth()->user()->sucursal_id,
@@ -260,23 +314,25 @@ class PagoMensualidad extends Component
         //          'tipo'         => 'INGRESO',
         //          'categoria'    => 'MENSUALIDAD',
         //          'monto_ajuste' => $this->modificarMonto,
+        //          'motivo_ajuste'=> $this->motivoAjuste ?: null,
         //          'autorizo_id'  => $this->modificarMonto ? auth()->id() : null,
         //      ]);
         //
         //   3. Actualizar saldo del cliente
         //      $cliente = Cliente::findOrFail($this->clienteSeleccionado['id']);
-        //      $nuevoSaldo = max(0, $cliente->saldo_pendiente - $this->montoFinal);
+        //      $nuevoSaldo = max(0, $cliente->saldo_pendiente - $monto);
         //      $cliente->update(['saldo_pendiente' => $nuevoSaldo]);
-        //      if ($nuevoSaldo == 0 && $cliente->estado === 'Suspendido') {
-        //          $cliente->update(['estado' => 'Activo']);
+        //      if ($nuevoSaldo == 0 && $cliente->estado === 'SUSPENDIDO') {
+        //          $cliente->update(['estado' => 'ACTIVO']);
         //      }
         //
-        //   4. Afectar estado de cuenta del cliente
+        //   4. Registrar movimiento en estado de cuenta
         //      EstadoCuenta::create([
         //          'cliente_id'  => $cliente->id,
         //          'tipo'        => 'PAGO',
         //          'concepto'    => $this->concepto,
-        //          'monto'       => $this->montoFinal,
+        //          'periodo'     => $this->periodoLabel,
+        //          'monto'       => $monto,
         //          'saldo_prev'  => $cliente->saldo_pendiente,
         //          'saldo_nuevo' => $nuevoSaldo,
         //          'ingreso_id'  => $ingreso->id,
@@ -285,23 +341,27 @@ class PagoMensualidad extends Component
         //   5. Afectar corte de caja del día
         //      CorteCaja::firstOrCreate(
         //          ['sucursal_id' => auth()->user()->sucursal_id, 'fecha' => today()],
-        //      )->increment('total_ingresos', $this->montoFinal);
+        //      )->increment('total_ingresos', $monto);
         //
         //   6. Si requiere factura → llamar API Facturama
         //      if ($this->requiereFactura) {
         //          FacturamaService::emitirCFDI([
         //              'receptor'   => $this->datosFactura,
         //              'concepto'   => $this->concepto,
-        //              'monto'      => $this->montoFinal,
+        //              'subtotal'   => $this->subtotalRecibo,
+        //              'iva'        => $this->ivaRecibo,
+        //              'total'      => $monto,
         //              'ingreso_id' => $ingreso->id,
         //          ]);
         //      }
         // });
 
+        $this->toastExito('Pago de $' . number_format($monto, 2) . ' registrado correctamente.');
         $this->paso = 3;
     }
 
-    // ── Confirmar y enviar recibo por WhatsApp (API Meta) ─────────────
+    // ── Enviar recibo por WhatsApp ────────────────────────────────────────────
+
     public function enviarWhatsappRecibo(): void
     {
         $this->validate([
@@ -317,16 +377,18 @@ class PagoMensualidad extends Component
         //     'params'   => [
         //         $this->clienteSeleccionado['nombre'],
         //         $this->folioRecibo,
-        //         '$' . number_format($this->montoFinal, 2),
+        //         '$' . number_format($this->totalRecibo, 2),
         //         $this->fechaPago,
-        //         $this->concepto,
+        //         $this->concepto . ' · ' . $this->periodoLabel,
         //     ],
         // ]);
 
         $this->whatsappEnviado = true;
+        $this->toastExito('Recibo enviado por WhatsApp al +52 ' . $this->telefonoWhatsapp);
     }
 
-    // ── Nuevo pago (reinicio completo) ────────────────────────────────
+    // ── Nuevo pago (reinicio completo) ────────────────────────────────────────
+
     public function nuevoPago(): void
     {
         $this->folioRecibo          = $this->generarFolio();
@@ -334,11 +396,13 @@ class PagoMensualidad extends Component
         $this->busqueda             = '';
         $this->resultados           = [];
         $this->concepto             = '';
+        $this->periodoLabel         = '';
         $this->tarifaMonto          = 0.0;
         $this->montoCobro           = 0.0;
         $this->montoManual          = 0.0;
         $this->formaPago            = 'efectivo';
         $this->modificarMonto       = false;
+        $this->motivoAjuste         = '';
         $this->passwordAutorizacion = '';
         $this->requiereFactura      = false;
         $this->datosFactura         = ['nombre' => '', 'rfc' => '', 'cp' => '', 'uso_cfdi' => 'G03', 'correo' => ''];
@@ -346,26 +410,25 @@ class PagoMensualidad extends Component
         $this->telefonoWhatsapp     = '';
         $this->whatsappEnviado      = false;
         $this->montoFinal           = 0.0;
+        $this->subtotalRecibo       = 0.0;
+        $this->ivaRecibo            = 0.0;
+        $this->totalRecibo          = 0.0;
+        $this->montoAjustado        = false;
         $this->fechaPago            = '';
         $this->paso                 = 1;
     }
 
-    // ── Render ────────────────────────────────────────────────────────
+    // ── Render ────────────────────────────────────────────────────────────────
+
     public function render()
     {
         return view('livewire.gestion-clientes.pago-mensualidad', [
             'conceptos' => [
-                'MENSUALIDAD' => 'Mensualidad ordinaria',
+                'MENSUALIDAD' => 'Mensualidad del servicio',
                 'ADEUDO'      => 'Liquidación de adeudo',
                 'DIAS_USO'    => 'Proporcional / días de uso',
                 'RECONEXION'  => 'Cargo por reconexión',
                 'INSTALACION' => 'Cargo de instalación',
-            ],
-            'formasPago' => [
-                'efectivo'      => 'Efectivo',
-                'transferencia' => 'Transferencia bancaria',
-                'tarjeta'       => 'Tarjeta débito / crédito',
-                'deposito'      => 'Depósito bancario',
             ],
             'usoCfdiOpciones' => [
                 'G01' => 'G01 – Adquisición de mercancias',
@@ -373,12 +436,6 @@ class PagoMensualidad extends Component
                 'I01' => 'I01 – Construcciones',
                 'P01' => 'P01 – Por definir',
                 'S01' => 'S01 – Sin efectos fiscales',
-            ],
-            'iconoFormaPago' => [
-                'efectivo'      => 'ri-money-dollar-box-line',
-                'transferencia' => 'ri-bank-line',
-                'tarjeta'       => 'ri-bank-card-line',
-                'deposito'      => 'ri-building-2-line',
             ],
         ]);
     }

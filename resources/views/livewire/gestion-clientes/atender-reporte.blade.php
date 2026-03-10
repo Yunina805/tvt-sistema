@@ -721,16 +721,70 @@
                 $usaLogica     = $soloInternet || $comboRemoto;
                 $usaFisica     = $soloTV || $comboFisico;
             @endphp
+
+            {{-- ─────────────────────────────────────────────────────────
+                 BLOQUE A: Datos de la suspensión (automáticos)
+            ───────────────────────────────────────────────────────── --}}
             <div class="bg-white border border-red-200 rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-red-50 border-b border-red-200 px-5 py-3.5 flex items-center gap-2">
-                    <i class="ri-indeterminate-circle-line text-red-600 text-lg"></i>
-                    <p class="text-[11px] font-black text-red-800 uppercase tracking-widest">Ejecución de Suspensión por Falta de Pago</p>
-                    <span class="ml-auto text-[9px] font-black px-2 py-0.5 rounded uppercase
-                        {{ $usaLogica && !$usaFisica ? 'bg-blue-100 text-blue-700' : ($usaFisica && !$usaLogica ? 'bg-red-100 text-red-700' : 'bg-violet-100 text-violet-700') }}">
-                        {{ $usaLogica && !$usaFisica ? 'Corte Lógico' : ($usaFisica && !$usaLogica ? 'Corte Físico' : 'Lógico + Físico') }}
+                <div class="bg-red-600 px-5 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="ri-alarm-warning-line text-white text-base"></i>
+                        <p class="text-[11px] font-black text-white uppercase tracking-widest">Suspensión por Falta de Pago</p>
+                    </div>
+                    <span class="text-[9px] font-black px-2.5 py-1 rounded uppercase
+                        {{ $usaLogica && !$usaFisica ? 'bg-blue-100 text-blue-800' : ($usaFisica && !$usaLogica ? 'bg-amber-100 text-amber-800' : 'bg-violet-100 text-violet-800') }}">
+                        {{ $usaLogica && !$usaFisica ? 'Corte Lógico — Sucursal' : ($usaFisica && !$usaLogica ? 'Corte Físico — Técnico en Campo' : 'Lógico + Físico') }}
                     </span>
                 </div>
-                <div class="p-5 space-y-3">
+                <div class="p-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-red-400 uppercase tracking-widest mb-1">Estado del Suscriptor</p>
+                        <p class="text-xs font-black text-red-700 uppercase">{{ $reporte['estado_cliente'] }}</p>
+                    </div>
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-red-400 uppercase tracking-widest mb-1">Días en Mora</p>
+                        <p class="text-xl font-black text-red-700">{{ $reporte['dias_suspension'] ?? '—' }}</p>
+                    </div>
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-red-400 uppercase tracking-widest mb-1">Saldo Pendiente</p>
+                        <p class="text-sm font-black text-red-700">${{ number_format($reporte['saldo_pendiente'] ?? 0, 2) }}</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Técnico Asignado</p>
+                        <p class="text-[10px] font-black text-gray-700 uppercase">{{ $reporte['tecnico'] }}</p>
+                    </div>
+                </div>
+
+                {{-- Infraestructura NAP --}}
+                <div class="border-t border-red-100 px-5 py-3 flex items-center gap-3">
+                    <i class="ri-signal-tower-line text-red-400 text-base flex-shrink-0"></i>
+                    <div>
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">NAP — Infraestructura</p>
+                        <p class="text-xs font-black text-gray-800 uppercase">{{ $reporte['nap'] }}
+                            <span class="text-gray-400 font-normal normal-case ml-1">— {{ $reporte['dir_nap'] }}</span>
+                        </p>
+                    </div>
+                    <div class="ml-auto text-right">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Equipo Asignado</p>
+                        <p class="text-[10px] font-black text-gray-800">{{ $reporte['info_equipo'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ─────────────────────────────────────────────────────────
+                 BLOQUE B: Cierre Técnico — Acciones del técnico
+            ───────────────────────────────────────────────────────── --}}
+            <div class="bg-white border {{ $tecnicoCompletado ? 'border-emerald-300' : 'border-gray-200' }} rounded-xl shadow-sm overflow-hidden">
+                <div class="{{ $tecnicoCompletado ? 'bg-emerald-50 border-b border-emerald-200' : 'bg-gray-50 border-b border-gray-200' }} px-5 py-3.5 flex items-center gap-2">
+                    @if($tecnicoCompletado)
+                    <i class="ri-checkbox-circle-fill text-emerald-600 text-base"></i>
+                    <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Cierre Técnico — Completado</p>
+                    @else
+                    <i class="ri-tools-line text-gray-600 text-base"></i>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Cierre Técnico — Acciones del Técnico</p>
+                    @endif
+                </div>
+                <div class="p-5 space-y-4 {{ $tecnicoCompletado ? 'opacity-60 pointer-events-none' : '' }}">
 
                     {{-- Desconexión LÓGICA: Solo Internet o TV+Internet con remoto --}}
                     @if($usaLogica)
@@ -743,17 +797,19 @@
                             <label class="flex items-center gap-3 p-2.5 bg-white border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
                                 <input type="checkbox" wire:model="confirmacionWinbox" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                                 <div>
-                                    <p class="text-xs font-black text-gray-800 uppercase">Desconexión en Winbox</p>
-                                    <p class="text-[10px] text-gray-500">Corte lógico confirmado en el gestor de red</p>
+                                    <p class="text-xs font-black text-gray-800 uppercase">Desconexión confirmada en Winbox</p>
+                                    <p class="text-[10px] text-gray-500">Corte lógico en el gestor de red MikroTik</p>
                                 </div>
                             </label>
+                            @error('confirmacionWinbox')<p class="text-[10px] text-red-500 font-bold ml-1">{{ $message }}</p>@enderror
                             <label class="flex items-center gap-3 p-2.5 bg-white border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
                                 <input type="checkbox" wire:model="confirmacionOLT" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                                 <div>
-                                    <p class="text-xs font-black text-gray-800 uppercase">Desconexión en OLT</p>
-                                    <p class="text-[10px] text-gray-500">Puerto bloqueado en la OLT</p>
+                                    <p class="text-xs font-black text-gray-800 uppercase">Puerto bloqueado en OLT</p>
+                                    <p class="text-[10px] text-gray-500">Sesión detenida en la OLT asignada</p>
                                 </div>
                             </label>
+                            @error('confirmacionOLT')<p class="text-[10px] text-red-500 font-bold ml-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
                     @endif
@@ -763,34 +819,145 @@
                     <div class="bg-red-50 border border-red-100 rounded-lg p-4">
                         <p class="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1">Desconexión Física en NAP — Técnico en Campo</p>
                         <p class="text-[9px] text-red-500 font-medium mb-3">
-                            {{ $soloTV ? 'Servicio de TV (mininodo) — siempre requiere desconexión física en NAP.' : 'ONU no soporta corte remoto — técnico debe desconectar físicamente en la NAP.' }}
+                            {{ $soloTV ? 'Servicio de TV (mininodo) — desconexión física obligatoria en NAP.' : 'ONU sin función remota — técnico debe desconectar físicamente en la NAP.' }}
                         </p>
                         <label class="flex items-center gap-3 p-2.5 bg-white border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition-colors mb-3">
                             <input type="checkbox" wire:model="confirmacionDesconexionFisica" class="h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500">
                             <div>
                                 <p class="text-xs font-black text-gray-800 uppercase">Desconexión física confirmada en NAP</p>
-                                <p class="text-[10px] text-gray-500">Técnico retiró el conector de la NAP</p>
+                                <p class="text-[10px] text-gray-500">Técnico retiró el conector de la salida NAP</p>
                             </div>
                         </label>
-                        <div class="space-y-1.5">
-                            <label class="block text-[9px] font-black text-red-600 uppercase tracking-widest">Puerto NAP que queda libre</label>
+                        @error('confirmacionDesconexionFisica')<p class="text-[10px] text-red-500 font-bold ml-1 -mt-2 mb-2">{{ $message }}</p>@enderror
+                        <div class="space-y-1">
+                            <label class="block text-[9px] font-black text-red-600 uppercase tracking-widest">Confirmar salida NAP liberada</label>
                             <input type="text" wire:model="salidaNapLibre"
                                    class="w-full bg-white border border-red-200 rounded-lg py-2.5 px-4 text-sm font-black uppercase focus:ring-2 focus:ring-red-400/30"
-                                   placeholder="Salida #4">
-                            <p class="text-[9px] text-gray-400">Se actualizará el inventario de salidas de la NAP al confirmar</p>
+                                   placeholder="Ej: Salida #4">
+                            <p class="text-[9px] text-gray-400">El inventario de salidas NAP se actualizará al confirmar el cierre</p>
                         </div>
                     </div>
                     @endif
 
-                    <button wire:click="cerrarSuspension"
-                            class="w-full py-3.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 shadow-md shadow-red-200 transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="ri-pause-circle-line text-base"></i> Confirmar y Finalizar Suspensión
+                    {{-- Notas técnicas --}}
+                    <div class="space-y-1.5">
+                        <label class="block text-[9px] font-black text-gray-500 uppercase tracking-widest">Notas del técnico (opcional)</label>
+                        <textarea wire:model="notasSuspension" rows="2"
+                                  class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-medium resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
+                                  placeholder="Observaciones de la desconexión..."></textarea>
+                    </div>
+
+                </div>
+
+                {{-- Botón: Guardar Avance Técnico --}}
+                @if(!$tecnicoCompletado)
+                <div class="border-t border-gray-200 px-5 py-4">
+                    @error('tecnicoCompletado')
+                    <p class="text-[10px] text-red-500 font-black mb-3 flex items-center gap-1.5">
+                        <i class="ri-error-warning-line"></i> {{ $message }}
+                    </p>
+                    @enderror
+                    <button wire:click="guardarAvanceSuspension"
+                            class="w-full py-3 bg-gray-800 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-900 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ri-save-3-line text-base"></i> Guardar Avance Técnico
                     </button>
-                    <p class="text-center text-[9px] text-gray-400 font-medium uppercase tracking-widest">
-                        Al confirmar: estado cliente → SUSPENDIDO · actualiza inventario NAP · envía SMS al cliente
+                    <p class="text-center text-[9px] text-gray-400 font-medium mt-2">
+                        Esto habilitará el Cierre Administrativo. Las acciones técnicas quedarán registradas.
                     </p>
                 </div>
+                @else
+                <div class="border-t border-emerald-200 px-5 py-3 bg-emerald-50 flex items-center gap-2">
+                    <i class="ri-checkbox-circle-fill text-emerald-600 text-base"></i>
+                    <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Acciones técnicas registradas correctamente</p>
+                </div>
+                @endif
             </div>
+
+            {{-- ─────────────────────────────────────────────────────────
+                 BLOQUE C: Cierre Administrativo (requiere técnico completado)
+            ───────────────────────────────────────────────────────── --}}
+            <div class="bg-white border {{ $tecnicoCompletado ? 'border-red-300' : 'border-gray-200 opacity-50' }} rounded-xl shadow-sm overflow-hidden">
+                <div class="{{ $tecnicoCompletado ? 'bg-red-600' : 'bg-gray-200' }} px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-shield-check-line {{ $tecnicoCompletado ? 'text-white' : 'text-gray-500' }} text-base"></i>
+                    <p class="text-[11px] font-black {{ $tecnicoCompletado ? 'text-white' : 'text-gray-500' }} uppercase tracking-widest">
+                        Cierre Administrativo — Sucursal
+                    </p>
+                    @if(!$tecnicoCompletado)
+                    <span class="ml-auto text-[9px] font-black bg-gray-300 text-gray-600 px-2 py-0.5 rounded uppercase">
+                        Requiere cierre técnico primero
+                    </span>
+                    @endif
+                </div>
+
+                @if($tecnicoCompletado)
+                <div class="p-5 space-y-4">
+                    {{-- Resumen de acciones del sistema --}}
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-4">
+                        <p class="text-[9px] font-black text-red-700 uppercase tracking-widest mb-3">Acciones del sistema al confirmar</p>
+                        <ul class="space-y-1.5">
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-user-forbid-line text-red-500"></i>
+                                Cambiar estado del suscriptor → <span class="text-red-600 font-black">SUSPENDIDO</span>
+                            </li>
+                            @if($usaFisica && $salidaNapLibre)
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-signal-tower-line text-red-500"></i>
+                                Liberar salida <span class="font-mono font-black text-gray-900">{{ $salidaNapLibre }}</span> en {{ $reporte['nap'] }}
+                            </li>
+                            @elseif($usaFisica)
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-signal-tower-line text-red-500"></i>
+                                Actualizar inventario de salidas en {{ $reporte['nap'] }}
+                            </li>
+                            @endif
+                            @if($usaLogica)
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-router-line text-red-500"></i>
+                                Liberar puertos y sesiones lógicas de red
+                            </li>
+                            @endif
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-pause-circle-line text-amber-500"></i>
+                                Pausar ciclo de facturación — no generar cargos mientras esté suspendido
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-message-2-line text-indigo-500"></i>
+                                Enviar SMS de notificación al suscriptor
+                            </li>
+                        </ul>
+                    </div>
+
+                    {{-- Regla de negocio: facturación --}}
+                    <div class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-lg p-3.5">
+                        <i class="ri-information-line text-amber-600 text-base flex-shrink-0 mt-0.5"></i>
+                        <p class="text-[10px] font-medium text-amber-800 leading-relaxed">
+                            <strong>Regla de negocio:</strong> Los periodos suspendidos <strong>no generan cargos de mensualidad</strong>. La facturación se reactiva automáticamente al generar el reporte de reconexión y liquidar el adeudo.
+                        </p>
+                    </div>
+
+                    <button @click="$confirm('¿Confirmar cierre administrativo? El suscriptor quedará SUSPENDIDO y se liberarán los recursos de red.', () => $wire.cerrarSuspension(), { confirmText: 'Sí, aplicar suspensión', title: 'Cierre Administrativo', icon: 'warning' })"
+                            class="w-full py-3.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 shadow-md shadow-red-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ri-pause-circle-line text-base"></i> Aplicar Suspensión — Cierre Total
+                    </button>
+                </div>
+                @else
+                <div class="p-6 text-center">
+                    <i class="ri-lock-line text-3xl text-gray-300"></i>
+                    <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest mt-2">
+                        Complete y guarde las acciones técnicas para habilitar el cierre administrativo
+                    </p>
+                </div>
+                @endif
+            </div>
+
+            {{-- Enlace volver --}}
+            <div class="flex justify-start">
+                <a href="{{ route('reportes.servicio') }}"
+                   class="text-[10px] font-black text-gray-400 hover:text-gray-700 uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                    <i class="ri-arrow-left-line"></i> Volver a bandeja
+                </a>
+            </div>
+
             @endif
 
             {{-- ═══════════════════════════════════════════════════════
@@ -872,59 +1039,353 @@
                  [RECUPERACIÓN DE EQUIPO] Por adeudo >61 días
             ═══════════════════════════════════════════════════════ --}}
             @if($esRecuperacion)
-            <div class="bg-white border border-amber-200 rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-amber-50 border-b border-amber-200 px-5 py-3.5 flex items-center gap-2">
-                    <i class="ri-arrow-down-circle-line text-amber-600 text-base"></i>
-                    <p class="text-[11px] font-black text-amber-800 uppercase tracking-widest">Recuperación de Equipo — Adeudo Mayor a 61 Días</p>
+
+            {{-- ─── Datos de la recuperación (automáticos) ─────────────── --}}
+            <div class="bg-white border border-amber-300 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-amber-600 px-5 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="ri-arrow-down-circle-line text-white text-base"></i>
+                        <p class="text-[11px] font-black text-white uppercase tracking-widest">Recuperación de Equipo por Morosidad</p>
+                    </div>
+                    <span class="text-[9px] font-black bg-red-100 text-red-800 px-2.5 py-1 rounded uppercase">
+                        {{ $reporte['dias_suspension'] ?? '—' }} días de adeudo
+                    </span>
                 </div>
-                <div class="p-5 space-y-4">
+                <div class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-amber-500 uppercase tracking-widest mb-1">Estado</p>
+                        <p class="text-[10px] font-black text-amber-800 uppercase leading-tight">{{ $reporte['estado_cliente'] }}</p>
+                    </div>
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-red-400 uppercase tracking-widest mb-1">Saldo Adeudo</p>
+                        <p class="text-sm font-black text-red-700">${{ number_format($reporte['saldo_pendiente'] ?? 0, 2) }}</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">NAP</p>
+                        <p class="text-[10px] font-black text-gray-800 uppercase">{{ $reporte['nap'] }}</p>
+                        <p class="text-[9px] text-gray-400 font-medium">{{ $reporte['dir_nap'] }}</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Equipo</p>
+                        <p class="text-[9px] font-black text-gray-800 leading-tight">{{ $reporte['info_equipo'] }}</p>
+                    </div>
+                </div>
+            </div>
 
-                    <div class="space-y-1.5">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Confirmación de Desconexión Física</label>
-                        <label class="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-200 transition-colors">
-                            <input type="checkbox" wire:model="desconexionFisicaRec" class="h-5 w-5 text-amber-600 rounded focus:ring-0 flex-shrink-0">
-                            <span class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Equipo desconectado físicamente de la NAP</span>
+            {{-- ─── A. DESCONEXIÓN FÍSICA ───────────────────────────────── --}}
+            <div class="bg-white border {{ $tecnicoCompletadoRec ? 'border-emerald-300' : 'border-gray-200' }} rounded-xl shadow-sm overflow-hidden"
+                 x-data="{ equipoRec: '{{ $recuperaEquipoRec }}' }">
+                <div class="{{ $tecnicoCompletadoRec ? 'bg-emerald-50 border-b border-emerald-200' : 'bg-gray-50 border-b border-gray-200' }} px-5 py-3.5 flex items-center gap-2">
+                    @if($tecnicoCompletadoRec)
+                    <i class="ri-checkbox-circle-fill text-emerald-600 text-base"></i>
+                    <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Cierre Técnico — Completado</p>
+                    @else
+                    <i class="ri-tools-line text-gray-600 text-base"></i>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Cierre Técnico — Acciones en Campo y Sucursal</p>
+                    @endif
+                </div>
+                <div class="p-5 space-y-5 {{ $tecnicoCompletadoRec ? 'opacity-60 pointer-events-none' : '' }}">
+
+                    {{-- A.1 Desconexión Física en NAP --}}
+                    <div class="space-y-3">
+                        <p class="text-[9px] font-black text-red-600 uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="ri-tools-line"></i> A. Desconexión Física en Campo
+                        </p>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <input type="checkbox" wire:model.live="desconexionFisicaRec" class="h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-xs font-black text-gray-800 uppercase">Corte físico del servicio confirmado en NAP</p>
+                                <p class="text-[10px] text-gray-500 mt-0.5">El técnico desconectó el servicio en la infraestructura</p>
+                            </div>
                         </label>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Confirmar Serie del Equipo Recuperado *</label>
-                        <input type="text" wire:model="serieRecuperada"
-                               class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400"
-                               placeholder="{{ $reporte['info_equipo'] }}">
-                        @error('serieRecuperada')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
-                        <p class="text-[9px] text-amber-600 font-bold uppercase">Si no confirma la serie el reporte NO puede cerrarse</p>
-                    </div>
-
-                    <label class="flex items-center gap-3 cursor-pointer p-3 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors">
-                        <input type="checkbox" wire:model="equipoEntregado" class="h-5 w-5 text-emerald-600 rounded focus:ring-0 flex-shrink-0">
-                        <div>
-                            <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Equipo ingresado a inventario de sucursal ✓</p>
-                            <p class="text-[9px] text-emerald-600 font-medium">La sucursal acepta el ingreso del equipo</p>
+                        @error('desconexionFisicaRec')
+                        <p class="text-[10px] text-red-500 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                        @enderror
+                        <label class="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-200 transition-colors">
+                            <input type="checkbox" wire:model="acometidaLiberada" class="h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-xs font-black text-gray-800 uppercase">Liberación de acometida</p>
+                                <p class="text-[10px] text-gray-500 mt-0.5">Cable de acometida retirado del domicilio</p>
+                            </div>
+                        </label>
+                        <div class="space-y-1">
+                            <label class="block text-[9px] font-black text-gray-500 uppercase tracking-widest">Puerto NAP liberado</label>
+                            <input type="text" wire:model="salidaNapLibreRec"
+                                   class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-black uppercase focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400"
+                                   placeholder="Ej: Salida #4">
+                            <p class="text-[9px] text-gray-400">El inventario de salidas NAP se actualizará al confirmar el cierre</p>
                         </div>
-                    </label>
-                    @error('equipoEntregado')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
+                    </div>
 
+                    {{-- A.2 Recuperación de Equipo --}}
+                    <div class="border-t border-gray-100 pt-4 space-y-3">
+                        <p class="text-[9px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="ri-router-line"></i> B. Recuperación del Equipo en Comodato
+                        </p>
+
+                        {{-- Radio: Sí / No --}}
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer" @click="equipoRec = 'si'">
+                                <input type="radio" name="equipoRecRec" value="si" class="sr-only">
+                                <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                     :class="equipoRec === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
+                                    <i class="ri-checkbox-circle-line block text-xl mb-1"
+                                       :class="equipoRec === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
+                                    <p class="text-[10px] font-black uppercase tracking-widest"
+                                       :class="equipoRec === 'si' ? 'text-emerald-700' : 'text-gray-400'">SÍ — Recuperado</p>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer" @click="equipoRec = 'no'">
+                                <input type="radio" name="equipoRecRec" value="no" class="sr-only">
+                                <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                     :class="equipoRec === 'no' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-200'">
+                                    <i class="ri-close-circle-line block text-xl mb-1"
+                                       :class="equipoRec === 'no' ? 'text-red-500' : 'text-gray-300'"></i>
+                                    <p class="text-[10px] font-black uppercase tracking-widest"
+                                       :class="equipoRec === 'no' ? 'text-red-700' : 'text-gray-400'">NO — No Recuperado</p>
+                                </div>
+                            </label>
+                        </div>
+                        @error('recuperaEquipoRec')
+                        <p class="text-[10px] text-red-500 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                        @enderror
+
+                        {{-- CASO: Sí recuperado --}}
+                        <div x-show="equipoRec === 'si'" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                            <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Serie registrada en sistema</p>
+                            <p class="font-mono text-sm font-black text-indigo-700 bg-white border border-indigo-100 px-4 py-2 rounded-lg">
+                                {{ $reporte['info_equipo'] }}
+                            </p>
+                            <div class="space-y-1.5">
+                                <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física recuperada *</label>
+                                <input type="text" wire:model.live="serieRecuperada"
+                                       class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+                                       placeholder="ESCANEAR O ESCRIBIR SERIE...">
+                            </div>
+                            @if($serieRecuperada)
+                                @php $serieOk = str_contains($reporte['info_equipo'], $serieRecuperada); @endphp
+                                @if($serieOk)
+                                <div class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
+                                    <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — coincide con el registro ✓
+                                </div>
+                                @else
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                    <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5 mb-1">
+                                        <i class="ri-alert-line text-amber-600"></i> Serie diferente detectada
+                                    </p>
+                                    <p class="text-[10px] text-amber-700 font-medium">
+                                        No coincide con el registro. El sistema buscará esta serie, la reasignará al historial del suscriptor y registrará la recuperación correcta.
+                                    </p>
+                                </div>
+                                @endif
+                            @endif
+                            <label class="flex items-center gap-3 cursor-pointer p-3 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
+                                <input type="checkbox" wire:model="equipoEntregado" class="h-5 w-5 text-emerald-600 rounded focus:ring-emerald-500 flex-shrink-0">
+                                <div>
+                                    <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Equipo ingresado a inventario de sucursal ✓</p>
+                                    <p class="text-[9px] text-emerald-600 font-medium">La sucursal acepta el ingreso del equipo al almacén</p>
+                                </div>
+                            </label>
+                            @error('equipoEntregado')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
+                        </div>
+
+                        {{-- CASO: No recuperado --}}
+                        <div x-show="equipoRec === 'no'" x-cloak class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+                            <p class="text-[9px] font-black text-red-700 uppercase tracking-widest">Equipo no recuperado — seleccione forma de resolución</p>
+                            <p class="text-[10px] text-red-600 font-medium">
+                                Para cerrar el reporte el suscriptor debe liquidar el valor del equipo por pérdida o daño.
+                                Si no paga, use Guardar Precierre.
+                            </p>
+                            <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                                <input type="checkbox" wire:model.live="pagoDanoRec" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                                <div>
+                                    <p class="text-[10px] font-black text-red-900 uppercase tracking-widest">A) Pago por daño del equipo confirmado</p>
+                                    <p class="text-[9px] text-red-600 font-medium mt-0.5">El equipo fue dañado. El suscriptor pagó el costo de reparación/reposición.</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                                <input type="checkbox" wire:model.live="pagoPerdidaRec" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                                <div>
+                                    <p class="text-[10px] font-black text-red-900 uppercase tracking-widest">B) Pago por pérdida del equipo confirmado</p>
+                                    <p class="text-[9px] text-red-600 font-medium mt-0.5">El equipo no existe. El suscriptor pagó el valor total. Estatus → PAGADO POR PÉRDIDA.</p>
+                                </div>
+                            </label>
+                            @error('pagoPerdidaRec')
+                            <p class="text-[10px] text-red-600 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                            @enderror
+                            <div x-show="!$wire.pagoPerdidaRec && !$wire.pagoDanoRec"
+                                 class="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                                <i class="ri-information-line text-amber-600 text-sm flex-shrink-0"></i>
+                                <p class="text-[10px] text-amber-700 font-bold">
+                                    Si el suscriptor no paga, use <strong>Guardar Precierre</strong> con motivo correspondiente.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- A.3 Bajas de red (solo Internet) --}}
                     @if($tieneInternet)
-                    <div class="border-t border-gray-100 pt-4 space-y-2">
-                        <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Baja Lógica — Sucursal</p>
-                        <label class="flex items-center gap-2.5 cursor-pointer p-2.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 transition-colors">
-                            <input type="checkbox" wire:model="desconexionWinboxRec" class="h-4 w-4 text-indigo-600 rounded focus:ring-0 flex-shrink-0">
-                            <span class="text-[10px] font-black text-gray-700 uppercase">Desconexión lógica en Winbox</span>
-                        </label>
-                        <label class="flex items-center gap-2.5 cursor-pointer p-2.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 transition-colors">
-                            <input type="checkbox" wire:model="desconexionOLTRec" class="h-4 w-4 text-indigo-600 rounded focus:ring-0 flex-shrink-0">
-                            <span class="text-[10px] font-black text-gray-700 uppercase">Desconexión lógica en OLT</span>
-                        </label>
+                    <div class="border-t border-gray-100 pt-4 space-y-3">
+                        <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="ri-computer-line"></i> C. Acciones Administrativas de Red — Internet
+                        </p>
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-center gap-3 mb-2">
+                            <i class="ri-global-line text-blue-500 text-lg flex-shrink-0"></i>
+                            <div>
+                                <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">IP · OLT asignados al suscriptor</p>
+                                <p class="font-mono text-xs font-black text-gray-700">{{ $reporte['ip'] ?? '—' }} · {{ $reporte['olt'] ?? '—' }} · {{ $reporte['pon'] ?? '—' }}</p>
+                                <p class="text-[9px] text-gray-400 font-bold">VLAN {{ $reporte['vlan'] ?? '—' }}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            @foreach([
+                                ['model' => 'desconexionWinboxRec', 'label' => 'Baja lógica del suscriptor en Winbox',    'sub' => 'Usuario eliminado del gestor MikroTik'],
+                                ['model' => 'desconexionOLTRec',    'label' => 'Baja lógica del suscriptor en OLT',       'sub' => 'Puerto liberado en la OLT correspondiente'],
+                                ['model' => 'ipLiberada',            'label' => 'Liberación de IP asignada',              'sub' => 'La IP queda disponible en el pool de red'],
+                                ['model' => 'vlanLiberada',          'label' => 'Liberación de VLAN',                     'sub' => 'VLAN desvinculada del perfil del suscriptor'],
+                                ['model' => 'sesionLiberada',        'label' => 'Liberación de sesión activa',             'sub' => 'Sesión PPPoE/IPoE terminada correctamente'],
+                            ] as $item)
+                            <label class="flex items-center gap-3 p-2.5 bg-white border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                <input type="checkbox" wire:model.live="{{ $item['model'] }}" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 flex-shrink-0">
+                                <div>
+                                    <p class="text-xs font-black text-gray-800 uppercase">{{ $item['label'] }}</p>
+                                    <p class="text-[10px] text-gray-500">{{ $item['sub'] }}</p>
+                                </div>
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('desconexionOLTRec')
+                        <p class="text-[10px] text-red-500 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                        @enderror
                     </div>
                     @endif
 
-                    <button wire:click="cerrarRecuperacion"
-                            class="w-full py-3.5 bg-amber-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-amber-700 shadow-md shadow-amber-200 transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="ri-arrow-down-circle-line text-base"></i> Confirmar Recuperación y Cerrar Reporte
+                </div>
+
+                {{-- Botón Guardar Cierre Técnico --}}
+                @if(!$tecnicoCompletadoRec)
+                <div class="border-t border-gray-200 px-5 py-4">
+                    @error('tecnicoCompletadoRec')
+                    <p class="text-[10px] text-red-500 font-black mb-3 flex items-center gap-1.5"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                    @enderror
+                    <button @click="$wire.guardarAvanceRecuperacion(equipoRec)"
+                            class="w-full py-3 bg-gray-800 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-900 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ri-save-3-line text-base"></i> Guardar Cierre Técnico
+                    </button>
+                    <p class="text-center text-[9px] text-gray-400 font-medium mt-2">Habilita el Cierre Administrativo</p>
+                </div>
+                @else
+                <div class="border-t border-emerald-200 px-5 py-3 bg-emerald-50 flex items-center gap-2">
+                    <i class="ri-checkbox-circle-fill text-emerald-600"></i>
+                    <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Acciones técnicas registradas correctamente</p>
+                </div>
+                @endif
+            </div>
+
+            {{-- ─── D. PRECIERRE ────────────────────────────────────────── --}}
+            <div class="bg-white border border-amber-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-amber-50 border-b border-amber-200 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-save-3-line text-amber-600 text-sm"></i>
+                    <p class="text-[11px] font-black text-amber-800 uppercase tracking-widest">Precierre — Guardar Avance sin Cerrar</p>
+                </div>
+                <div class="p-5 space-y-3">
+                    <select wire:model="motivoPrecierreRec"
+                            class="w-full bg-white border border-amber-300 rounded-lg py-2.5 px-3 text-xs font-black uppercase focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400">
+                        <option value="">— Seleccione motivo —</option>
+                        <option value="NO_ENTREGA_EQUIPO">Suscriptor no entrega el equipo</option>
+                        <option value="NO_PAGA_PERDIDA">No paga por pérdida/daño del equipo</option>
+                        <option value="SUSCRIPTOR_AUSENTE">Suscriptor ausente en domicilio</option>
+                        <option value="OTRO">Otro — ver notas del técnico</option>
+                    </select>
+                    @error('motivoPrecierreRec')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
+                    <button wire:click="guardarPrecierreRecuperacion"
+                            class="w-full py-2.5 bg-white border border-amber-300 text-amber-700 font-black text-[10px] uppercase tracking-widest rounded-lg hover:bg-amber-50 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ri-save-line"></i> Guardar Precierre
                     </button>
                 </div>
             </div>
+
+            {{-- ─── E. CIERRE ADMINISTRATIVO ────────────────────────────── --}}
+            <div class="bg-white border {{ $tecnicoCompletadoRec ? 'border-amber-400' : 'border-gray-200 opacity-50' }} rounded-xl shadow-sm overflow-hidden">
+                <div class="{{ $tecnicoCompletadoRec ? 'bg-amber-600' : 'bg-gray-200' }} px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-shield-check-line {{ $tecnicoCompletadoRec ? 'text-white' : 'text-gray-500' }} text-base"></i>
+                    <p class="text-[11px] font-black {{ $tecnicoCompletadoRec ? 'text-white' : 'text-gray-500' }} uppercase tracking-widest">
+                        Cierre Administrativo — Sucursal
+                    </p>
+                    @if(!$tecnicoCompletadoRec)
+                    <span class="ml-auto text-[9px] font-black bg-gray-300 text-gray-600 px-2 py-0.5 rounded uppercase">Requiere cierre técnico</span>
+                    @endif
+                </div>
+
+                @if($tecnicoCompletadoRec)
+                <div class="p-5 space-y-4">
+                    <div class="bg-amber-50 border border-amber-100 rounded-lg p-4">
+                        <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest mb-3">Acciones del sistema al confirmar</p>
+                        <ul class="space-y-1.5">
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-user-forbid-line text-red-500"></i>
+                                Cambiar estado → <span class="text-red-600 font-black uppercase">Cancelado por Morosidad</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-close-circle-line text-red-500"></i>
+                                Cancelar servicio activo · bloquear reactivación automática
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-pause-circle-line text-amber-500"></i>
+                                Detener generación de mensualidades · cancelar ciclos futuros
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-signal-tower-line text-indigo-500"></i>
+                                Liberar salida NAP · puertos · recursos lógicos
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-store-2-line text-emerald-500"></i>
+                                {{ $recuperaEquipoRec === 'si' ? 'Ingresar equipo recuperado a almacén' : 'Registrar baja por pérdida/daño en inventario' }}
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-history-line text-gray-500"></i>
+                                Guardar evento permanente en historial del suscriptor
+                            </li>
+                            <li class="flex items-center gap-2 text-[10px] font-bold text-gray-700">
+                                <i class="ri-message-2-line text-indigo-500"></i>
+                                Enviar SMS de confirmación al suscriptor
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="flex items-start gap-3 bg-red-50 border border-red-100 rounded-lg p-3.5">
+                        <i class="ri-information-line text-red-500 text-base flex-shrink-0 mt-0.5"></i>
+                        <p class="text-[10px] font-medium text-red-700 leading-relaxed">
+                            <strong>Regla de negocio:</strong> Los periodos suspendidos y en recuperación
+                            <strong>no generan mensualidades</strong>. La facturación queda cancelada permanentemente.
+                        </p>
+                    </div>
+                    <button @click="$confirm(
+                                '¿Confirmar cierre administrativo? El suscriptor quedará CANCELADO POR MOROSIDAD y se liberarán todos los recursos asignados.',
+                                () => $wire.cerrarRecuperacion(),
+                                { confirmText: 'Sí, aplicar cierre', title: 'Cierre Administrativo Final', icon: 'warning' }
+                            )"
+                            class="w-full py-3.5 bg-amber-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-amber-700 shadow-md shadow-amber-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ri-arrow-down-circle-line text-base"></i> Aplicar Recuperación — Cierre Total
+                    </button>
+                </div>
+                @else
+                <div class="p-6 text-center">
+                    <i class="ri-lock-line text-3xl text-gray-300"></i>
+                    <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest mt-2">
+                        Complete el cierre técnico para habilitar el cierre administrativo
+                    </p>
+                </div>
+                @endif
+            </div>
+
+            {{-- Enlace volver --}}
+            <div class="flex justify-start">
+                <a href="{{ route('reportes.servicio') }}"
+                   class="text-[10px] font-black text-gray-400 hover:text-gray-700 uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                    <i class="ri-arrow-left-line"></i> Volver a bandeja
+                </a>
+            </div>
+
             @endif
 
             {{-- ═══════════════════════════════════════════════════════

@@ -29,30 +29,41 @@ class RecuperacionEquipos extends Component
 
     public function generarReporteRecuperacion(string $clienteId): void
     {
+        // ─────────────────────────────────────────────────────────────
         // TODO: DB::transaction(function() use ($clienteId) {
+        //   $cliente = Cliente::with(['servicio','equipo','nap'])->findOrFail($clienteId);
         //
-        //   1. Crear ReporteServicio:
-        //      ReporteServicio::create([
-        //          'folio'        => 'REC-' . now()->format('Y') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT),
-        //          'tipo_reporte' => 'RECUPERACION',
-        //          'cliente_id'   => $clienteId,
-        //          'sucursal_id'  => auth()->user()->sucursal_id,
-        //          'tecnico_id'   => null,  // la sucursal asignará el técnico
-        //          'estado'       => 'Pendiente',
-        //          'fecha'        => now(),
-        //      ]);
+        //   $seq   = ReporteServicio::whereYear('created_at', now()->year)->count() + 1;
+        //   $folio = 'REC-' . now()->format('Y') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
         //
-        //   2. SMS al cliente (API):
-        //      SmsService::enviar($cliente->telefono,
-        //          "Tu Vision Telecable: Su equipo sera recuperado por falta de pago. " .
-        //          "Comuniquese al {$sucursal->telefono} para regularizar su situacion.");
+        //   ReporteServicio::create([
+        //       'folio'         => $folio,
+        //       'tipo_reporte'  => 'RECUPERACION',
+        //       'tipo_servicio' => $cliente->tipo_servicio,
+        //       'cliente_id'    => $clienteId,
+        //       'sucursal_id'   => auth()->user()->sucursal_id,
+        //       'estado'        => 'Pendiente',
+        //       'fecha'         => now(),
+        //   ]);
         //
-        //   3. SMS al técnico (cuando la sucursal lo asigne desde el reporte):
-        //      SmsService::enviar($tecnico->telefono,
-        //          "Nuevo reporte de recuperacion asignado: {$folio}. Cliente: {$cliente->nombre}.");
+        //   // SMS al SUSCRIPTOR (automático al generar):
+        //   SmsService::enviar($cliente->telefono,
+        //       "Tu Vision Telecable: Su equipo sera recuperado por falta de pago. " .
+        //       "Comuniquese al {$sucursal->telefono} para regularizar su situacion.");
+        //
+        //   // SMS al TÉCNICO (al asignarlo desde el reporte):
+        //   SmsService::enviar($tecnico->telefono,
+        //       "Nuevo reporte de recuperacion de equipo asignado: {$folio}. " .
+        //       "Cliente: {$cliente->nombre}. Domicilio: {$cliente->domicilio}.");
         // });
+        //
+        // $this->redirect(route('reportes.atender', ['folio' => $folio]));
+        // ─────────────────────────────────────────────────────────────
 
-        $this->toastExito("Reporte de recuperación generado para cliente {$clienteId}.");
+        $folio = 'REC-2026-0001';
+
+        $this->toastExito("Reporte {$folio} generado. SMS enviado al suscriptor.");
+        $this->redirect(route('reportes.atender', ['folio' => $folio]));
     }
 
     public function render()

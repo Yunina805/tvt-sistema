@@ -338,7 +338,7 @@
                                 @close-nav-cat.window="if ($event.detail !== 'adminTvt') open = false">
                                 <button @click="open = !open; if (open) $dispatch('close-nav-cat', 'adminTvt')"
                                     class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                       {{ $adminTvtActive ? 'bg-slate-100 text-slate-700' : 'text-gray-600 hover:bg-slate-100 hover:text-slate-700' }}">
+                                           {{ $adminTvtActive ? 'bg-slate-100 text-slate-700' : 'text-gray-600 hover:bg-slate-100 hover:text-slate-700' }}">
                                     <i
                                         class="ri-settings-3-line text-lg {{ $adminTvtActive ? 'text-slate-600' : 'text-slate-400' }}"></i>
                                     <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Administrativa
@@ -694,7 +694,7 @@
                                 @close-nav-cat.window="if ($event.detail !== 'clientes') open = false">
                                 <button @click="open = !open; if (open) $dispatch('close-nav-cat', 'clientes')"
                                     class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                       {{ $clientesGestActive ? 'bg-teal-50 text-teal-700' : 'text-gray-600 hover:bg-teal-50 hover:text-teal-700' }}">
+                                           {{ $clientesGestActive ? 'bg-teal-50 text-teal-700' : 'text-gray-600 hover:bg-teal-50 hover:text-teal-700' }}">
                                     <i
                                         class="ri-user-star-line text-lg {{ $clientesGestActive ? 'text-teal-600' : 'text-teal-400' }}"></i>
                                     <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Gestión
@@ -706,7 +706,7 @@
                                     @if($_canSub('Clientes', 'clientes.registro'))
                                         <a href="{{ route('clientes.registro') }}"
                                             class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('clientes.registro') ? 'text-teal-700 bg-teal-50' : 'text-gray-500 hover:text-teal-600 hover:bg-teal-50/50' }}">
+                                                  {{ request()->routeIs('clientes.registro') ? 'text-teal-700 bg-teal-50' : 'text-gray-500 hover:text-teal-600 hover:bg-teal-50/50' }}">
                                             <i class="ri-user-add-line text-sm opacity-70"></i>
                                             <span>Registro de Clientes</span>
                                         </a>
@@ -1017,7 +1017,7 @@
                                 @close-nav-cat.window="if ($event.detail !== 'regulatorio') open = false">
                                 <button @click="open = !open; if (open) $dispatch('close-nav-cat', 'regulatorio')"
                                     class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                       {{ $regulatorioActive ? 'bg-rose-50 text-rose-700' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-700' }}">
+                                           {{ $regulatorioActive ? 'bg-rose-50 text-rose-700' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-700' }}">
                                     <i
                                         class="ri-government-line text-lg {{ $regulatorioActive ? 'text-rose-600' : 'text-rose-400' }}"></i>
                                     <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Catálogos
@@ -1069,7 +1069,7 @@
                         @close-nav-top.window="if ($event.detail !== 'gc') open = false">
                         <button @click="open = !open; if (open) $dispatch('close-nav-top', 'gc')"
                             class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                       {{ $gcActive ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-red-50 hover:text-red-700' }}">
+                                           {{ $gcActive ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-red-50 hover:text-red-700' }}">
                             <i
                                 class="ri-customer-service-2-line text-lg {{ $gcActive ? 'text-red-600' : 'text-red-400' }}"></i>
                             <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Gestión al
@@ -1081,7 +1081,7 @@
                             @if($_canSub('GestionClientes', 'contrataciones-nuevas'))
                                 <a href="{{ route('contrataciones.nuevas') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('contrataciones.nuevas') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('contrataciones.nuevas') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-file-add-line text-sm opacity-70"></i>
                                     <span>Contratos Nuevos</span>
                                 </a>
@@ -1089,7 +1089,7 @@
                             @if($_canSub('GestionClientes', 'servicios-adicionales'))
                                 <a href="{{ route('servicios.adicionales') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('servicios.adicionales') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('servicios.adicionales') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-add-box-line text-sm opacity-70"></i>
                                     <span>Servicios Adicionales</span>
                                 </a>
@@ -1097,15 +1097,23 @@
                             @if($_canSub('GestionClientes', 'contratacion-promocion'))
                                 <a href="{{ route('contratacion.promocion') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('contratacion.promocion') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('contratacion.promocion') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-discount-percent-line text-sm opacity-70"></i>
                                     <span>Pago en Promoción</span>
+                                </a>
+                            @endif
+                            @if($_canSub('GestionClientes', 'cambio-servicio'))
+                                <a href="{{ route('cambio.servicio') }}"
+                                    class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                  {{ request()->routeIs('cambio.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                    <i class="ri-exchange-line text-sm opacity-70"></i>
+                                    <span>Cambio de Servicio</span>
                                 </a>
                             @endif
                             @if($_canSub('GestionClientes', 'pago-mensualidad'))
                                 <a href="{{ route('pago.mensualidad') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('pago.mensualidad') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('pago.mensualidad') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-calendar-check-line text-sm opacity-70"></i>
                                     <span>Pago de Mensualidad</span>
                                 </a>
@@ -1113,7 +1121,7 @@
                             @if($_canSub('GestionClientes', 'estado-cuenta'))
                                 <a href="{{ route('estado.cuenta') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('estado.cuenta') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('estado.cuenta') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-file-list-3-line text-sm opacity-70"></i>
                                     <span>Estado de Cuenta</span>
                                 </a>
@@ -1121,7 +1129,7 @@
                             @if($_canSub('GestionClientes', 'suspension-falta-pago'))
                                 <a href="{{ route('suspension.clientes') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('suspension.clientes') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('suspension.clientes') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-user-unfollow-line text-sm opacity-70"></i>
                                     <span>Suspensión Falta Pago</span>
                                 </a>
@@ -1129,7 +1137,7 @@
                             @if($_canSub('GestionClientes', 'reconexion-cliente'))
                                 <a href="{{ route('reconexion.cliente') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('reconexion.cliente') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('reconexion.cliente') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-plug-line text-sm opacity-70"></i>
                                     <span>Reconexión de Cliente</span>
                                 </a>
@@ -1137,7 +1145,7 @@
                             @if($_canSub('GestionClientes', 'cancelacion-servicio'))
                                 <a href="{{ route('cancelacion.servicio') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('cancelacion.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('cancelacion.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-close-circle-line text-sm opacity-70"></i>
                                     <span>Cancelación de Servicio</span>
                                 </a>
@@ -1145,7 +1153,7 @@
                             @if($_canSub('GestionClientes', 'recuperacion-equipos'))
                                 <a href="{{ route('recuperacion.equipos') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('recuperacion.equipos') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('recuperacion.equipos') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-router-line text-sm opacity-70"></i>
                                     <span>Recuperación de Equipos</span>
                                 </a>
@@ -1153,7 +1161,7 @@
                             @if($_canSub('GestionClientes', 'reportes-servicio'))
                                 <a href="{{ route('reportes.servicio') }}"
                                     class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                          {{ request()->routeIs('reportes.servicio', 'reportes.atender') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                                  {{ request()->routeIs('reportes.servicio', 'reportes.atender') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
                                     <i class="ri-inbox-archive-line text-sm opacity-70"></i>
                                     <span>Bandeja de Reportes</span>
                                 </a>
@@ -1173,7 +1181,8 @@
                     </div>
                     <div class="hide-collapsed overflow-hidden flex-1 min-w-0">
                         <p class="text-[10px] font-black text-gray-900 uppercase truncate leading-none">
-                            {{ Auth::user()->name }}</p>
+                            {{ Auth::user()->name }}
+                        </p>
                         <p class="text-[9px] font-bold text-gray-400 truncate mt-1 italic uppercase tracking-tighter">
                             ADMINISTRADOR</p>
                     </div>
@@ -1186,35 +1195,67 @@
         ================================================================ --}}
         <div class="flex flex-col flex-1 min-w-0 overflow-hidden relative bg-gray-50 dark:bg-slate-950">
 
-            {{-- TOP BAR --}}
-            <header
-                class="flex items-center justify-between h-16 px-4 md:px-6 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex-shrink-0 z-20">
-                <div class="flex items-center gap-3">
+            {{-- TOP BAR (MEJORADO) --}}
+            <header class="flex flex-col bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex-shrink-0 z-20">
+                
+                {{-- LÍNEA 1: Controles + Búsqueda + Info --}}
+                <div class="flex items-center h-16 px-4 md:px-6 gap-2 md:gap-4">
+                    {{-- ZONA 1: Togles del sidebar (Izquierda) --}}
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        {{-- Toggle mobile --}}
+                        <button @click="mobileSidebarOpen = !mobileSidebarOpen"
+                            class="lg:hidden p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 dark:hover:text-indigo-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                            <i class="ri-menu-3-line text-lg leading-none"></i>
+                        </button>
 
-                    {{-- Toggle mobile --}}
-                    <button @click="mobileSidebarOpen = !mobileSidebarOpen"
-                        class="lg:hidden p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 dark:hover:text-indigo-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-                        <i class="ri-menu-3-line text-lg leading-none"></i>
-                    </button>
+                        {{-- Toggle desktop --}}
+                        <button @click="sidebarOpen = !sidebarOpen"
+                            class="hidden lg:flex p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 dark:hover:text-indigo-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                            <i class="ri-menu-fold-line text-lg leading-none transition-transform duration-300"
+                                :class="!sidebarOpen && 'rotate-180'"></i>
+                        </button>
+                    </div>
 
-                    {{-- Toggle desktop --}}
-                    <button @click="sidebarOpen = !sidebarOpen"
-                        class="hidden lg:flex p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 dark:hover:text-indigo-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-                        <i class="ri-menu-fold-line text-lg leading-none transition-transform duration-300"
-                            :class="!sidebarOpen && 'rotate-180'"></i>
-                    </button>
+                    {{-- ZONA 2: Búsqueda global (Centro - crece) --}}
+                    <div class="flex-1 hidden md:flex md:items-center min-w-0">
+                        <livewire:layout.search-global />
+                    </div>
 
+                    {{-- ZONA 3: Información (Reloj) + Separador --}}
+                    <div class="hidden lg:flex items-center gap-4 flex-shrink-0 pl-4 border-l border-gray-200 dark:border-slate-700">
+                        <livewire:layout.clock />
+                    </div>
+
+                    {{-- ZONA 4: Controles del Sistema (Agrupo oscuro + estado + acciones) --}}
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        {{-- Toggle modo oscuro --}}
+                        <button @click="toggleDark()" :title="darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                            class="p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-amber-500 hover:bg-amber-50 hover:border-amber-200 dark:hover:text-amber-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-100">
+                            <i class="text-lg leading-none" :class="darkMode ? 'ri-sun-line' : 'ri-moon-line'"></i>
+                        </button>
+
+                        {{-- Estado del sistema --}}
+                        <livewire:layout.system-status />
+
+                        {{-- Acciones rápidas --}}
+                        <livewire:layout.quick-actions />
+                    </div>
+
+                    {{-- ZONA 5: Notificaciones + Usuario (Derecha) --}}
+                    <div class="flex items-center gap-2 flex-shrink-0 pl-2 border-l border-gray-200 dark:border-slate-700">
+                        {{-- Notificaciones --}}
+                        <livewire:layout.notificaciones-top-bar />
+
+                        {{-- Navegación/Usuario --}}
+                        <livewire:layout.navigation />
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    {{-- Toggle modo oscuro --}}
-                    <button @click="toggleDark()" :title="darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-                        class="p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-amber-500 hover:bg-amber-50 hover:border-amber-200 dark:hover:text-amber-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-100">
-                        <i class="text-lg leading-none" :class="darkMode ? 'ri-sun-line' : 'ri-moon-line'"></i>
-                    </button>
-                    <livewire:layout.notificaciones-top-bar />
-                    <livewire:layout.navigation />
+                {{-- LÍNEA 2: Breadcrumbs --}}
+                <div class="flex items-center h-12 px-4 md:px-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-700/50">
+                    <livewire:layout.breadcrumbs />
                 </div>
+
             </header>
 
             {{-- MAIN --}}

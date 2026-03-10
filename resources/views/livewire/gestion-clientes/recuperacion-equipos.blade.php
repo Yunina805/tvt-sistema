@@ -178,9 +178,13 @@
 
                         {{-- Acción --}}
                         <td class="px-5 py-4 whitespace-nowrap text-right">
-                            <button @click="$confirm('¿Recuperar equipo de {{ $cliente['nombre'] }}? Se notificará al cliente y al técnico asignado.', () => $wire.generarReporteRecuperacion('{{ $cliente['id'] }}'), { confirmText: 'Sí, recuperar' })"
+                            <button @click="$confirm(
+                                        '¿Generar reporte de recuperación para {{ addslashes($cliente['nombre']) }}? Se enviará SMS al suscriptor y al técnico asignado.',
+                                        () => $wire.generarReporteRecuperacion('{{ $cliente['id'] }}'),
+                                        { confirmText: 'Sí, generar reporte', title: 'Generar Reporte de Recuperación', icon: 'warning' }
+                                    )"
                                     class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-amber-200 hover:bg-amber-700 transition-all active:scale-95">
-                                <i class="ri-arrow-down-circle-line text-sm"></i> Recuperar Equipo
+                                <i class="ri-file-warning-line text-sm"></i> Generar Reporte
                             </button>
                         </td>
 

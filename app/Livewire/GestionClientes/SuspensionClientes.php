@@ -37,40 +37,42 @@ class SuspensionClientes extends Component
         //   $cliente = Cliente::with(['servicio','equipo','nap'])->findOrFail($clienteId);
         //
         //   1. Crear ReporteServicio con tipo SUSPENSION:
+        //      $seq    = ReporteServicio::whereYear('created_at', now()->year)->count() + 1;
+        //      $folio  = 'SUP-' . now()->format('Y') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
         //      $reporte = ReporteServicio::create([
-        //          'folio'        => 'SUP-' . now()->format('Y') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT),
-        //          'tipo_reporte' => 'SUSPENSION',
-        //          'tipo_servicio'=> $cliente->tipo_servicio,   // TV | INTERNET | TV+INTERNET
-        //          'cliente_id'   => $clienteId,
-        //          'sucursal_id'  => auth()->user()->sucursal_id,
-        //          'estado'       => 'Pendiente',
-        //          'fecha'        => now(),
-        //          // soporta_remoto: si ONU puede cortar lógicamente
+        //          'folio'          => $folio,
+        //          'tipo_reporte'   => 'SUSPENSION',
+        //          'tipo_servicio'  => $cliente->tipo_servicio,   // TV | INTERNET | TV+INTERNET
+        //          'cliente_id'     => $clienteId,
+        //          'sucursal_id'    => auth()->user()->sucursal_id,
+        //          'estado'         => 'Pendiente',
+        //          'fecha'          => now(),
         //          'soporta_remoto' => $cliente->equipo->soporta_suspension_remota ?? false,
         //      ]);
         //
-        //   2. SMS al CLIENTE (obligatorio al generar):
+        //   2. SMS al CLIENTE (automático al generar):
         //      SmsService::enviar($cliente->telefono,
         //          "Tu Vision Telecable: Su servicio ha sido SUSPENDIDO por falta de pago. " .
         //          "Saldo pendiente: $" . number_format($cliente->saldo, 2) . ". " .
         //          "Regularice su situacion llamando al {$sucursal->telefono}.");
         //
-        //   3. SMS al TÉCNICO (solo si requiere desconexion fisica — TV o TV+Internet sin remoto):
+        //   3. SMS al TÉCNICO (solo si requiere desconexión física — TV o TV+Internet sin remoto):
         //      if (!$reporte->soporta_remoto || $cliente->tipo_servicio === 'TV') {
         //          SmsService::enviar($tecnico->telefono,
         //              "Nuevo reporte de suspension asignado: {$reporte->folio}. " .
         //              "Requiere desconexion FISICA en NAP. Cliente: {$cliente->nombre}.");
         //      }
-        //      // Para Internet y TV+Internet con remoto: la sucursal hace el corte lógico,
-        //      // no requiere técnico en campo.
-        //
-        //   4. Actualizar estado cliente a SUSPENDIDO (no afecta corte mensual):
-        //      $cliente->update(['estado' => 'SUSPENDIDO']);
         //
         // });
+        //
+        // $this->redirect(route('reportes.atender', ['folio' => $folio]));
         // ─────────────────────────────────────────────────────────────
 
-        $this->toastExito("Reporte de suspensión generado para cliente {$clienteId}.");
+        // Mock: en producción el folio se genera secuencialmente en BD
+        $folio = 'SUP-2026-0001';
+
+        $this->toastExito("Reporte {$folio} generado. SMS enviado al cliente.");
+        $this->redirect(route('reportes.atender', ['folio' => $folio]));
     }
 
     public function render()

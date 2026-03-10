@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(php artisan:*)",
-      "Bash(cmd:*)"
+      "Bash(cmd:*)",
+      "Bash(php -l app/Livewire/GestionClientes/SuspensionClientes.php && php -l app/Livewire/GestionClientes/AtenderReporte.php)",
+      "Bash(/c/laragon/bin/php/php8.4.5/php.exe -l app/Livewire/GestionClientes/SuspensionClientes.php && /c/laragon/bin/php/php8.4.5/php.exe -l app/Livewire/GestionClientes/AtenderReporte.php)",
+      "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l app/Livewire/GestionClientes/SuspensionClientes.php && /c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l app/Livewire/GestionClientes/AtenderReporte.php)"
     ]
   }
 }

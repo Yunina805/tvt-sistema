@@ -65,6 +65,8 @@ class AtenderReporte extends Component
     public bool   $confirmacionWinbox            = false;
     public bool   $confirmacionOLT               = false;
     public string $salidaNapLibre                = '';
+    public bool   $tecnicoCompletado             = false;
+    public string $notasSuspension               = '';
 
     // ── Cancelación ───────────────────────────────────────────────────
     public bool   $equipoRecuperado   = false;
@@ -78,8 +80,18 @@ class AtenderReporte extends Component
     public string $serieRecuperada        = '';
     public bool   $equipoEntregado        = false;
     public bool   $desconexionFisicaRec   = false;
+    public bool   $acometidaLiberada      = false;
+    public string $salidaNapLibreRec      = '';
+    public string $recuperaEquipoRec      = '';   // 'si' | 'no'
     public bool   $desconexionWinboxRec   = false;
     public bool   $desconexionOLTRec      = false;
+    public bool   $ipLiberada             = false;
+    public bool   $vlanLiberada           = false;
+    public bool   $sesionLiberada         = false;
+    public bool   $pagoPerdidaRec         = false;
+    public bool   $pagoDanoRec            = false;
+    public string $motivoPrecierreRec     = '';
+    public bool   $tecnicoCompletadoRec   = false;
 
     // ── Instalación — comodato ────────────────────────────────────────
     public bool   $comodatoFirmado        = false;
@@ -201,6 +213,68 @@ class AtenderReporte extends Component
                 'encapsulamiento'=> 'PPPoE',
                 'ultima_potencia_nap'    => '-17.2',
                 'ultima_potencia_equipo' => '-21.0',
+            ],
+            'REC-2026-0001' => [
+                'folio'          => 'REC-2026-0001',
+                'fecha'          => '2026-03-10 06:00',
+                'sucursal'       => 'Oaxaca Centro',
+                'cliente'        => 'PEDRO ARMENDÁRIZ RUIZ',
+                'id_cliente'     => '01-0004567',
+                'domicilio'      => 'Av. Juárez 145, Col. Centro. Ref: Casa de dos pisos, portón negro.',
+                'estado_cliente' => 'Suspendido por falta de pago',
+                'quien_reporto'  => 'Sistema Automático',
+                'tipo_reporte'   => 'RECUPERACION',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'servicio'       => 'TV + Internet 30 Mbps',
+                'falla_reportada'=> 'RECUPERACIÓN DE EQUIPO — 91 DÍAS DE ADEUDO',
+                'tecnico'        => 'Cuadrilla 1',
+                'nap'            => 'NAP-OAX-03',
+                'dir_nap'        => 'Poste 8, Calle Alcalá',
+                'salidas_nap_disponibles' => [],
+                'info_equipo'    => 'ONU ZTE F660 (Serie: ZTE2023-001)',
+                'ip'             => '192.168.10.45',
+                'wifi'           => 'TuVision_Pedro',
+                'password_wifi'  => 'ped12345',
+                'olt'            => 'OLT-01',
+                'pon'            => 'PON/0/3',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '-18.0',
+                'ultima_potencia_equipo' => '-22.1',
+                'saldo_pendiente'=> 1920.00,
+                'dias_suspension'=> 91,
+                'soporta_remoto' => false,
+            ],
+            'SUP-2026-0001' => [
+                'folio'          => 'SUP-2026-0001',
+                'fecha'          => '2026-03-10 07:30',
+                'sucursal'       => 'Oaxaca Centro',
+                'cliente'        => 'PEDRO ARMENDÁRIZ RUIZ',
+                'id_cliente'     => '01-0004567',
+                'domicilio'      => 'Av. Juárez 145, Col. Centro. Ref: Casa de dos pisos, portón negro.',
+                'estado_cliente' => 'Activo',
+                'quien_reporto'  => 'Sistema Automático',
+                'tipo_reporte'   => 'SUSPENSION',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'servicio'       => 'TV + Internet 30 Mbps',
+                'falla_reportada'=> 'SUSPENSIÓN POR FALTA DE PAGO — 54 DÍAS DE ADEUDO',
+                'tecnico'        => 'Sucursal (corte remoto)',
+                'nap'            => 'NAP-OAX-03',
+                'dir_nap'        => 'Poste 8, Calle Alcalá',
+                'salidas_nap_disponibles' => [],
+                'info_equipo'    => 'ONU ZTE F660 (Serie: ZTE2023-045)',
+                'ip'             => '192.168.10.45',
+                'wifi'           => 'TuVision_Pedro',
+                'password_wifi'  => 'ped12345',
+                'olt'            => 'OLT-01',
+                'pon'            => 'PON/0/3',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '-18.0',
+                'ultima_potencia_equipo' => '-22.1',
+                'saldo_pendiente'=> 960.00,
+                'dias_suspension'=> 54,
+                'soporta_remoto' => true,
             ],
             'REP-2026-0006' => [
                 'folio'          => 'REP-2026-0006',
@@ -476,17 +550,84 @@ class AtenderReporte extends Component
         $this->toastExito('Técnico reasignado. SMS enviado al nuevo responsable.');
     }
 
-    // ── Cierre de suspensión ──────────────────────────────────────────
+    // ── Cierre TÉCNICO de suspensión (guarda avance, habilita cierre admin) ──
+
+    public function guardarAvanceSuspension(): void
+    {
+        $soloTV = $this->tieneTV() && !$this->tieneInternet();
+        $usaFisica = $soloTV
+            || ($this->tieneTV() && $this->tieneInternet() && !($this->reporte['soporta_remoto'] ?? false));
+        $usaLogica = !$usaFisica;
+
+        if ($usaLogica && !$this->confirmacionWinbox) {
+            $this->addError('confirmacionWinbox', 'Confirme la desconexión en Winbox.');
+            return;
+        }
+        if ($usaLogica && !$this->confirmacionOLT) {
+            $this->addError('confirmacionOLT', 'Confirme el bloqueo en OLT.');
+            return;
+        }
+        if ($usaFisica && !$this->confirmacionDesconexionFisica) {
+            $this->addError('confirmacionDesconexionFisica', 'Confirme la desconexión física en NAP.');
+            return;
+        }
+
+        // TODO: ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //     'estado'               => 'En Proceso',
+        //     'tecnico_completado'   => true,
+        //     'notas_suspension'     => $this->notasSuspension,
+        //     'salida_nap_liberada'  => $this->salidaNapLibre,
+        // ]);
+        // if ($usaFisica && $this->salidaNapLibre) {
+        //     NapSalida::where('nap', $this->reporte['nap'])
+        //               ->where('numero', $this->salidaNapLibre)
+        //               ->update(['estado' => 'LIBRE', 'cliente_id' => null]);
+        // }
+
+        $this->tecnicoCompletado = true;
+        $this->toastInfo('Acciones técnicas confirmadas. El cierre administrativo ya está disponible.');
+    }
+
+    // ── Cierre ADMINISTRATIVO de suspensión (requiere confirmación técnica) ──
 
     public function cerrarSuspension(): void
     {
-        // TODO:
-        // Cliente::where('id', $this->reporte['cliente_id'])->update(['estado' => 'SUSPENDIDO']);
-        // NapSalida::where(...)->update(['estado' => 'LIBRE']);
-        // ReporteServicio::where('folio',...)->update(['estado' => 'Cerrado', 'horas' => $this->horasAtencion]);
-        // SmsService::enviar($cliente->telefono, "Su servicio fue suspendido por falta de pago...");
+        if (!$this->tecnicoCompletado) {
+            $this->addError('tecnicoCompletado', 'El técnico debe guardar el avance técnico antes del cierre administrativo.');
+            return;
+        }
 
-        $this->toastExito('Suspensión registrada. Estado del cliente actualizado. SMS enviado.');
+        // TODO: DB::transaction(function() {
+        //   Cliente::where('id', $this->reporte['cliente_id'])
+        //          ->update(['estado' => 'SUSPENDIDO']);
+        //
+        //   // Liberar recursos de red
+        //   if ($usaFisica && $this->salidaNapLibre) {
+        //       NapSalida::where(...)->update(['estado' => 'LIBRE', 'cliente_id' => null]);
+        //   }
+        //   if ($usaLogica) {
+        //       // Marcar sesiones/puertos como libres en el sistema
+        //       SesionRed::where('cliente_id', $this->reporte['cliente_id'])->update(['activa' => false]);
+        //   }
+        //
+        //   ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //       'estado'          => 'Cerrado',
+        //       'horas_atencion'  => $this->horasAtencion,
+        //       'calificacion'    => $this->calificacion,
+        //       'notas'           => $this->notasSuspension,
+        //       'cerrado_admin'   => now(),
+        //   ]);
+        //
+        //   // Pausar ciclo de facturación — no generar cargos mientras esté SUSPENDIDO
+        //   CicloFacturacion::where('cliente_id', $this->reporte['cliente_id'])
+        //                    ->update(['pausado' => true, 'motivo_pausa' => 'SUSPENSION_ADEUDO']);
+        //
+        //   SmsService::enviar($cliente->telefono,
+        //       "Tu Vision Telecable: Su servicio ha sido SUSPENDIDO por falta de pago. " .
+        //       "Para reactivar liquide su adeudo y contacte a su sucursal.");
+        // });
+
+        $this->toastExito('Suspensión aplicada. Estado → SUSPENDIDO. Recursos liberados. Facturación pausada. SMS enviado.');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -504,21 +645,136 @@ class AtenderReporte extends Component
         $this->redirect(route('reportes.servicio'));
     }
 
-    // ── Cierre de recuperación de equipo ──────────────────────────────
+    // ── Guardar precierre de recuperación ────────────────────────────
 
-    public function cerrarRecuperacion(): void
+    public function guardarPrecierreRecuperacion(): void
     {
-        if (!$this->equipoEntregado) {
-            $this->addError('equipoEntregado', 'Debe confirmar la recuperación del equipo para cerrar el reporte.');
+        if (!$this->motivoPrecierreRec) {
+            $this->addError('motivoPrecierreRec', 'Seleccione el motivo del precierre.');
             return;
         }
 
-        // TODO:
-        // Equipo::where('serie', $this->serieRecuperada)->update(['estado' => 'EN_ALMACEN', 'cliente_id' => null]);
-        // NapSalida::where(...)->update(['estado' => 'LIBRE']);
-        // Cliente::where('id', $this->reporte['cliente_id'])->update(['estado' => 'CANCELADO']);
+        // TODO: ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //     'estado'           => 'En Proceso',
+        //     'motivo_precierre' => $this->motivoPrecierreRec,
+        // ]);
 
-        $this->toastExito('Recuperación registrada. Equipo ingresado al inventario.');
+        $this->toastInfo('Avance guardado. Reporte en proceso — Precierre: ' . $this->motivoPrecierreRec);
+    }
+
+    // ── Cierre TÉCNICO de recuperación ───────────────────────────────
+
+    public function guardarAvanceRecuperacion(string $equipoRecVal = ''): void
+    {
+        // Recibir el valor del radio desde Alpine (no wire:model para evitar re-renders)
+        $this->recuperaEquipoRec = $equipoRecVal;
+
+        if (!$this->desconexionFisicaRec) {
+            $this->addError('desconexionFisicaRec', 'Confirme la desconexión física del servicio en NAP.');
+            return;
+        }
+
+        if (!$this->recuperaEquipoRec) {
+            $this->addError('recuperaEquipoRec', 'Indique si el equipo fue recuperado.');
+            return;
+        }
+
+        if ($this->recuperaEquipoRec === 'no' && !$this->pagoPerdidaRec && !$this->pagoDanoRec) {
+            $this->addError('pagoPerdidaRec',
+                'El suscriptor debe pagar por pérdida o daño del equipo. Si no paga, use Guardar Precierre.');
+            return;
+        }
+
+        if ($this->tieneInternet()) {
+            if (!$this->desconexionWinboxRec || !$this->desconexionOLTRec) {
+                $this->addError('desconexionOLTRec', 'Complete las bajas lógicas (Winbox y OLT) antes de continuar.');
+                return;
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // TODO: DB::transaction(function() {
+        //   ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //       'estado'                => 'En Proceso',
+        //       'tecnico_completado'    => true,
+        //       'desconexion_fisica'    => $this->desconexionFisicaRec,
+        //       'acometida_liberada'    => $this->acometidaLiberada,
+        //       'salida_nap_libre'      => $this->salidaNapLibreRec,
+        //       'recupero_equipo'       => $this->recuperaEquipoRec === 'si',
+        //       'serie_recuperada'      => $this->serieRecuperada,
+        //       'baja_winbox'           => $this->desconexionWinboxRec,
+        //       'baja_olt'              => $this->desconexionOLTRec,
+        //       'ip_liberada'           => $this->ipLiberada,
+        //       'vlan_liberada'         => $this->vlanLiberada,
+        //       'sesion_liberada'       => $this->sesionLiberada,
+        //   ]);
+        //
+        //   // Actualizar inventario según caso
+        //   if ($this->recuperaEquipoRec === 'si') {
+        //       Equipo::where('serie', $this->serieRecuperada)
+        //             ->update(['estado' => 'EN_ALMACEN', 'cliente_id' => null]);
+        //   } elseif ($this->pagoPerdidaRec || $this->pagoDanoRec) {
+        //       $estado = $this->pagoPerdidaRec ? 'PAGADO_POR_PERDIDA' : 'PAGADO_POR_DANO';
+        //       Equipo::where('serie', $this->reporte['info_equipo'])
+        //             ->update(['estado' => $estado, 'cliente_id' => null]);
+        //   }
+        //
+        //   // Liberar salida NAP
+        //   if ($this->salidaNapLibreRec) {
+        //       NapSalida::where('nap', $this->reporte['nap'])
+        //                 ->where('numero', $this->salidaNapLibreRec)
+        //                 ->update(['estado' => 'LIBRE', 'cliente_id' => null]);
+        //   }
+        // });
+        // ─────────────────────────────────────────────────────────────
+
+        $this->tecnicoCompletadoRec = true;
+        $this->toastInfo('Cierre técnico guardado. El cierre administrativo ya está disponible.');
+    }
+
+    // ── Cierre ADMINISTRATIVO de recuperación ─────────────────────────
+
+    public function cerrarRecuperacion(): void
+    {
+        if (!$this->tecnicoCompletadoRec) {
+            $this->addError('tecnicoCompletadoRec', 'Complete el cierre técnico antes del cierre administrativo.');
+            return;
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // TODO: DB::transaction(function() {
+        //   // 1. Cambiar estado del suscriptor → CANCELADO POR MOROSIDAD
+        //   Cliente::where('id', $this->reporte['cliente_id'])
+        //          ->update(['estado' => 'CANCELADO_MOROSIDAD']);
+        //
+        //   // 2. Cancelar servicio activo + bloquear reactivación automática
+        //   Servicio::where('cliente_id', $this->reporte['cliente_id'])
+        //           ->update(['activo' => false, 'bloqueado' => true, 'fecha_baja' => now()]);
+        //
+        //   // 3. Detener facturación — cancelar ciclos futuros
+        //   CicloFacturacion::where('cliente_id', $this->reporte['cliente_id'])
+        //                    ->update(['activo' => false, 'motivo_baja' => 'CANCELADO_MOROSIDAD']);
+        //
+        //   // 4. Liberar recursos de red
+        //   NapSalida::where('cliente_id', $this->reporte['cliente_id'])->update(['estado' => 'LIBRE', 'cliente_id' => null]);
+        //   // IP, VLAN, sesión ya liberadas en cierre técnico
+        //
+        //   // 5. Cerrar reporte
+        //   ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //       'estado'        => 'Cerrado',
+        //       'calificacion'  => $this->calificacion,
+        //       'horas_atencion'=> $this->horasAtencion,
+        //       'cerrado_admin' => now(),
+        //   ]);
+        //
+        //   // 6. SMS al suscriptor
+        //   SmsService::enviar($cliente->telefono,
+        //       "Tu Vision Telecable: Su servicio ha sido CANCELADO por morosidad. " .
+        //       "El equipo ha sido recuperado. Su historial queda registrado en nuestro sistema.");
+        // });
+        // ─────────────────────────────────────────────────────────────
+
+        $this->toastExito('Recuperación aplicada. Estado → CANCELADO POR MOROSIDAD. Recursos liberados. SMS enviado.');
         $this->redirect(route('reportes.servicio'));
     }
 

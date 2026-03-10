@@ -16,6 +16,7 @@ use App\Livewire\GestionClientes\CancelacionServicio;
 use App\Livewire\GestionClientes\RecuperacionEquipos;
 use App\Livewire\GestionClientes\EstadoCuenta;
 use App\Livewire\GestionClientes\ContratacionPromocion;
+use App\Livewire\GestionClientes\CambioServicio;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — SEDES E INFRAESTRUCTURA
@@ -140,6 +141,7 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
     Route::get('/contrataciones-nuevas', ContratacionNueva::class)->name('contrataciones.nuevas');
     Route::get('/servicios-adicionales', ServiciosAdicionales::class)->name('servicios.adicionales');
     Route::get('/contratacion-promocion', ContratacionPromocion::class)->name('contratacion.promocion');
+    Route::get('/cambio-servicio', CambioServicio::class)->name('cambio.servicio');
 
     // Pagos y Estados de Cuenta
     Route::get('/pago-mensualidad', PagoMensualidad::class)->name('pago.mensualidad');

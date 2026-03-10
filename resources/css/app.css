@@ -13,6 +13,7 @@
 /* Excluir animaciones que no deben heredar la transición */
 .animate-spin, .animate-ping, .animate-pulse, .animate-bounce,
 [wire\:loading], [x-cloak] { transition: none !important; }
+[x-cloak] { display: none !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    DARK MODE  (activado con clase "dark" en <html>)
@@ -340,3 +341,34 @@ html.dark .swal2-icon.swal2-warning { border-color: #fbbf24; color: #fbbf24; }
 html.dark .swal2-icon.swal2-error   { border-color: #f87171; color: #f87171; }
 html.dark .swal2-icon.swal2-success { border-color: #34d399; color: #34d399; }
 html.dark .swal2-icon.swal2-info    { border-color: #60a5fa; color: #60a5fa; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEADER COMPONENTS — Colores consistentes en dark mode
+   Objetivo: estandarizar fondos, textos e íconos en todos los dropdowns
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Fondos opacos para dropdowns (reemplazan los *-100 semi-transparentes) */
+html.dark .dark\:bg-slate-700\/60   { background-color: rgb(51 65 85 / 0.6); }
+html.dark .dark\:bg-slate-700\/50   { background-color: rgb(51 65 85 / 0.5); }
+
+/* Badges y etiquetas con mejor opacidad */
+html.dark .dark\:bg-indigo-900\/50  { background-color: rgb(54 65 150 / 0.5); }
+html.dark .dark\:bg-blue-900\/30    { background-color: rgb(30 58 138 / 0.3); }
+
+/* Textos claros en dropdowns - aumentamos la luminosidad */
+html.dark .dark\:text-slate-100  { color: #f1f5f9; }   /* Prácticamente blanco */
+html.dark .dark\:text-slate-200  { color: #e2e8f0; }   /* Gris muy claro */
+html.dark .dark\:text-slate-300  { color: #cbd5e1; }   /* Gris claro legible */
+html.dark .dark\:text-indigo-300 { color: #a5b4fc; }   /* Indigo claro */
+html.dark .dark\:text-indigo-400 { color: #818cf8; }   /* Indigo medio */
+
+/* Separadores y bordes */
+html.dark .dark\:border-slate-600  { border-color: #475569; }
+html.dark .dark\:border-slate-700  { border-color: #334155; }
+
+/* Hover estados */
+html.dark .dark\:hover\:bg-slate-700:hover { background-color: #334155; }
+html.dark .dark\:hover\:bg-slate-600:hover { background-color: #475569; }
+html.dark .dark\:hover\:bg-indigo-900\/20:hover { background-color: rgb(54 65 150 / 0.2); }
+html.dark .dark\:hover\:text-indigo-300:hover { color: #a5b4fc; }
+html.dark .dark\:hover\:text-indigo-400:hover { color: #818cf8; }

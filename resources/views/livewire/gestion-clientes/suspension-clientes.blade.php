@@ -142,12 +142,12 @@
             <table class="min-w-full divide-y divide-gray-100">
                 <thead>
                     <tr class="bg-gray-50">
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest"># ID</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Titular / Sucursal</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Servicio / Equipo / NAP</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipo de Corte</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Adeudo / Días</th>
-                        <th class="px-5 py-3.5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Acción</th>
+                        <th class="px-4 py-3 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest"># Suscriptor · Nombre · Sucursal</th>
+                        <th class="px-4 py-3 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest">Servicio · Equipo · NAP</th>
+                        <th class="px-4 py-3 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest">Saldo Actual</th>
+                        <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Últ. Pago · Días Mora · Estatus</th>
+                        <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo de Corte</th>
+                        <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Generar Reporte</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -155,104 +155,89 @@
                     @php
                         $dias = Carbon\Carbon::parse($cliente['ultimo_pago'])->diffInDays(now());
 
-                        // Determinar tipo de corte según especificaciones:
-                        // TV          → siempre FÍSICO (técnico en campo)
-                        // INTERNET    → siempre LÓGICO (Winbox + OLT)
-                        // TV+INTERNET → depende de soporta_remoto
                         if ($cliente['tipo_servicio'] === 'TV') {
                             $tipoCorte = 'fisico';
                         } elseif ($cliente['tipo_servicio'] === 'INTERNET') {
                             $tipoCorte = 'logico';
                         } else {
-                            // TV+INTERNET
                             $tipoCorte = $cliente['soporta_remoto'] ? 'logico' : 'fisico';
                         }
                     @endphp
-                    <tr class="hover:bg-red-50/20 transition-colors group">
+                    <tr class="hover:bg-red-50/20 transition-colors">
 
-                        {{-- ID --}}
-                        <td class="px-5 py-4 whitespace-nowrap">
-                            <span class="font-mono text-xs font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg">{{ $cliente['id'] }}</span>
+                        {{-- # Suscriptor · Nombre · Sucursal --}}
+                        <td class="px-4 py-3">
+                            <span class="font-mono text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">{{ $cliente['id'] }}</span>
+                            <p class="text-xs font-black text-gray-800 uppercase tracking-tight mt-1 leading-tight">{{ $cliente['nombre'] }}</p>
+                            <p class="flex items-center gap-1 text-[9px] font-bold text-gray-400 uppercase mt-0.5">
+                                <i class="ri-map-pin-2-line text-indigo-300 text-[10px]"></i> {{ $cliente['sucursal'] }}
+                            </p>
                         </td>
 
-                        {{-- Titular --}}
-                        <td class="px-5 py-4">
-                            <p class="text-sm font-black text-gray-800 uppercase tracking-tight">{{ $cliente['nombre'] }}</p>
-                            <p class="flex items-center gap-1 text-[10px] font-bold text-gray-400 mt-0.5 uppercase">
-                                <i class="ri-map-pin-2-line text-indigo-400 text-xs"></i> {{ $cliente['sucursal'] }}
-                            </p>
-                            <div class="flex items-center gap-1.5 mt-1">
+                        {{-- Servicio · Equipo · NAP --}}
+                        <td class="px-4 py-3">
+                            <p class="text-[10px] font-black text-gray-800 uppercase">{{ $cliente['servicio'] }}</p>
+                            <p class="font-mono text-[9px] text-gray-400 font-bold mt-0.5">{{ $cliente['equipo'] }}</p>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <i class="ri-signal-tower-line text-indigo-400 text-[9px]"></i>
+                                <span class="text-[9px] font-bold text-indigo-600 uppercase">{{ $cliente['nap'] }}</span>
+                                <span class="text-[9px] text-gray-400 hidden xl:inline">— {{ $cliente['dir_nap'] }}</span>
+                            </div>
+                        </td>
+
+                        {{-- Saldo Actual --}}
+                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                            <p class="text-base font-black text-red-600 tracking-tight">${{ number_format($cliente['saldo'], 2) }}</p>
+                        </td>
+
+                        {{-- Últ. Pago · Días Mora · Estatus --}}
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            <span class="inline-flex items-center gap-1 text-[10px] font-black text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">
+                                <i class="ri-alarm-warning-line"></i> {{ $dias }} días
+                            </span>
+                            <p class="text-[9px] text-gray-400 font-bold mt-1">{{ Carbon\Carbon::parse($cliente['ultimo_pago'])->format('d/m/Y') }}</p>
+                            <div class="flex items-center justify-center gap-1 mt-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                                 <span class="text-[9px] font-black text-amber-700 uppercase tracking-widest">{{ $cliente['estatus'] }}</span>
                             </div>
                         </td>
 
-                        {{-- Servicio + Equipo + NAP --}}
-                        <td class="px-5 py-4">
-                            <p class="text-xs font-black text-gray-800 uppercase">{{ $cliente['servicio'] }}</p>
-                            <p class="font-mono text-[9px] text-gray-400 font-bold mt-0.5">{{ $cliente['equipo'] }} · {{ $cliente['serie_equipo'] }}</p>
-                            <div class="flex items-center gap-1 mt-1">
-                                <i class="ri-signal-tower-line text-indigo-400 text-[10px]"></i>
-                                <span class="text-[9px] font-bold text-indigo-600 uppercase">{{ $cliente['nap'] }}</span>
-                                <span class="text-[9px] text-gray-400 italic">— {{ $cliente['dir_nap'] }}</span>
-                            </div>
-                        </td>
-
-                        {{-- Tipo de corte —— COLUMNA CLAVE de la especificación --}}
-                        <td class="px-5 py-4">
+                        {{-- Tipo de Corte --}}
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
                             @if($tipoCorte === 'fisico')
-                            <div class="flex flex-col gap-1.5">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                                    <i class="ri-tools-line text-xs"></i> Físico — Técnico en campo
-                                </span>
-                                @if($cliente['tipo_servicio'] === 'TV+INTERNET')
-                                <span class="text-[9px] text-gray-400 font-bold">ONU sin función remota</span>
-                                @else
-                                <span class="text-[9px] text-gray-400 font-bold">TV: desconexión en NAP</span>
-                                @endif
-                                <span class="text-[9px] text-indigo-500 font-bold flex items-center gap-1">
-                                    <i class="ri-message-2-line"></i> SMS al técnico al generar
-                                </span>
-                            </div>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                <i class="ri-tools-line"></i> Físico
+                            </span>
+                            <p class="text-[9px] text-gray-400 font-bold mt-1">Técnico en campo</p>
                             @else
-                            <div class="flex flex-col gap-1.5">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                                    <i class="ri-computer-line text-xs"></i> Lógico — Sucursal
-                                </span>
-                                <span class="text-[9px] text-gray-400 font-bold">Winbox + OLT · Sin técnico</span>
-                                @if($cliente['tipo_servicio'] === 'TV+INTERNET')
-                                <span class="text-[9px] text-emerald-600 font-bold">ONU con función remota ✓</span>
-                                @endif
-                            </div>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                <i class="ri-computer-line"></i> Lógico
+                            </span>
+                            <p class="text-[9px] text-gray-400 font-bold mt-1">Winbox + OLT</p>
                             @endif
                         </td>
 
-                        {{-- Adeudo --}}
-                        <td class="px-5 py-4 whitespace-nowrap">
-                            <p class="text-xl font-black text-red-600 tracking-tight">${{ number_format($cliente['saldo'], 2) }}</p>
-                            <span class="inline-flex items-center gap-1 text-[9px] font-black text-red-500 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md mt-1">
-                                <i class="ri-alarm-warning-line"></i> {{ $dias }} días sin pago
-                            </span>
-                            <p class="text-[9px] text-gray-400 font-bold mt-1">Últ. pago: {{ Carbon\Carbon::parse($cliente['ultimo_pago'])->format('d/m/Y') }}</p>
-                        </td>
-
-                        {{-- Acción --}}
-                        <td class="px-5 py-4 whitespace-nowrap text-right">
-                            <button @click="$confirm('¿Suspender a {{ $cliente['nombre'] }}? Se generará el reporte y se notificará al cliente.', () => $wire.generarReporteSuspension('{{ $cliente['id'] }}'), { confirmText: 'Sí, suspender' })"
-                                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-red-200 hover:bg-red-700 transition-all active:scale-95 whitespace-nowrap">
-                                <i class="ri-pause-circle-line text-sm"></i> Suspender
+                        {{-- Generar Reporte --}}
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            <button @click="$confirm(
+                                        '¿Generar reporte de suspensión para {{ addslashes($cliente['nombre']) }}? Se enviará SMS al cliente{{ $tipoCorte === 'fisico' ? ' y al técnico asignado' : '' }}.',
+                                        () => $wire.generarReporteSuspension('{{ $cliente['id'] }}'),
+                                        { confirmText: 'Sí, generar reporte', title: 'Generar Reporte de Suspensión', icon: 'warning' }
+                                    )"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-red-200 hover:bg-red-700 transition-all active:scale-95">
+                                <i class="ri-file-warning-line"></i> Generar
                             </button>
                         </td>
 
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-20 text-center">
+                        <td colspan="6" class="px-6 py-16 text-center">
                             <div class="flex flex-col items-center gap-3">
-                                <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                                    <i class="ri-checkbox-circle-line text-2xl text-emerald-500"></i>
+                                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                                    <i class="ri-checkbox-circle-line text-xl text-emerald-500"></i>
                                 </div>
-                                <p class="text-xs font-black text-gray-300 uppercase tracking-widest">No hay clientes con adeudos críticos mayores a 31 días</p>
+                                <p class="text-xs font-black text-gray-300 uppercase tracking-widest">No hay suscriptores con adeudos críticos mayores a 31 días</p>
                             </div>
                         </td>
                     </tr>
