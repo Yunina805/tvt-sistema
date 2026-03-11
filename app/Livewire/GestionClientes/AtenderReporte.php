@@ -96,6 +96,16 @@ class AtenderReporte extends Component
     // ── Instalación — comodato ────────────────────────────────────────
     public bool   $comodatoFirmado        = false;
 
+    // ── Cambio de Servicio — recuperación equipo anterior ────────────
+    public string $recuperoEquipoCambio  = '';   // 'si' | 'no'
+    public string $serieCambioRecuperada = '';
+    public bool   $pagoPerdidaCambio     = false;
+    public bool   $pagoDanoCambio        = false;
+
+    // ── Reconexión — validación equipo ────────────────────────────────
+    public string $conservaEquipo   = '';   // 'si' | 'no'
+    public string $serieConservada  = '';
+
     // ── Aumento de Velocidad ──────────────────────────────────────────
     public bool   $confirmaCambioWinbox   = false;
     public bool   $confirmaCambioOLT      = false;
@@ -113,7 +123,10 @@ class AtenderReporte extends Component
     public string|int|null $horasAtencion = null;
 
     // ── Precierre (dd.) ───────────────────────────────────────────────
-    public string $motivoPrecierre = '';
+    public string $motivoPrecierre       = '';
+
+    // ── Precierre de cancelación ──────────────────────────────────────
+    public string $motivoPrecierreCancel = '';
 
     // ─────────────────────────────────────────────────────────────────
     public function mount(string $folio = 'REP-2026-0001'): void
@@ -137,6 +150,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'Oaxaca Centro',
                 'cliente'        => 'JUAN PÉREZ GARCÍA',
                 'id_cliente'     => 'OAX-0012345',
+                'telefono'       => '9511234567',
                 'domicilio'      => 'Av. Independencia 102, Col. Centro. Ref: Casa azul, junto a la tortillería.',
                 'estado_cliente' => 'Pendiente Instalación',
                 'quien_reporto'  => 'Sistema',
@@ -164,6 +178,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'San Pedro Amuzgos',
                 'cliente'        => 'MARÍA LÓPEZ CRUZ',
                 'id_cliente'     => 'SPA-0007891',
+                'telefono'       => '9524567890',
                 'domicilio'      => 'Calle Morelos 45. Ref: Portón café frente al parque.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Cliente',
@@ -186,12 +201,103 @@ class AtenderReporte extends Component
                 'ultima_potencia_nap'    => '-18.5',
                 'ultima_potencia_equipo' => '-22.3',
             ],
+            // CAMBIO DE SERVICIO — Cliente activo
+            'REP-2026-0006' => [
+                'folio'             => 'REP-2026-0006',
+                'fecha'             => '2026-03-11 12:00',
+                'sucursal'          => 'Oaxaca Centro',
+                'cliente'           => 'ROBERTO DÍAZ LUNA',
+                'id_cliente'        => 'OAX-0015678',
+                'telefono'          => '9512468135',
+                'domicilio'         => 'Calle Armenta y López 88, Col. Centro. Ref: Casa azul con reja blanca.',
+                'estado_cliente'    => 'Activo',
+                'quien_reporto'     => 'Sistema',
+                'tipo_reporte'      => 'CAMBIO_SERVICIO',
+                'tipo_servicio'     => 'TV+INTERNET',           // nuevo servicio
+                'servicio'          => 'TV + Internet 100 Mbps', // nuevo servicio contratado
+                'servicio_anterior' => 'Internet 30 Mbps',      // servicio que tenía
+                'equipo_anterior'   => 'ONU ZTE F660 (Serie: ZTE2024-012)',
+                'tecnico'           => 'Cuadrilla 1',
+                'nap'               => '—',
+                'dir_nap'           => '— Asignar al instalar —',
+                'salidas_nap_disponibles' => ['1', '2', '3', '5'],
+                'info_equipo'       => 'ONU Huawei HG8010M (Sin asignar)',
+                'ip'                => '—',
+                'wifi'              => '—',
+                'password_wifi'     => '—',
+                'olt'               => '—',
+                'pon'               => '—',
+                'vlan'              => '100',
+                'encapsulamiento'   => 'IPoE',
+                'ultima_potencia_nap'    => '—',
+                'ultima_potencia_equipo' => '—',
+                'saldo_favor'       => 120.00,
+            ],
+            // INSTALACION — Solo Internet (ONU)
+            'REP-2026-0005' => [
+                'folio'          => 'REP-2026-0005',
+                'fecha'          => '2026-03-11 11:00',
+                'sucursal'       => 'Oaxaca Norte',
+                'cliente'        => 'GABRIELA RÍOS SANTOS',
+                'id_cliente'     => 'OAN-PENDIENTE',
+                'telefono'       => '9513579246',
+                'domicilio'      => 'Periférico Norte 455, Col. Industrial. Ref: Portón negro, frente a la refaccionaria.',
+                'estado_cliente' => 'Pendiente de Instalación',
+                'quien_reporto'  => 'Sistema',
+                'tipo_reporte'   => 'INSTALACION',
+                'tipo_servicio'  => 'INTERNET',
+                'servicio'       => 'Internet 100 Mbps',
+                'tecnico'        => 'Cuadrilla 2',
+                'nap'            => '—',
+                'dir_nap'        => '— Asignar al instalar —',
+                'salidas_nap_disponibles' => ['1', '2', '3', '4', '5', '6'],
+                'info_equipo'    => 'ONU Huawei HG8310M (Serie: HW2026-010)',
+                'ip'             => '—',
+                'wifi'           => '—',
+                'password_wifi'  => '—',
+                'olt'            => '—',
+                'pon'            => '—',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '—',
+                'ultima_potencia_equipo' => '—',
+            ],
+            // INSTALACION — Solo Televisión (mininodo)
+            'REP-2026-0003' => [
+                'folio'          => 'REP-2026-0003',
+                'fecha'          => '2026-03-11 09:00',
+                'sucursal'       => 'Oaxaca Centro',
+                'cliente'        => 'CARMEN FUENTES ALBA',
+                'id_cliente'     => 'OAX-PENDIENTE',
+                'telefono'       => '9519876543',
+                'domicilio'      => 'Calle Bustamante 34, Col. Centro. Ref: Casa verde con portón de madera.',
+                'estado_cliente' => 'Pendiente de Instalación',
+                'quien_reporto'  => 'Sistema',
+                'tipo_reporte'   => 'INSTALACION',
+                'tipo_servicio'  => 'TV',
+                'servicio'       => 'Retro TV',
+                'tecnico'        => 'Cuadrilla 2',
+                'nap'            => '—',
+                'dir_nap'        => '— Asignar al instalar —',
+                'salidas_nap_disponibles' => ['1', '2', '3', '4', '5', '6'],
+                'info_equipo'    => 'Mininodo ARRIS (Serie: ARR2026-045)',
+                'ip'             => '—',
+                'wifi'           => '—',
+                'password_wifi'  => '—',
+                'olt'            => '—',
+                'pon'            => '—',
+                'vlan'           => '—',
+                'encapsulamiento'=> '—',
+                'ultima_potencia_nap'    => '—',
+                'ultima_potencia_equipo' => '—',
+            ],
             'REP-2026-0004' => [
                 'folio'          => 'REP-2026-0004',
                 'fecha'          => '2026-02-22 11:15',
                 'sucursal'       => 'Oaxaca Norte',
                 'cliente'        => 'ROSA MARTÍNEZ DÍAZ',
                 'id_cliente'     => 'OAN-0055234',
+                'telefono'       => '9513456789',
                 'domicilio'      => 'Periférico Norte 301, Col. Volcanes. Ref: Casa blanca frente al Oxxo.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Cliente',
@@ -220,6 +326,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'Oaxaca Centro',
                 'cliente'        => 'PEDRO ARMENDÁRIZ RUIZ',
                 'id_cliente'     => '01-0004567',
+                'telefono'       => '9518765432',
                 'domicilio'      => 'Av. Juárez 145, Col. Centro. Ref: Casa de dos pisos, portón negro.',
                 'estado_cliente' => 'Suspendido por falta de pago',
                 'quien_reporto'  => 'Sistema Automático',
@@ -251,6 +358,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'Oaxaca Centro',
                 'cliente'        => 'PEDRO ARMENDÁRIZ RUIZ',
                 'id_cliente'     => '01-0004567',
+                'telefono'       => '9518765432',
                 'domicilio'      => 'Av. Juárez 145, Col. Centro. Ref: Casa de dos pisos, portón negro.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Sistema Automático',
@@ -276,12 +384,13 @@ class AtenderReporte extends Component
                 'dias_suspension'=> 54,
                 'soporta_remoto' => true,
             ],
-            'REP-2026-0006' => [
-                'folio'          => 'REP-2026-0006',
+            'SUP-2026-0002' => [
+                'folio'          => 'SUP-2026-0002',
                 'fecha'          => '2026-02-24 08:45',
                 'sucursal'       => 'San Pedro Amuzgos',
                 'cliente'        => 'LUIS HERNÁNDEZ VEGA',
                 'id_cliente'     => 'SPA-0003312',
+                'telefono'       => '9527654321',
                 'domicilio'      => 'Calle Hidalgo 67. Ref: Casa verde, escalón de cantera.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Sistema',
@@ -312,6 +421,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'Oaxaca Centro',
                 'cliente'        => 'PATRICIA GÓMEZ RIVAS',
                 'id_cliente'     => 'OAX-0099012',
+                'telefono'       => '9512345678',
                 'domicilio'      => 'Av. Juárez 552, Col. Reforma. Ref: Edificio 3 pisos, despacho.',
                 'estado_cliente' => 'Suspendido',
                 'quien_reporto'  => 'Sistema',
@@ -342,6 +452,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'Oaxaca Centro',
                 'cliente'        => 'MANUEL ORTIZ CAMPOS',
                 'id_cliente'     => 'OAX-0011234',
+                'telefono'       => '9516543210',
                 'domicilio'      => 'Calle Macedonio Alcalá 302. Ref: Casa colonial patio central.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Cliente',
@@ -371,6 +482,7 @@ class AtenderReporte extends Component
                 'sucursal'       => 'Oaxaca Centro',
                 'cliente'        => 'SOFÍA RAMÍREZ LUNA',
                 'id_cliente'     => 'OAX-0022345',
+                'telefono'       => '9519012345',
                 'domicilio'      => 'Calle García Vigil 88, Col. Centro. Ref: Casa amarilla esquina norte.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Sistema',
@@ -393,12 +505,85 @@ class AtenderReporte extends Component
                 'ultima_potencia_nap'    => '—',
                 'ultima_potencia_equipo' => '—',
             ],
+            'REP-2026-0013' => [
+                'folio'          => 'REP-2026-0013',
+                'fecha'          => '2026-03-11 17:00',
+                'sucursal'       => 'Oaxaca Norte',
+                'cliente'        => 'MARCOS SANTILLÁN RUIZ',
+                'id_cliente'     => 'OAN-0031045',
+                'telefono'       => '9514321098',
+                'domicilio'      => 'Periférico Norte 201, Col. Volcanes. Ref: Casa blanca con reja verde, frente a la primaria.',
+                'estado_cliente' => 'Pendiente de Cambio de Servicio',
+                'quien_reporto'  => 'Administración',
+                'tipo_reporte'   => 'RECONEXION_CAMBIO',
+                'tipo_servicio'  => 'TV+INTERNET',             // nuevo servicio
+                'falla_reportada'=> 'RECONEXIÓN — CAMBIO A OTRO SERVICIO',
+                'servicio'       => 'TV + Internet 50 Mbps',   // nuevo servicio
+                'servicio_anterior'  => 'Internet 30 Mbps',    // servicio previo
+                'tarifa_anterior'    => '$280.00 / mes',
+                'tarifa_nueva'       => '$420.00 / mes',
+                'equipo_anterior'    => 'ONU Huawei HG8310M (Serie: HW2023-155)',
+                'tecnico'        => 'Cuadrilla 2',
+                'nap'            => '—',
+                'dir_nap'        => '— Asignar al instalar —',
+                'nap_anterior'   => 'NAP-OAN-05',
+                'dir_nap_anterior'   => 'Poste 18, Av. Ferrocarril Norte',
+                'salida_nap_anterior'=> '4',
+                'metros_acometida_anterior' => '22',
+                'salidas_nap_disponibles' => ['1', '2', '3', '4', '5'],
+                'info_equipo'    => 'ONU Huawei HG8310M (Sin asignar)',
+                'ip'             => '—',
+                'wifi'           => '—',
+                'password_wifi'  => '—',
+                'olt'            => '—',
+                'pon'            => '—',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '-17.8',
+                'ultima_potencia_equipo' => '-21.5',
+                'saldo_pendiente'=> 0.00,
+                'dias_suspension'=> 45,
+                'fecha_suspension'=> '2026-01-25',
+            ],
+            'REP-2026-0012' => [
+                'folio'          => 'REP-2026-0012',
+                'fecha'          => '2026-03-11 16:00',
+                'sucursal'       => 'Oaxaca Centro',
+                'cliente'        => 'ELENA VARGAS MORALES',
+                'id_cliente'     => 'OAX-0008901',
+                'telefono'       => '9516789012',
+                'domicilio'      => 'Calle Murguía 55, Col. Centro. Ref: Casa rosa, escalones de cantera.',
+                'estado_cliente' => 'Suspendido',
+                'quien_reporto'  => 'Administración',
+                'tipo_reporte'   => 'RECONEXION',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'falla_reportada'=> 'RECONEXIÓN — MISMO SERVICIO',
+                'servicio'       => 'TV + Internet 30 Mbps',
+                'tecnico'        => 'Cuadrilla 1',
+                'nap'            => 'NAP-OAX-02',
+                'dir_nap'        => 'Poste 9, Av. Independencia',
+                'salidas_nap_disponibles' => ['2', '5', '6'],
+                'info_equipo'    => 'ONU ZTE F660 (Serie: ZTE2024-099)',
+                'ip'             => '192.168.10.71',
+                'wifi'           => 'TuVision_Elena',
+                'password_wifi'  => 'ele56789',
+                'olt'            => 'OLT-01',
+                'pon'            => 'PON/0/5',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '-18.3',
+                'ultima_potencia_equipo' => '-22.0',
+                'saldo_pendiente'=> 0.00,
+                'dias_suspension'=> 32,
+                'fecha_suspension'=> '2026-02-08',
+            ],
             'REP-2026-0011' => [
                 'folio'          => 'REP-2026-0011',
                 'fecha'          => '2026-02-27 09:00',
                 'sucursal'       => 'Oaxaca Norte',
                 'cliente'        => 'ANDRÉS VILLA RUIZ',
                 'id_cliente'     => 'OAN-0077654',
+                'telefono'       => '9513579246',
                 'domicilio'      => 'Periférico Norte 455, Col. Industrial. Ref: Portón negro, frente a la refaccionaria.',
                 'estado_cliente' => 'Activo',
                 'quien_reporto'  => 'Sistema',
@@ -486,6 +671,21 @@ class AtenderReporte extends Component
     public function esAumentoVelocidad(): bool
     {
         return ($this->reporte['tipo_reporte'] ?? '') === 'AUMENTO_VELOCIDAD';
+    }
+
+    public function esCambioServicio(): bool
+    {
+        return ($this->reporte['tipo_reporte'] ?? '') === 'CAMBIO_SERVICIO';
+    }
+
+    public function esReconexion(): bool
+    {
+        return ($this->reporte['tipo_reporte'] ?? '') === 'RECONEXION';
+    }
+
+    public function esReconexionCambio(): bool
+    {
+        return ($this->reporte['tipo_reporte'] ?? '') === 'RECONEXION_CAMBIO';
     }
 
     // ── Guardar asignación de equipo nuevo ────────────────────────────
@@ -631,17 +831,80 @@ class AtenderReporte extends Component
         $this->redirect(route('reportes.servicio'));
     }
 
+    // ── Precierre de cancelación ──────────────────────────────────────
+
+    public function guardarPrecierreCancel(string $motivo = ''): void
+    {
+        if (!$motivo) {
+            $this->addError('precierreCancel', 'Seleccione el motivo del precierre.');
+            return;
+        }
+
+        // TODO: ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //     'estado'           => 'En Proceso',
+        //     'motivo_precierre' => $motivo,
+        // ]);
+
+        $this->toastInfo('Avance guardado. Reporte en proceso — Precierre: ' . $motivo);
+        $this->redirect(route('reportes.servicio'));
+    }
+
     // ── Cierre de cancelación ─────────────────────────────────────────
 
-    public function cerrarCancelacion(): void
-    {
-        // TODO:
-        // Cliente::where('id', $this->reporte['cliente_id'])->update(['estado' => 'CANCELADO']);
-        // Equipo::where('cliente_id', $this->reporte['cliente_id'])->update(['estado' => 'EN_ALMACEN', 'cliente_id' => null]);
-        // NapSalida::where(...)->update(['estado' => 'LIBRE']);
-        // SmsService::enviar($cliente->telefono, "Su servicio fue cancelado...");
+    public function cerrarCancelacion(
+        string $recupera     = '',
+        string $serie        = '',
+        bool   $pagoPerdida  = false,
+        bool   $desconFisica = false,
+        bool   $bdWinbox     = false,
+        bool   $bdOLT        = false,
+        string $calificacion = 'Excelente'
+    ): void {
+        // Condición cierre admin: equipo recuperado O pago por pérdida confirmado
+        $equipoOk = ($recupera === 'si') || ($recupera === 'no' && $pagoPerdida);
+        if (!$equipoOk) {
+            $this->addError('cerrarCancelacion',
+                'Para cerrar: el equipo debe estar físicamente en sucursal o el suscriptor debe haber pagado por la pérdida.');
+            return;
+        }
 
-        $this->toastExito('Cancelación registrada. Inventarios actualizados. SMS enviado al cliente.');
+        // TODO: DB::transaction(function() {
+        //   // 1. Cambiar estado del suscriptor → CANCELADO
+        //   Cliente::where('id', $this->reporte['cliente_id'])->update(['estado' => 'CANCELADO']);
+        //
+        //   // 2. Liberar salida NAP
+        //   NapSalida::where('nap', $this->reporte['nap'])
+        //             ->where('cliente_id', $this->reporte['cliente_id'])
+        //             ->update(['estado' => 'LIBRE', 'cliente_id' => null]);
+        //
+        //   // 3. Actualizar inventario del equipo
+        //   if ($this->equipoRecuperado) {
+        //       Equipo::where('serie', $this->serieConfirmada ?: $this->reporte['info_equipo'])
+        //             ->update(['estado' => 'EN_ALMACEN', 'cliente_id' => null]);
+        //   } elseif ($this->equipoPerdido) {
+        //       Equipo::where('cliente_id', $this->reporte['cliente_id'])
+        //             ->update(['estado' => 'PAGADO_POR_PERDIDA', 'cliente_id' => null]);
+        //   }
+        //
+        //   // 4. Detener facturación
+        //   CicloFacturacion::where('cliente_id', $this->reporte['cliente_id'])
+        //                    ->update(['activo' => false, 'motivo_baja' => 'CANCELACION_VOLUNTARIA']);
+        //
+        //   // 5. Cerrar reporte
+        //   ReporteServicio::where('folio', $this->reporte['folio'])->update([
+        //       'estado'        => 'Cerrado',
+        //       'calificacion'  => $this->calificacion,
+        //       'horas_atencion'=> $this->horasAtencion,
+        //       'cerrado_admin' => now(),
+        //   ]);
+        //
+        //   // 6. SMS al suscriptor
+        //   SmsService::enviar($cliente->telefono,
+        //       "Tu Vision Telecable: Su servicio ha sido CANCELADO exitosamente. " .
+        //       "Gracias por haber sido nuestro suscriptor.");
+        // });
+
+        $this->toastExito('Cancelación aplicada. Estado → CANCELADO. NAP liberada. Inventario actualizado. SMS enviado.');
         $this->redirect(route('reportes.servicio'));
     }
 
@@ -784,8 +1047,8 @@ class AtenderReporte extends Component
     {
         $rules = ['solucionOpcion' => 'required'];
 
-        // Instalación y ServicioAdicional requieren potencias y NAP/salida
-        if ($this->esInstalacion() || $this->esServicioAdicional()) {
+        // Instalación, ServicioAdicional, CambioServicio, Reconexión y ReconexiónCambio requieren potencias y NAP/salida
+        if ($this->esInstalacion() || $this->esServicioAdicional() || $this->esCambioServicio() || $this->esReconexion() || $this->esReconexionCambio()) {
             $rules['napSeleccionada'] = 'required';
             $rules['salidaNap']       = 'required';
             $rules['potenciaNap']     = 'required';
@@ -806,9 +1069,9 @@ class AtenderReporte extends Component
             'salidaNap.required'       => 'Seleccione la salida de la NAP.',
         ]);
 
-        // Instalación: comodato debe estar firmado antes del cierre total
-        if ($this->esInstalacion() && !$this->comodatoFirmado) {
-            $this->addError('comodatoFirmado', 'El comodato debe estar firmado para cerrar el reporte de instalación.');
+        // Instalación, CambioServicio, Reconexión y ReconexiónCambio: comodato requerido
+        if (($this->esInstalacion() || $this->esCambioServicio() || $this->esReconexion() || $this->esReconexionCambio()) && !$this->comodatoFirmado) {
+            $this->addError('comodatoFirmado', 'El comodato del nuevo equipo debe estar firmado para cerrar el reporte.');
             return;
         }
 
@@ -858,6 +1121,9 @@ class AtenderReporte extends Component
             'esRecuperacion'       => $this->esRecuperacion(),
             'esServicioAdicional'  => $this->esServicioAdicional(),
             'esAumentoVelocidad'   => $this->esAumentoVelocidad(),
+            'esCambioServicio'     => $this->esCambioServicio(),
+            'esReconexion'         => $this->esReconexion(),
+            'esReconexionCambio'   => $this->esReconexionCambio(),
             // Catálogos (TODO: cargar desde BD)
             'catalogoNaps'    => [
                 ['id' => 'NAP-OAX-01', 'nombre' => 'NAP-OAX-01', 'dir' => 'Poste 5, Juárez y Reforma'],

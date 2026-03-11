@@ -14,6 +14,9 @@
             'RECUPERACION'          => ['label' => 'Rec. Equipo',         'class' => 'bg-amber-100 text-amber-700 border-amber-200',       'icon' => 'ri-arrow-down-circle-line'],
             'SERVICIO_ADICIONAL_TV' => ['label' => 'Serv. Adicional TV',  'class' => 'bg-purple-100 text-purple-700 border-purple-200',    'icon' => 'ri-tv-add-line'],
             'AUMENTO_VELOCIDAD'     => ['label' => 'Aumento Velocidad',   'class' => 'bg-teal-100 text-teal-700 border-teal-200',          'icon' => 'ri-speed-up-line'],
+            'CAMBIO_SERVICIO'       => ['label' => 'Cambio de Servicio',  'class' => 'bg-cyan-100 text-cyan-700 border-cyan-200',           'icon' => 'ri-swap-line'],
+            'RECONEXION'            => ['label' => 'Reconexión',           'class' => 'bg-green-100 text-green-700 border-green-200',         'icon' => 'ri-plug-line'],
+            'RECONEXION_CAMBIO'     => ['label' => 'Reconex. + Cambio',    'class' => 'bg-lime-100 text-lime-700 border-lime-200',             'icon' => 'ri-refresh-line'],
         ];
         $tb = $tipoBadges[$reporte['tipo_reporte']] ?? ['label' => $reporte['tipo_reporte'], 'class' => 'bg-gray-100 text-gray-600 border-gray-200', 'icon' => 'ri-file-list-line'];
     @endphp
@@ -132,8 +135,9 @@
                         $datosBase = [
                             ['icon' => 'ri-calendar-event-line', 'label' => 'Fecha de apertura',  'value' => $reporte['fecha'],           'mono' => true],
                             ['icon' => 'ri-store-2-line',         'label' => 'Sucursal',           'value' => $reporte['sucursal']],
-                            ['icon' => 'ri-hashtag',              'label' => 'ID Cliente',         'value' => $reporte['id_cliente'] ?? '—', 'mono' => true],
+                            ['icon' => 'ri-hashtag',              'label' => 'ID Suscriptor',      'value' => $reporte['id_cliente'] ?? '—', 'mono' => true],
                             ['icon' => 'ri-user-line',            'label' => 'Titular',            'value' => $reporte['cliente'],         'bold' => true],
+                            ['icon' => 'ri-phone-line',           'label' => 'Teléfono',           'value' => $reporte['telefono'] ?? '—', 'mono' => true],
                             ['icon' => 'ri-map-pin-line',         'label' => 'Domicilio',          'value' => $reporte['domicilio'],       'italic' => true],
                             ['icon' => 'ri-service-line',         'label' => 'Servicio',           'value' => $reporte['servicio'],        'badge' => 'indigo'],
                             ['icon' => 'ri-user-heart-line',      'label' => 'Estado del cliente', 'value' => $reporte['estado_cliente'],  'badge' => 'amber'],
@@ -212,8 +216,8 @@
                     </div>
                     @endif
 
-                    {{-- Últimas potencias (no aplica para instalaciones nuevas ni servicio adicional) --}}
-                    @if(!$esInstalacion && !$esServicioAdicional)
+                    {{-- Últimas potencias (no aplica para instalaciones completamente nuevas) --}}
+                    @if(!$esInstalacion)
                     <div class="border border-gray-200 rounded-lg overflow-hidden">
                         <div class="bg-gray-50 border-b border-gray-200 px-3 py-2">
                             <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Últimas Potencias Registradas</p>
@@ -276,16 +280,30 @@
             {{-- ═══════════════════════════════════════════════════════
                  ASIGNACION DE EQUIPO
                  i. Información de la ONU asignada (WIFI / Contraseña / VLAN / Encapsulamiento)
-                 — Instalación / Servicio Adicional / Falla con cambio de equipo
+                 — Instalación / Servicio Adicional / Cambio Servicio / Falla con cambio de equipo
             ═══════════════════════════════════════════════════════ --}}
-            @if($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional)
+            @if($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional || $esCambioServicio || $esReconexion || $esReconexionCambio)
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5">
-                    @if($esInstalacion || $esServicioAdicional)
+                    @if($esInstalacion || $esServicioAdicional || $esCambioServicio)
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 bg-emerald-100 rounded-md flex items-center justify-center text-[10px] font-black text-emerald-700">i</div>
-                        <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Asignacion de Equipo — ONU Asignada</p>
+                        <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">
+                            Asignacion de Equipo —
+                            {{ ($tieneTV && !$tieneInternet) ? 'Mininodo Asignado' : 'ONU Asignada' }}
+                        </p>
                         <span class="ml-auto text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded uppercase">Sucursal</span>
+                    </div>
+                    @elseif($esReconexion)
+                    <div class="flex items-center gap-2">
+                        <i class="ri-plug-line text-green-600 text-sm"></i>
+                        <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Validación de Equipo — Reconexión</p>
+                        <span class="ml-auto text-[9px] font-bold text-green-600 bg-green-50 border border-green-100 px-1.5 py-0.5 rounded uppercase">Técnico</span>
+                    </div>
+                    @elseif($esReconexionCambio)
+                    <div class="flex items-center gap-2">
+                        <i class="ri-refresh-line text-lime-600 text-sm"></i>
+                        <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Validación de Equipo — Reconexión con Cambio</p>
+                        <span class="ml-auto text-[9px] font-bold text-lime-700 bg-lime-50 border border-lime-200 px-1.5 py-0.5 rounded uppercase">Técnico</span>
                     </div>
                     @else
                     <label class="flex items-center gap-3 cursor-pointer">
@@ -300,18 +318,30 @@
                     @endif
                 </div>
 
-                @if($cambioEquipo || $esInstalacion || $esServicioAdicional)
+                @if($cambioEquipo || $esInstalacion || $esServicioAdicional || $esCambioServicio)
+                @php
+                    // Filtrar catálogo según tipo de servicio
+                    // TV-only → solo mininodos | Internet-only → solo ONUs | Combo → todos
+                    $equiposFiltrados = collect($catalogoEquipos)->filter(function($eq) use ($tieneTV, $tieneInternet) {
+                        if ($tieneTV && !$tieneInternet) return str_starts_with($eq['id'], 'min-');
+                        if ($tieneInternet && !$tieneTV)  return str_starts_with($eq['id'], 'onu-');
+                        return true;
+                    })->values()->all();
+                @endphp
                 <div class="p-5 space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2 space-y-1.5">
                             <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                @if($esInstalacion || $esServicioAdicional) Equipo Asignado — Del Catálogo (Sucursal) @else Nuevo Equipo del Almacén *
+                                @if($esInstalacion || $esServicioAdicional || $esCambioServicio)
+                                    {{ ($tieneTV && !$tieneInternet) ? 'Mininodo Asignado — Del Catálogo (Sucursal)' : 'ONU Asignada — Del Catálogo (Sucursal)' }}
+                                @else
+                                    {{ ($tieneTV && !$tieneInternet) ? 'Nuevo Mininodo del Almacén *' : 'Nueva ONU del Almacén *' }}
                                 @endif
                             </label>
                             <select wire:model.live="equipoNuevo"
                                     class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-xs font-black uppercase focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                                 <option value="">— Seleccione equipo disponible —</option>
-                                @foreach($catalogoEquipos as $eq)
+                                @foreach($equiposFiltrados as $eq)
                                 <option value="{{ $eq['id'] }}">{{ $eq['label'] }}</option>
                                 @endforeach
                             </select>
@@ -320,18 +350,18 @@
 
                         @if($tieneInternet)
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">i. Nombre del WIFI</label>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Nombre del WIFI</label>
                             <input type="text" wire:model="wifiNuevo"
                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                                    placeholder="TuVision_001">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">ii. Contraseña</label>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Contraseña</label>
                             <input type="text" wire:model="passwordNuevo"
                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-bold font-mono focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">iii. VLAN (viene de catálogo)</label>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">VLAN (viene de catálogo)</label>
                             <select wire:model="vlanNueva"
                                     class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-xs font-black uppercase focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                                 <option value="">— Seleccione VLAN —</option>
@@ -341,7 +371,7 @@
                             </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">iv. Encapsulamiento (viene de catálogo)</label>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Encapsulamiento (viene de catálogo)</label>
                             <select wire:model="encapsulamientoNuevo"
                                     class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-xs font-black uppercase focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                                 <option value="">— Seleccione —</option>
@@ -361,7 +391,7 @@
                     </div>
                     <button wire:click="guardarCambioEquipo"
                             class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-indigo-700 shadow-sm transition-all active:scale-95">
-                        <i class="ri-save-line"></i> Guardar Asignación de Equipo
+                        <i class="ri-save-line"></i> Guardar Asignación de {{ ($tieneTV && !$tieneInternet) ? 'Mininodo' : 'Equipo' }}
                     </button>
                     @elseif($esServicioAdicional)
                     <div class="flex items-start gap-3 bg-purple-50 border border-purple-100 rounded-lg p-3.5">
@@ -377,6 +407,260 @@
                     @endif
                 </div>
                 @endif
+
+                {{-- ─── RECONEXION: validación de equipo (conserva o nuevo) ─── --}}
+                @if($esReconexion)
+                <div class="p-5" x-data="{ conserva: '{{ $conservaEquipo }}' }">
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3">¿El suscriptor conserva el equipo?</p>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <label class="cursor-pointer" @click="conserva = 'si'">
+                            <div class="text-center border-2 rounded-xl p-3 transition-all cursor-pointer"
+                                 :class="conserva === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
+                                <i class="ri-checkbox-circle-line block text-xl mb-1"
+                                   :class="conserva === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="conserva === 'si' ? 'text-emerald-700' : 'text-gray-400'">Conserva el Equipo</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer" @click="conserva = 'no'">
+                            <div class="text-center border-2 rounded-xl p-3 transition-all cursor-pointer"
+                                 :class="conserva === 'no' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-200'">
+                                <i class="ri-swap-box-line block text-xl mb-1"
+                                   :class="conserva === 'no' ? 'text-amber-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="conserva === 'no' ? 'text-amber-700' : 'text-gray-400'">Equipo Nuevo</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    {{-- SI conserva: confirmar serie --}}
+                    <div x-show="conserva === 'si'" x-cloak class="space-y-3">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 space-y-3">
+                            <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Confirmar serie del equipo del suscriptor</p>
+                            <p class="font-mono text-sm font-black text-indigo-700 bg-white border border-indigo-100 px-4 py-2 rounded-lg">
+                                {{ $reporte['info_equipo'] ?? '—' }}
+                            </p>
+                            <div class="space-y-1.5">
+                                <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física confirmada *</label>
+                                <input type="text" wire:model.live="serieConservada"
+                                       class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20"
+                                       placeholder="ESCANEAR O ESCRIBIR SERIE...">
+                            </div>
+                            @if($serieConservada)
+                                @php $serieOkRec = str_contains($reporte['info_equipo'] ?? '', $serieConservada); @endphp
+                                @if($serieOkRec)
+                                <div class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
+                                    <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — el equipo se reasignará al inventario activo ✓
+                                </div>
+                                @else
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                    <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5">
+                                        <i class="ri-alert-line text-amber-600"></i> Serie diferente — el sistema actualizará el registro con la serie física.
+                                    </p>
+                                </div>
+                                @endif
+                            @endif
+                            <p class="text-[9px] text-gray-400">Al confirmar: el equipo queda registrado como activo en inventario de sucursal.</p>
+                        </div>
+                        <button wire:click="guardarCambioEquipo"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-emerald-700 shadow-sm transition-all active:scale-95">
+                            <i class="ri-save-line"></i> Confirmar — Mismo Equipo
+                        </button>
+                    </div>
+
+                    {{-- NO conserva: asignar equipo nuevo del catálogo --}}
+                    <div x-show="conserva === 'no'" x-cloak class="space-y-3">
+                        @php
+                            $equiposRec = collect($catalogoEquipos)->filter(function($eq) use ($tieneTV, $tieneInternet) {
+                                if ($tieneTV && !$tieneInternet) return str_starts_with($eq['id'], 'min-');
+                                if ($tieneInternet && !$tieneTV)  return str_starts_with($eq['id'], 'onu-');
+                                return true;
+                            })->values()->all();
+                        @endphp
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                {{ ($tieneTV && !$tieneInternet) ? 'Nuevo Mininodo del Almacén *' : 'Nueva ONU del Almacén *' }}
+                            </label>
+                            <select wire:model.live="equipoNuevo"
+                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-xs font-black uppercase focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400">
+                                <option value="">— Seleccione equipo disponible —</option>
+                                @foreach($equiposRec as $eq)
+                                <option value="{{ $eq['id'] }}">{{ $eq['label'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('equipoNuevo')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-lg p-3.5">
+                            <i class="ri-information-line text-amber-500 text-base flex-shrink-0 mt-0.5"></i>
+                            <p class="text-[10px] font-medium text-amber-700 leading-relaxed">
+                                Al guardar: se generará <strong>comodato automático</strong> para el nuevo equipo y se registrará la baja del equipo anterior en inventario.
+                            </p>
+                        </div>
+                        <button wire:click="guardarCambioEquipo"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-amber-700 shadow-sm transition-all active:scale-95">
+                            <i class="ri-save-line"></i> Asignar Nuevo {{ ($tieneTV && !$tieneInternet) ? 'Mininodo' : 'Equipo' }}
+                        </button>
+                    </div>
+                </div>
+                @endif
+
+                {{-- ─── RECONEXION_CAMBIO: validación de equipo (conserva o nuevo) ─── --}}
+                @if($esReconexionCambio)
+                <div class="p-5" x-data="{ conserva: '{{ $conservaEquipo }}' }">
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3">¿El suscriptor conserva el equipo anterior?</p>
+                    <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 mb-3">
+                        <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest mb-1">Equipo Previo Registrado</p>
+                        <p class="font-mono text-[10px] font-black text-gray-800">{{ $reporte['equipo_anterior'] ?? '—' }}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <label class="cursor-pointer" @click="conserva = 'si'">
+                            <div class="text-center border-2 rounded-xl p-3 transition-all cursor-pointer"
+                                 :class="conserva === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
+                                <i class="ri-checkbox-circle-line block text-xl mb-1"
+                                   :class="conserva === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="conserva === 'si' ? 'text-emerald-700' : 'text-gray-400'">Conserva el Equipo</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer" @click="conserva = 'no'">
+                            <div class="text-center border-2 rounded-xl p-3 transition-all cursor-pointer"
+                                 :class="conserva === 'no' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-200'">
+                                <i class="ri-swap-box-line block text-xl mb-1"
+                                   :class="conserva === 'no' ? 'text-amber-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="conserva === 'no' ? 'text-amber-700' : 'text-gray-400'">Equipo Nuevo</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    {{-- SI conserva: confirmar serie --}}
+                    <div x-show="conserva === 'si'" x-cloak class="space-y-3">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 space-y-3">
+                            <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Confirmar serie del equipo conservado</p>
+                            <div class="space-y-1.5">
+                                <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física confirmada *</label>
+                                <input type="text" wire:model.live="serieConservada"
+                                       class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20"
+                                       placeholder="ESCANEAR O ESCRIBIR SERIE...">
+                            </div>
+                            @if($serieConservada)
+                                @php $serieOkRc = str_contains($reporte['equipo_anterior'] ?? '', $serieConservada); @endphp
+                                @if($serieOkRc)
+                                <div class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
+                                    <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — equipo reactivado en inventario activo ✓
+                                </div>
+                                @else
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                    <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5">
+                                        <i class="ri-alert-line text-amber-600"></i> Serie diferente — el sistema actualizará el registro con la serie física.
+                                    </p>
+                                </div>
+                                @endif
+                            @endif
+                            <p class="text-[9px] text-gray-400">Nota: Aunque se conserva el equipo, se generará nuevo comodato por el cambio de servicio.</p>
+                        </div>
+                        <button wire:click="guardarCambioEquipo"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-emerald-700 shadow-sm transition-all active:scale-95">
+                            <i class="ri-save-line"></i> Confirmar — Mismo Equipo
+                        </button>
+                    </div>
+
+                    {{-- NO conserva: asignar equipo nuevo del catálogo --}}
+                    <div x-show="conserva === 'no'" x-cloak class="space-y-3">
+                        @php
+                            $equiposRc = collect($catalogoEquipos)->filter(function($eq) use ($tieneTV, $tieneInternet) {
+                                if ($tieneTV && !$tieneInternet) return str_starts_with($eq['id'], 'min-');
+                                if ($tieneInternet && !$tieneTV)  return str_starts_with($eq['id'], 'onu-');
+                                return true;
+                            })->values()->all();
+                        @endphp
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                {{ ($tieneTV && !$tieneInternet) ? 'Nuevo Mininodo del Almacén *' : 'Nueva ONU del Almacén *' }}
+                            </label>
+                            <select wire:model.live="equipoNuevo"
+                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-xs font-black uppercase focus:ring-2 focus:ring-lime-500/20 focus:border-lime-400">
+                                <option value="">— Seleccione equipo disponible —</option>
+                                @foreach($equiposRc as $eq)
+                                <option value="{{ $eq['id'] }}">{{ $eq['label'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('equipoNuevo')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="flex items-start gap-3 bg-lime-50 border border-lime-100 rounded-lg p-3.5">
+                            <i class="ri-information-line text-lime-600 text-base flex-shrink-0 mt-0.5"></i>
+                            <p class="text-[10px] font-medium text-lime-800 leading-relaxed">
+                                Al guardar: se dará de baja el equipo anterior en inventario, se asignará el nuevo y se generará <strong>comodato automático</strong>.
+                            </p>
+                        </div>
+                        <button wire:click="guardarCambioEquipo"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-lime-700 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-lime-800 shadow-sm transition-all active:scale-95">
+                            <i class="ri-save-line"></i> Asignar Nuevo {{ ($tieneTV && !$tieneInternet) ? 'Mininodo' : 'Equipo' }}
+                        </button>
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+
+            {{-- ═══════════════════════════════════════════════════════
+                 [RECONEXION_CAMBIO] Infraestructura Histórica — Servicio Anterior
+            ═══════════════════════════════════════════════════════ --}}
+            @if($esReconexionCambio)
+            <div class="bg-white border border-amber-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-amber-600 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-history-line text-white text-base"></i>
+                    <p class="text-[11px] font-black text-white uppercase tracking-widest">Infraestructura Previa — Servicio Anterior</p>
+                    <span class="ml-auto text-[9px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded uppercase">Solo Lectura</span>
+                </div>
+                <div class="p-5 space-y-4">
+
+                    {{-- Datos del servicio anterior --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Servicio Anterior</p>
+                            <p class="text-xs font-black text-gray-800 uppercase">{{ $reporte['servicio_anterior'] ?? '—' }}</p>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <p class="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-1">Nuevo Servicio</p>
+                            <p class="text-xs font-black text-gray-800 uppercase">{{ $reporte['servicio'] ?? '—' }}</p>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Tarifa Anterior</p>
+                            <p class="text-xs font-black text-gray-700 font-mono">{{ $reporte['tarifa_anterior'] ?? '—' }}</p>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <p class="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-1">Nueva Tarifa</p>
+                            <p class="text-xs font-black text-gray-800 font-mono">{{ $reporte['tarifa_nueva'] ?? '—' }}</p>
+                        </div>
+                    </div>
+
+                    {{-- Infraestructura previa --}}
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-4 py-2.5">
+                            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Red y NAP Anterior</p>
+                        </div>
+                        <div class="p-4 grid grid-cols-2 gap-x-6 gap-y-2">
+                            @php
+                                $infraHistorica = [
+                                    ['l' => 'NAP Anterior',           'v' => $reporte['nap_anterior'] ?? '—',              'mono' => true],
+                                    ['l' => 'Dirección NAP',          'v' => $reporte['dir_nap_anterior'] ?? '—'],
+                                    ['l' => 'Salida NAP',             'v' => $reporte['salida_nap_anterior'] ?? '—',       'mono' => true],
+                                    ['l' => 'Metros Acometida',       'v' => ($reporte['metros_acometida_anterior'] ?? '—') . ' m', 'mono' => true],
+                                    ['l' => 'Potencia Salida NAP',    'v' => ($reporte['ultima_potencia_nap'] ?? '—') . ' dBm',    'mono' => true],
+                                    ['l' => 'Potencia Antes Equipo',  'v' => ($reporte['ultima_potencia_equipo'] ?? '—') . ' dBm', 'mono' => true],
+                                ];
+                            @endphp
+                            @foreach($infraHistorica as $ih)
+                            <div>
+                                <p class="text-[8px] font-bold text-gray-400 uppercase">{{ $ih['l'] }}</p>
+                                <p class="text-[10px] font-black text-gray-800 {{ !empty($ih['mono']) ? 'font-mono' : '' }}">{{ $ih['v'] }}</p>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                </div>
             </div>
             @endif
 
@@ -387,17 +671,16 @@
                    ii. Seleccionar el # de Salida del NAP (del catálogo — técnico)
                   iii. Afectar las salidas de inventario de la NAP (automático)
             ═══════════════════════════════════════════════════════ --}}
-            @if($esInstalacion || $esServicioAdicional)
+            @if($esInstalacion || $esServicioAdicional || $esCambioServicio || $esReconexion || $esReconexionCambio)
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
-                    <div class="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center text-[10px] font-black text-indigo-600">x</div>
                     <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Registro de la NAP donde se Conectara el Servicio</p>
                     <span class="ml-auto text-[9px] font-bold text-gray-400 uppercase">Del Catálogo / Técnico</span>
                     <span class="text-[9px] font-bold text-red-500 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded uppercase">Requerido</span>
                 </div>
                 <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="sm:col-span-2 space-y-1.5">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">i. NAP de Conexión * (Del catálogo)</label>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">NAP de Conexión * (Del catálogo)</label>
                         <select wire:model.live="napSeleccionada"
                                 class="w-full bg-gray-50 border border-gray-200 rounded-lg text-xs font-black uppercase py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                             <option value="">— Seleccione del catálogo —</option>
@@ -408,12 +691,12 @@
                         @error('napSeleccionada')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
                         @if($napSeleccionada)
                         <p class="text-[9px] text-indigo-500 font-bold uppercase flex items-center gap-1">
-                            <i class="ri-map-pin-line"></i> i. Dirección de la NAP cargada automáticamente desde catálogo
+                            <i class="ri-map-pin-line"></i> Dirección de la NAP cargada automáticamente desde catálogo
                         </p>
                         @endif
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">ii. # de Salida del NAP * (Salidas disponibles)</label>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest"># de Salida del NAP * (Salidas disponibles)</label>
                         <select wire:model="salidaNap"
                                 @if(!$napSeleccionada) disabled @endif
                                 class="w-full bg-gray-50 border border-gray-200 rounded-lg text-xs font-black uppercase py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 disabled:opacity-40">
@@ -423,7 +706,7 @@
                             @endforeach
                         </select>
                         @error('salidaNap')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
-                        <p class="text-[9px] text-gray-400 font-medium">iii. Al cerrar el reporte, la salida se marcará como ocupada en inventario (automático)</p>
+                        <p class="text-[9px] text-gray-400 font-medium">Al cerrar el reporte, la salida se marcará como ocupada en inventario (automático)</p>
                     </div>
                 </div>
             </div>
@@ -470,20 +753,18 @@
                  z. Anotar cuantos Metros de Acometida son de la NAP al Domicilio (técnico)
                  aa. Potencia Óptica de llegada al domicilio antes de la ONU (técnico)
             ═══════════════════════════════════════════════════════ --}}
-            @if($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional)
+            @if($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional || $esCambioServicio || $esReconexion || $esReconexionCambio)
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
                     <i class="ri-line-chart-line text-indigo-500 text-sm"></i>
                     <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">
-                        @if($esInstalacion) y · z · aa. @endif
-                        Lecturas Técnicas — Potencias Ópticas
+                        Lecturas Técnicas — Potencias Ópticas NUEVAS
                     </p>
                     <span class="ml-auto text-[9px] font-bold text-gray-400 uppercase">Técnico</span>
                 </div>
                 <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                            @if($esInstalacion) y. @endif
                             Potencia óptica de la salida del divisor en la NAP *
                         </label>
                         <div class="relative">
@@ -497,7 +778,6 @@
 
                     <div class="space-y-1.5">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                            @if($esInstalacion) z. @endif
                             Metros de Acometida (NAP → Domicilio)
                         </label>
                         <div class="relative">
@@ -510,7 +790,6 @@
 
                     <div class="space-y-1.5">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                            @if($esInstalacion) aa. @endif
                             Potencia óptica antes {{ $tieneTV && !$tieneInternet ? 'Mininodo' : 'ONU' }} *
                         </label>
                         <div class="relative">
@@ -528,21 +807,19 @@
             {{-- ═══════════════════════════════════════════════════════
                  bb. Confirmación de Prueba de Canales (técnico)
                  cc. Registro de la Cantidad de canales digitales detectados (técnico)
-                 — Solo si tiene TV
+                 — En INSTALACION siempre (spec Internet la incluye); en otros tipos solo si tiene TV
             ═══════════════════════════════════════════════════════ --}}
-            @if($tieneTV && ($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional))
+            @if($esInstalacion || $esCambioServicio || $esReconexion || $esReconexionCambio || ($tieneTV && ($esFalla || $esCambioDomicilio || $esServicioAdicional)))
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-violet-50 border-b border-violet-100 px-5 py-3.5 flex items-center gap-2">
                     <i class="ri-tv-2-line text-violet-600 text-sm"></i>
                     <p class="text-[11px] font-black text-violet-800 uppercase tracking-widest">
-                        @if($esInstalacion) bb · cc. @endif
                         Verificación de Televisión — Mininodo
                     </p>
                 </div>
                 <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                            @if($esInstalacion) bb. @endif
                             Confirmación de Prueba de Canales
                         </label>
                         <label class="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 cursor-pointer hover:bg-violet-50 hover:border-violet-200 transition-colors">
@@ -552,7 +829,6 @@
                     </div>
                     <div class="sm:col-span-2 space-y-1.5">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                            @if($esInstalacion) cc. @endif
                             Registro de la Cantidad de Canales Digitales Detectados
                         </label>
                         <div class="flex items-center gap-3">
@@ -580,12 +856,11 @@
                  p. Confirmar actualización de datos del cliente en la OLT (sucursal)
                  — Solo si tiene Internet
             ═══════════════════════════════════════════════════════ --}}
-            @if($tieneInternet && ($esFalla || $esInstalacion || $esCambioDomicilio))
+            @if($tieneInternet && ($esFalla || $esInstalacion || $esCambioDomicilio || $esCambioServicio || $esReconexion || $esReconexionCambio))
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-sky-50 border-b border-sky-100 px-5 py-3.5 flex items-center gap-2">
                     <i class="ri-wifi-line text-sky-600 text-sm"></i>
                     <p class="text-[11px] font-black text-sky-800 uppercase tracking-widest">
-                        @if($esInstalacion) j · k · l · m · n · o · p. @endif
                         Verificacion de ONU / Internet
                     </p>
                 </div>
@@ -594,15 +869,14 @@
                     {{-- j. Conexión de ONU — 4 confirmaciones del técnico --}}
                     <div>
                         <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">
-                            @if($esInstalacion) j. @endif
                             Conexion de ONU — Confirmaciones del Técnico
                         </p>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             @foreach([
-                                ['model' => 'onuEncendio',    'label' => ($esInstalacion ? 'i. ' : '') . 'ONU Encendió al Conectar',  'icon' => 'ri-power-line'],
-                                ['model' => 'ponVerde',       'label' => ($esInstalacion ? 'ii. ' : '') . 'PON en Verde',             'icon' => 'ri-signal-wifi-3-line'],
-                                ['model' => 'wifiConecta',    'label' => ($esInstalacion ? 'iii. ' : '') . 'Conecta a la Red WIFI',   'icon' => 'ri-wifi-line'],
-                                ['model' => 'accesoInternet', 'label' => ($esInstalacion ? 'iv. ' : '') . 'Prueba de Velocidad OK',   'icon' => 'ri-global-line'],
+                                ['model' => 'onuEncendio',    'label' => 'ONU Encendió al Conectar',  'icon' => 'ri-power-line'],
+                                ['model' => 'ponVerde',       'label' => 'PON en Verde',             'icon' => 'ri-signal-wifi-3-line'],
+                                ['model' => 'wifiConecta',    'label' => 'Conecta a la Red WIFI',   'icon' => 'ri-wifi-line'],
+                                ['model' => 'accesoInternet', 'label' => 'Prueba de Velocidad OK',   'icon' => 'ri-global-line'],
                             ] as $ck)
                             <label class="flex flex-col items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl p-3 cursor-pointer hover:bg-sky-50 hover:border-sky-200 transition-colors group text-center">
                                 <input type="checkbox" wire:model="{{ $ck['model'] }}" class="h-5 w-5 text-sky-600 rounded focus:ring-0">
@@ -614,7 +888,6 @@
                         {{-- iv. Megas en la prueba de velocidad --}}
                         <div class="mt-3 space-y-1.5">
                             <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                @if($esInstalacion) iv. @endif
                                 Megas Registrados en la Prueba de Velocidad
                             </label>
                             <div class="relative w-48">
@@ -649,13 +922,11 @@
                     {{-- k · l · m. OLT / PON / IP — Sucursal --}}
                     <div class="border-t border-gray-100 pt-4">
                         <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3">
-                            @if($esInstalacion) k · l · m. @endif
                             Asignaciones de Red — Sucursal
                         </p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="space-y-1.5">
                                 <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                    @if($esInstalacion) k. @endif
                                     Asignación de OLT (catálogo)
                                 </label>
                                 <select wire:model="oltAsignada"
@@ -668,7 +939,6 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                    @if($esInstalacion) l. @endif
                                     Asignación de PON
                                 </label>
                                 <input type="text" wire:model="ponAsignado"
@@ -677,7 +947,6 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                    @if($esInstalacion) m. @endif
                                     Dirección IP Asignada (sucursal)
                                 </label>
                                 <input type="text" wire:model="ipAsignada"
@@ -689,9 +958,9 @@
                         {{-- n · o · p. Confirmaciones Winbox / OLT --}}
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
                             @foreach([
-                                ['model' => 'actualizoWinbox',  'label' => ($esInstalacion ? 'n. ' : '') . 'Actualización del nombre del cliente en Winbox'],
-                                ['model' => 'asignoPlanWinbox', 'label' => ($esInstalacion ? 'o. ' : '') . 'Asignación del plan de datos en Winbox (sucursal)'],
-                                ['model' => 'actualizoOLT',     'label' => ($esInstalacion ? 'p. ' : '') . 'Actualización de datos del cliente en la OLT (sucursal)'],
+                                ['model' => 'actualizoWinbox',  'label' => 'Actualización del nombre del cliente en Winbox'],
+                                ['model' => 'asignoPlanWinbox', 'label' => 'Asignación del plan de datos en Winbox (sucursal)'],
+                                ['model' => 'actualizoOLT',     'label' => 'Actualización de datos del cliente en la OLT (sucursal)'],
                             ] as $sc)
                             <label class="flex items-center gap-2.5 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2.5 cursor-pointer hover:bg-indigo-100 transition-colors">
                                 <input type="checkbox" wire:model="{{ $sc['model'] }}" class="h-4 w-4 text-indigo-600 rounded focus:ring-0 flex-shrink-0">
@@ -964,75 +1233,260 @@
                  [CANCELACIÓN] Recuperación del equipo
             ═══════════════════════════════════════════════════════ --}}
             @if($esCancelacion)
+            {{-- ── Todo el bloque de cancelación usa Alpine local — CERO wire:model.live / $wire.set ── --}}
+            <div x-init="equipoInfo = @json($reporte['info_equipo'] ?? '')" x-data="{
+                recupera: '',
+                serie: '',
+                equipoInfo: '',
+                get serieMatch() { return this.serie.length > 0 && this.equipoInfo.toUpperCase().includes(this.serie.toUpperCase()); },
+                get serieDiff()  { return this.serie.length > 0 && !this.equipoInfo.toUpperCase().includes(this.serie.toUpperCase()); },
+                pagoPerdida: false,
+                desconFisica: false,
+                bdWinbox: false,
+                bdOLT: false,
+                calificacion: 'Excelente',
+                precierreMotivo: '',
+                precierreError: ''
+            }" class="space-y-4">
+
+            {{-- ─── 1. Datos e Infraestructura (read-only) ─── --}}
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-900 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-close-circle-line text-red-400 text-base"></i>
+                    <p class="text-[11px] font-black text-gray-200 uppercase tracking-widest">Cancelación de Servicio — Datos de la Instalación</p>
+                </div>
+                <div class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Servicio</p>
+                        <p class="text-[10px] font-black text-gray-800 uppercase leading-tight">{{ $reporte['servicio'] ?? '—' }}</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">NAP Conectada</p>
+                        <p class="text-[10px] font-black text-gray-800 uppercase">{{ $reporte['nap'] }}</p>
+                        <p class="text-[9px] text-gray-400 italic mt-0.5 leading-tight">{{ $reporte['dir_nap'] }}</p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center sm:col-span-2">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Equipo Asignado</p>
+                        <p class="font-mono text-[10px] font-black text-gray-800">{{ $reporte['info_equipo'] }}</p>
+                    </div>
+                </div>
+                @if($tieneInternet)
+                <div class="border-t border-gray-100 px-4 py-3 flex flex-wrap gap-x-6 gap-y-1">
+                    <div>
+                        <p class="text-[8px] font-bold text-gray-400 uppercase">IP Asignada</p>
+                        <p class="font-mono text-[10px] font-black text-gray-700">{{ $reporte['ip'] ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[8px] font-bold text-gray-400 uppercase">OLT / PON</p>
+                        <p class="font-mono text-[10px] font-black text-gray-700">{{ ($reporte['olt'] ?? '—') }} / {{ ($reporte['pon'] ?? '—') }}</p>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            {{-- ─── 2. Recuperación del Equipo en Comodato ─── --}}
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
-                    <i class="ri-close-circle-line text-gray-600 text-sm"></i>
+                    <i class="ri-router-line text-gray-600 text-sm"></i>
                     <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Recuperación del Equipo en Comodato</p>
+                    <span class="ml-auto text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded uppercase">Requerido para Cierre</span>
                 </div>
                 <div class="p-5 space-y-4">
 
-                    {{-- Opción: recuperar equipo --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="recuperacion" wire:model.live="equipoRecuperado" value="1" class="peer sr-only">
-                            <div class="border-2 border-gray-200 rounded-xl p-4 text-center hover:border-emerald-300 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all">
-                                <i class="ri-checkbox-circle-fill text-2xl text-gray-200 peer-checked:text-emerald-500 block mb-1.5 transition-colors"></i>
-                                <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">SÍ — Recuperar Equipo</p>
-                                <p class="text-[9px] text-gray-400 mt-1">El equipo regresa al inventario</p>
+                    {{-- Radio SI / NO — Alpine local, sin $wire.set --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" @click="recupera = 'si'; pagoPerdida = false">
+                            <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                 :class="recupera === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
+                                <i class="ri-checkbox-circle-line block text-2xl mb-1"
+                                   :class="recupera === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="recupera === 'si' ? 'text-emerald-700' : 'text-gray-400'">SÍ — Recuperar Equipo</p>
+                                <p class="text-[9px] mt-0.5"
+                                   :class="recupera === 'si' ? 'text-emerald-600' : 'text-gray-300'">Regresa al inventario</p>
                             </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="recuperacion" wire:model.live="equipoPerdido" value="1" class="peer sr-only">
-                            <div class="border-2 border-gray-200 rounded-xl p-4 text-center hover:border-red-300 peer-checked:border-red-500 peer-checked:bg-red-50 transition-all">
-                                <i class="ri-close-circle-fill text-2xl text-gray-200 peer-checked:text-red-500 block mb-1.5 transition-colors"></i>
-                                <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">NO — Pago por Pérdida</p>
-                                <p class="text-[9px] text-gray-400 mt-1">Se registra como pago por daño/pérdida</p>
+                        </button>
+                        <button type="button" @click="recupera = 'no'; serie = ''">
+                            <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                 :class="recupera === 'no' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-200'">
+                                <i class="ri-close-circle-line block text-2xl mb-1"
+                                   :class="recupera === 'no' ? 'text-red-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="recupera === 'no' ? 'text-red-700' : 'text-gray-400'">NO — No Entrega</p>
+                                <p class="text-[9px] mt-0.5"
+                                   :class="recupera === 'no' ? 'text-red-600' : 'text-gray-300'">Pago por pérdida</p>
                             </div>
-                        </label>
+                        </button>
                     </div>
+                    @error('cerrarCancelacion')
+                    <p class="text-[10px] text-red-500 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                    @enderror
 
-                    @if($equipoRecuperado)
-                    <div class="space-y-3">
-                        <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Confirmar Serie del Equipo Recuperado</label>
-                            <div class="flex gap-3">
-                                <input type="text" wire:model="serieConfirmada"
-                                       class="flex-1 bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
-                                       placeholder="{{ $reporte['info_equipo'] }}">
+                    {{-- CASO: SÍ recupera → confirmar serie --}}
+                    <div x-show="recupera === 'si'" x-cloak class="space-y-3">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                            <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Validar serie del equipo recuperado</p>
+                            <p class="font-mono text-sm font-black text-indigo-700 bg-white border border-indigo-100 px-4 py-2 rounded-lg">
+                                {{ $reporte['info_equipo'] }}
+                            </p>
+                            <div class="space-y-1.5">
+                                <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física recuperada *</label>
+                                <input type="text" x-model="serie"
+                                       class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20"
+                                       placeholder="ESCANEAR O ESCRIBIR SERIE...">
                             </div>
-                            <p class="text-[9px] text-gray-400 font-medium">Si la serie no coincide, busque en sistema y actualice el registro</p>
+                            <div x-show="serieMatch" x-cloak class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
+                                <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — coincide con el registro ✓
+                            </div>
+                            <div x-show="serieDiff" x-cloak class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5">
+                                    <i class="ri-alert-line text-amber-600"></i> Serie diferente — se buscará en el sistema y se reasignará al suscriptor antes de registrar la recuperación.
+                                </p>
+                            </div>
+                            <p class="text-[9px] text-gray-400">Al confirmar: el equipo ingresa al inventario de sucursal con validación.</p>
                         </div>
 
-                        <label class="flex items-center gap-3 cursor-pointer p-3 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors">
-                            <input type="checkbox" wire:model="desconexionFisica" class="h-5 w-5 text-emerald-600 rounded focus:ring-0 flex-shrink-0">
-                            <span class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Confirmación de desconexión física del servicio en NAP</span>
+                        <label class="flex items-start gap-3 cursor-pointer p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <input type="checkbox" x-model="desconFisica" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-red-900 uppercase">Desconexión física confirmada en NAP</p>
+                                <p class="text-[9px] text-red-600 mt-0.5">El servicio fue físicamente desconectado. La salida NAP quedará disponible al cerrar.</p>
+                            </div>
                         </label>
                     </div>
-                    @endif
 
-                    @if($tieneInternet)
-                    <div class="border-t border-gray-100 pt-4 space-y-2">
-                        <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Baja Lógica de Sistema — Sucursal</p>
-                        <label class="flex items-center gap-3 cursor-pointer p-2.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 transition-colors">
-                            <input type="checkbox" wire:model="bajaWinbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-0 flex-shrink-0">
-                            <span class="text-[10px] font-black text-gray-700 uppercase">Baja del nombre del cliente en Winbox</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 transition-colors">
-                            <input type="checkbox" wire:model="bajaOLT" class="h-4 w-4 text-indigo-600 rounded focus:ring-0 flex-shrink-0">
-                            <span class="text-[10px] font-black text-gray-700 uppercase">Baja de datos del cliente en OLT</span>
+                    {{-- CASO: NO recupera → pago por pérdida --}}
+                    <div x-show="recupera === 'no'" x-cloak class="space-y-3">
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+                            <p class="text-[9px] font-black text-red-700 uppercase tracking-widest">Equipo no entregado — resolución requerida</p>
+                            <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                                <input type="checkbox" x-model="pagoPerdida" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                                <div>
+                                    <p class="text-[10px] font-black text-red-900 uppercase">Pago por pérdida del equipo confirmado</p>
+                                    <p class="text-[9px] text-red-600 mt-0.5">El suscriptor pagó el valor del equipo en comodato. Ingreso registrado en caja.</p>
+                                </div>
+                            </label>
+                            <div x-show="!pagoPerdida"
+                                 class="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                                <i class="ri-information-line text-amber-600 text-sm flex-shrink-0"></i>
+                                <p class="text-[10px] text-amber-700 font-bold">
+                                    Si el suscriptor no entrega ni paga, use <strong>Guardar Precierre</strong> con el motivo correspondiente. El reporte no podrá cerrarse hasta resolver la situación del equipo.
+                                </p>
+                            </div>
+                        </div>
+
+                        <label class="flex items-start gap-3 cursor-pointer p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <input type="checkbox" x-model="desconFisica" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-red-900 uppercase">Desconexión física confirmada en NAP</p>
+                                <p class="text-[9px] text-red-600 mt-0.5">La acometida y el punto de conexión en NAP fueron liberados.</p>
+                            </div>
                         </label>
                     </div>
-                    @endif
 
-                    <button wire:click="cerrarCancelacion"
-                            class="w-full py-3.5 bg-gray-900 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-black shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="ri-checkbox-circle-line text-base"></i> Confirmar Cancelación del Servicio
-                    </button>
-                    <p class="text-center text-[9px] text-gray-400 font-medium uppercase tracking-widest">
-                        Al confirmar: estado → CANCELADO · equipo → inventario · NAP → salida libre · SMS al cliente
-                    </p>
                 </div>
             </div>
+
+            {{-- ─── 3. Baja de Red (solo si tenía Internet) ─── --}}
+            @if($tieneInternet)
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-server-line text-indigo-600 text-sm"></i>
+                    <p class="text-[11px] font-black text-indigo-800 uppercase tracking-widest">Baja de Red — Sucursal</p>
+                </div>
+                <div class="p-5 space-y-2.5">
+                    <label class="flex items-start gap-3 cursor-pointer p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
+                        <input type="checkbox" x-model="bdWinbox" class="mt-0.5 h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500 flex-shrink-0">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-800 uppercase">Baja del nombre del suscriptor en Winbox</p>
+                            <p class="text-[9px] text-gray-500 mt-0.5">Perfil y plan de datos eliminados del gestor de red</p>
+                        </div>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
+                        <input type="checkbox" x-model="bdOLT" class="mt-0.5 h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500 flex-shrink-0">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-800 uppercase">Baja del suscriptor en OLT</p>
+                            <p class="text-[9px] text-gray-500 mt-0.5">Puerto y configuración eliminados de la OLT</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            @endif
+
+            {{-- ─── 4. Calificación + Precierre ─── --}}
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-star-line text-amber-500 text-sm"></i>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Métricas y Cierre</p>
+                </div>
+                <div class="p-5 space-y-4">
+
+                    {{-- Calificación — Alpine local, sin wire:model.live --}}
+                    <div class="grid grid-cols-3 gap-2">
+                        @foreach(['Excelente','Bueno','Malo'] as $cal)
+                        <button type="button" @click="calificacion = '{{ $cal }}'">
+                            <div :class="calificacion === '{{ $cal }}' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-200'"
+                                 class="text-center border-2 rounded-xl p-2.5 transition-all">
+                                <p :class="calificacion === '{{ $cal }}' ? 'text-indigo-700' : 'text-gray-400'"
+                                   class="text-[10px] font-black uppercase tracking-widest">{{ $cal }}</p>
+                            </div>
+                        </button>
+                        @endforeach
+                    </div>
+
+                    {{-- Precierre — motivos específicos de cancelación --}}
+                    <div class="border border-amber-200 bg-amber-50 rounded-lg overflow-hidden">
+                        <div class="bg-amber-100 border-b border-amber-200 px-4 py-2.5 flex items-center gap-2">
+                            <i class="ri-save-3-line text-amber-700 text-sm"></i>
+                            <p class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Precierre — No se Puede Cerrar Aún</p>
+                        </div>
+                        <div class="p-4 space-y-2.5">
+                            <select x-model="precierreMotivo" @change="precierreError = ''"
+                                    class="w-full bg-white border border-amber-300 rounded-lg py-2.5 px-3 text-xs font-black uppercase focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400">
+                                <option value="">— Seleccione motivo —</option>
+                                <option value="NO_ENTREGA_EQUIPO">Suscriptor no entrega el equipo</option>
+                                <option value="NO_PAGA_PERDIDA">Suscriptor no paga el equipo perdido</option>
+                                <option value="PENDIENTE_FIRMA">Pendiente de firma de cancelación</option>
+                                <option value="OTRO">Otro — ver observaciones</option>
+                            </select>
+                            <p x-show="precierreError" x-text="precierreError" x-cloak
+                               class="text-[10px] text-red-500 font-bold"></p>
+                            @error('precierreCancel')
+                            <p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>
+                            @enderror
+                            <button type="button"
+                                    @click="if(!precierreMotivo){ precierreError='Seleccione el motivo del precierre.'; return; } $wire.guardarPrecierreCancel(precierreMotivo)"
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-amber-700 transition-all active:scale-95">
+                                <i class="ri-save-3-line text-sm"></i> Guardar Precierre
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Cierre Administrativo --}}
+                    <div class="border border-gray-900 rounded-lg overflow-hidden">
+                        <div class="bg-gray-900 px-4 py-2.5 flex items-center gap-2">
+                            <i class="ri-close-circle-line text-red-400 text-sm"></i>
+                            <p class="text-[10px] font-black text-gray-200 uppercase tracking-widest">Cierre Administrativo — Cancelación</p>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <div class="space-y-1.5 text-[10px] text-gray-600">
+                                <p class="flex items-center gap-2"><i class="ri-checkbox-circle-line text-emerald-500"></i> Equipo recuperado físicamente en sucursal, <strong>o</strong></p>
+                                <p class="flex items-center gap-2"><i class="ri-checkbox-circle-line text-emerald-500"></i> Pago por pérdida del equipo confirmado</p>
+                            </div>
+                            <button type="button"
+                                    @click="$confirm('¿Confirmar la cancelación definitiva del servicio?', () => $wire.cerrarCancelacion(recupera, serie, pagoPerdida, desconFisica, bdWinbox, bdOLT, calificacion), { confirmText: 'Sí, cancelar servicio', icon: 'warning' })"
+                                    class="w-full py-3 bg-gray-900 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-black shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <i class="ri-close-circle-line text-base"></i> Confirmar Cancelación del Servicio
+                            </button>
+                            <p class="text-center text-[9px] text-gray-400 font-medium uppercase tracking-widest">
+                                Estado → CANCELADO · NAP liberada · Inventario actualizado · SMS al suscriptor
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>{{-- /x-data cancelacion --}}
             @endif
 
             {{-- ═══════════════════════════════════════════════════════
@@ -1462,7 +1916,167 @@
                     ii. Afectar el estado del Cliente a ACTIVO / TARIFA / SERVICIO
                  jj. Conectar al API de SMS y enviar mensaje de bienvenida al cliente (automático)
             ═══════════════════════════════════════════════════════ --}}
-            @if($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional || $esAumentoVelocidad)
+            {{-- ═══════════════════════════════════════════════════════
+                 [CAMBIO SERVICIO] Recuperación del equipo anterior
+            ═══════════════════════════════════════════════════════ --}}
+            @if($esCambioServicio)
+            <div class="bg-white border border-cyan-200 rounded-xl shadow-sm overflow-hidden"
+                 x-data="{ equipoCambio: '{{ $recuperoEquipoCambio }}' }">
+                <div class="bg-cyan-600 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-swap-box-line text-white text-base"></i>
+                    <p class="text-[11px] font-black text-white uppercase tracking-widest">Recuperación de Equipo Anterior</p>
+                    <span class="ml-auto text-[9px] font-black bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded uppercase">
+                        Técnico en Campo
+                    </span>
+                </div>
+
+                {{-- Servicio anterior info --}}
+                <div class="px-5 py-3.5 border-b border-cyan-100 bg-cyan-50 grid grid-cols-2 gap-3">
+                    <div>
+                        <p class="text-[9px] font-black text-cyan-600 uppercase tracking-widest mb-0.5">Servicio Anterior</p>
+                        <p class="text-xs font-black text-gray-800 uppercase">{{ $reporte['servicio_anterior'] ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-black text-cyan-600 uppercase tracking-widest mb-0.5">Equipo a Recuperar</p>
+                        <p class="font-mono text-[10px] font-black text-gray-800">{{ $reporte['equipo_anterior'] ?? '—' }}</p>
+                    </div>
+                </div>
+
+                <div class="p-5 space-y-4">
+                    {{-- ¿Se recuperó el equipo? --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer" @click="equipoCambio = 'si'">
+                            <input type="radio" name="equipoCambioRec" value="si" class="sr-only">
+                            <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                 :class="equipoCambio === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
+                                <i class="ri-checkbox-circle-line block text-xl mb-1"
+                                   :class="equipoCambio === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="equipoCambio === 'si' ? 'text-emerald-700' : 'text-gray-400'">Equipo Recuperado</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer" @click="equipoCambio = 'no'">
+                            <input type="radio" name="equipoCambioRec" value="no" class="sr-only">
+                            <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                 :class="equipoCambio === 'no' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-200'">
+                                <i class="ri-close-circle-line block text-xl mb-1"
+                                   :class="equipoCambio === 'no' ? 'text-red-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="equipoCambio === 'no' ? 'text-red-700' : 'text-gray-400'">No Recuperado</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    {{-- CASO: Recuperado — confirmar serie --}}
+                    <div x-show="equipoCambio === 'si'" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                        <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Confirmar serie del equipo recuperado</p>
+                        <p class="font-mono text-sm font-black text-indigo-700 bg-white border border-indigo-100 px-4 py-2 rounded-lg">
+                            {{ $reporte['equipo_anterior'] ?? '—' }}
+                        </p>
+                        <div class="space-y-1.5">
+                            <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física recuperada *</label>
+                            <input type="text" wire:model.live="serieCambioRecuperada"
+                                   class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20"
+                                   placeholder="ESCANEAR O ESCRIBIR SERIE...">
+                        </div>
+                        @if($serieCambioRecuperada)
+                            @php $serieOkCambio = str_contains($reporte['equipo_anterior'] ?? '', $serieCambioRecuperada); @endphp
+                            @if($serieOkCambio)
+                            <div class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
+                                <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — coincide con el registro ✓
+                            </div>
+                            @else
+                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5 mb-1">
+                                    <i class="ri-alert-line text-amber-600"></i> Serie diferente detectada
+                                </p>
+                                <p class="text-[10px] text-amber-700">El sistema actualizará el registro con la serie física recuperada.</p>
+                            </div>
+                            @endif
+                        @endif
+                        <p class="text-[9px] text-gray-400">Al confirmar: el equipo anterior ingresa al inventario de sucursal.</p>
+                    </div>
+
+                    {{-- CASO: No recuperado — cobrar pérdida/daño --}}
+                    <div x-show="equipoCambio === 'no'" x-cloak class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+                        <p class="text-[9px] font-black text-red-700 uppercase tracking-widest">Equipo no recuperado — resolución requerida</p>
+                        <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                            <input type="checkbox" wire:model.live="pagoPerdidaCambio" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-red-900 uppercase">Pago por pérdida del equipo confirmado</p>
+                                <p class="text-[9px] text-red-600 mt-0.5">El suscriptor pagó el valor del equipo anterior.</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                            <input type="checkbox" wire:model.live="pagoDanoCambio" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-red-900 uppercase">Pago por daño del equipo confirmado</p>
+                                <p class="text-[9px] text-red-600 mt-0.5">El equipo fue dañado. El suscriptor pagó el costo de reposición.</p>
+                            </div>
+                        </label>
+                        <div x-show="!$wire.pagoPerdidaCambio && !$wire.pagoDanoCambio"
+                             class="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                            <i class="ri-information-line text-amber-600 text-sm flex-shrink-0"></i>
+                            <p class="text-[10px] text-amber-700 font-bold">
+                                Si el suscriptor no paga, use <strong>Guardar Precierre</strong> con motivo correspondiente.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Saldo a favor (si aplica) --}}
+                    @if(($reporte['saldo_favor'] ?? 0) > 0)
+                    <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                        <i class="ri-money-dollar-circle-line text-emerald-600 text-base flex-shrink-0"></i>
+                        <div>
+                            <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Saldo a Favor del Suscriptor</p>
+                            <p class="text-sm font-black text-emerald-800">${{ number_format($reporte['saldo_favor'], 2) }}</p>
+                            <p class="text-[9px] text-emerald-600 font-medium">Se aplicará automáticamente al calcular el primer pago del nuevo servicio.</p>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            {{-- ═══════════════════════════════════════════════════════
+                 [RECONEXION_CAMBIO] Evidencia fotográfica de instalación (stubs)
+            ═══════════════════════════════════════════════════════ --}}
+            @if($esReconexionCambio)
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
+                    <i class="ri-camera-line text-gray-500 text-sm"></i>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Evidencia Fotográfica de la Instalación</p>
+                    <span class="ml-auto text-[9px] font-bold text-gray-400 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded uppercase">Pendiente: carga de fotos</span>
+                </div>
+                <div class="p-5 grid grid-cols-2 gap-3">
+                    @php
+                        $evidencias = [
+                            ['icon' => 'ri-router-line',      'label' => 'Equipo instalado',          'color' => 'blue'],
+                            ['icon' => 'ri-node-tree',        'label' => 'Conexión en NAP',           'color' => 'indigo'],
+                            ['icon' => 'ri-layout-bottom-line','label' => 'Acometida en domicilio',   'color' => 'violet'],
+                            ['icon' => 'ri-speed-up-line',    'label' => 'Pantalla prueba velocidad', 'color' => 'teal'],
+                        ];
+                    @endphp
+                    @foreach($evidencias as $ev)
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2 text-center hover:border-gray-300 transition-colors cursor-pointer">
+                        <i class="ri-image-add-line text-2xl text-gray-300"></i>
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">{{ $ev['label'] }}</p>
+                        <span class="text-[8px] text-gray-300 font-bold">Toque para agregar</span>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="px-5 pb-5">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Observaciones del técnico</label>
+                        <textarea wire:model="descripcionSolucion" rows="2"
+                                  class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-xs text-gray-700 focus:ring-2 focus:ring-gray-300/30 resize-none"
+                                  placeholder="Observaciones, incidencias o notas de la instalación..."></textarea>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            @if($esFalla || $esInstalacion || $esCambioDomicilio || $esServicioAdicional || $esAumentoVelocidad || $esCambioServicio || $esReconexion || $esReconexionCambio)
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div class="bg-gray-50 border-b border-gray-200 px-5 py-3.5 flex items-center gap-2">
                     <i class="ri-medal-line text-emerald-500 text-sm"></i>
@@ -1471,6 +2085,9 @@
                         @elseif($esCambioDomicilio) Cierre de Cambio de Domicilio
                         @elseif($esServicioAdicional) Cierre — Servicio Adicional TV
                         @elseif($esAumentoVelocidad) Cierre — Aumento de Velocidad
+                        @elseif($esCambioServicio) Cierre — Cambio de Servicio
+                        @elseif($esReconexion) Cierre — Reconexión de Servicio
+                        @elseif($esReconexionCambio) Cierre — Reconexión con Cambio de Servicio
                         @else Solución y Cierre del Reporte
                         @endif
                     </p>
@@ -1481,7 +2098,7 @@
                     <div class="border border-amber-200 bg-amber-50 rounded-lg overflow-hidden">
                         <div class="bg-amber-100 border-b border-amber-200 px-4 py-2.5 flex items-center gap-2">
                             <i class="ri-save-3-line text-amber-700 text-sm"></i>
-                            <p class="text-[10px] font-black text-amber-800 uppercase tracking-widest">dd. Precierre — Motivo que Impide la Conclusión del Servicio</p>
+                            <p class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Precierre — Motivo que Impide la Conclusión del Servicio</p>
                         </div>
                         <div class="p-4 space-y-2">
                             <p class="text-[9px] text-amber-700 font-medium">El reporte se mantiene en Proceso y el estado del cliente no cambia, pues el servicio no está concluido.</p>
@@ -1497,12 +2114,12 @@
                         </div>
                     </div>
 
-                    {{-- hh. i. Comodato requerido para INSTALACION y SERVICIO_ADICIONAL_TV --}}
-                    @if($esInstalacion || $esServicioAdicional)
+                    {{-- hh. i. Comodato requerido para INSTALACION, SERVICIO_ADICIONAL_TV, CAMBIO_SERVICIO, RECONEXION y RECONEXION_CAMBIO --}}
+                    @if($esInstalacion || $esServicioAdicional || $esCambioServicio || $esReconexion || $esReconexionCambio)
                     <div class="border border-gray-200 rounded-lg overflow-hidden">
                         <div class="bg-gray-900 px-4 py-2.5 flex items-center gap-2">
                             <i class="ri-file-text-line text-indigo-400 text-sm"></i>
-                            <p class="text-[10px] font-black text-gray-200 uppercase tracking-widest">hh. i. Comodato — Requerido para Cierre Total por Sucursal</p>
+                            <p class="text-[10px] font-black text-gray-200 uppercase tracking-widest">Comodato — Requerido para Cierre Total por Sucursal</p>
                         </div>
                         <div class="p-4">
                             <label class="flex items-start gap-3 cursor-pointer">
@@ -1533,7 +2150,7 @@
                         @error('solucionOpcion')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">ee. Notas adicionales del técnico</label>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Notas adicionales del técnico</label>
                         <textarea wire:model="descripcionSolucion" rows="3"
                                   class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-medium resize-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                                   placeholder="Detalles de la atención, materiales usados, observaciones..."></textarea>
@@ -1543,7 +2160,7 @@
                     <div class="flex items-start gap-3 bg-emerald-50 border border-emerald-100 rounded-lg p-3.5">
                         <i class="ri-smartphone-line text-emerald-600 text-base flex-shrink-0 mt-0.5"></i>
                         <p class="text-[10px] font-medium text-emerald-800 leading-relaxed">
-                            <strong>jj.</strong> Al realizar el Cierre Total: el estado del cliente cambia a <strong>ACTIVO / TARIFA / SERVICIO</strong> y el sistema enviará automáticamente un <strong>SMS de bienvenida</strong> al cliente vía API.
+                            Al realizar el Cierre Total: el estado del cliente cambia a <strong>ACTIVO / TARIFA / SERVICIO</strong> y el sistema enviará automáticamente un <strong>SMS de bienvenida</strong> al cliente vía API.
                         </p>
                     </div>
                     @endif
@@ -1558,11 +2175,11 @@
                     <div class="flex gap-3">
                         <button wire:click="guardarPrecierre"
                                 class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-amber-300 text-amber-700 font-black text-[10px] uppercase tracking-widest rounded-lg hover:bg-amber-50 shadow-sm transition-all active:scale-95">
-                            <i class="ri-save-line"></i> dd. Guardar Precierre
+                            <i class="ri-save-line"></i> Guardar Precierre
                         </button>
                         <button wire:click="cerrarReporte"
                                 class="inline-flex items-center gap-2 px-7 py-2.5 bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded-lg hover:bg-emerald-700 shadow-md shadow-emerald-200 transition-all active:scale-95">
-                            <i class="ri-check-double-line"></i> ee. Cierre Total
+                            <i class="ri-check-double-line"></i> Cierre Total
                         </button>
                     </div>
                 </div>

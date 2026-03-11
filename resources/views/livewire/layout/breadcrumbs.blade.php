@@ -7,17 +7,88 @@ new class extends Component {
     {
         $routeName = request()->route()?->getName();
         
+        // Mapeo de rutas a breadcrumbs
         $routeMap = [
-            'contrataciones.nuevas' => [
-                ['label' => 'Gestión de Clientes', 'route' => 'dashboard'],
-                ['label' => 'Nuevas Contrataciones', 'route' => 'contrataciones.nuevas', 'icon' => 'ri-file-add-line'],
-            ],
-            'servicios.adicionales' => [
-                ['label' => 'Gestión de Clientes', 'route' => 'dashboard'],
-                ['label' => 'Servicios Adicionales', 'route' => 'servicios.adicionales', 'icon' => 'ri-add-circle-line'],
-            ],
+            // Dashboard
             'dashboard' => [
                 ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'ri-home-gear-line'],
+            ],
+
+            // ═══════════════════════════════════════════════════════════
+            // GESTIÓN AL CLIENTE — Altas y Promociones
+            // ═══════════════════════════════════════════════════════════
+            'contrataciones.nuevas' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Nuevas Contrataciones', 'icon' => 'ri-file-add-line'],
+            ],
+            'servicios.adicionales' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Servicios Adicionales', 'icon' => 'ri-add-circle-line'],
+            ],
+            'contratacion.promocion' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Pago en Promoción', 'icon' => 'ri-discount-percent-line'],
+            ],
+            'cambio.servicio' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Cambio de Servicio', 'icon' => 'ri-exchange-line'],
+            ],
+
+            // ═══════════════════════════════════════════════════════════
+            // GESTIÓN AL CLIENTE — Pagos y Estados
+            // ═══════════════════════════════════════════════════════════
+            'pago.mensualidad' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Pago de Mensualidad', 'icon' => 'ri-calendar-check-line'],
+            ],
+            'estado.cuenta' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Estado de Cuenta', 'icon' => 'ri-file-list-3-line'],
+            ],
+
+            // ═══════════════════════════════════════════════════════════
+            // GESTIÓN AL CLIENTE — Operativa de Estatus
+            // ═══════════════════════════════════════════════════════════
+            'suspension.clientes' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Suspensión por Falta de Pago', 'icon' => 'ri-user-unfollow-line'],
+            ],
+            'reconexion.cliente' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Reconexión de Cliente', 'icon' => 'ri-plug-line'],
+            ],
+            'cancelacion.servicio' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Cancelación de Servicio', 'icon' => 'ri-close-circle-line'],
+            ],
+            'recuperacion.equipos' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Recuperación de Equipos', 'icon' => 'ri-router-line'],
+            ],
+
+            // ═══════════════════════════════════════════════════════════
+            // GESTIÓN AL CLIENTE — Bandeja de Reportes
+            // ═══════════════════════════════════════════════════════════
+            'reportes.servicio' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Bandeja de Reportes', 'icon' => 'ri-inbox-archive-line'],
+            ],
+            'reportes.atender' => [
+                ['label' => 'Modelos de Operación', 'route' => 'dashboard'],
+                ['label' => 'Gestión al Cliente', 'route' => 'contrataciones.nuevas'],
+                ['label' => 'Bandeja de Reportes', 'route' => 'reportes.servicio'],
+                ['label' => 'Atender Reporte', 'icon' => 'ri-file-text-line'],
             ],
         ];
 
