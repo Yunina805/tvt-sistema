@@ -34,6 +34,9 @@ use App\Livewire\Catalogos\RecursosHumanos\Vacaciones;
 use App\Livewire\Catalogos\RecursosHumanos\DescansoMensual;
 use App\Livewire\Catalogos\RecursosHumanos\Permisos;
 use App\Livewire\Catalogos\RecursosHumanos\AccesosSistema;
+use App\Livewire\Catalogos\RecursosHumanos\Nomina;
+use App\Livewire\Catalogos\RecursosHumanos\Prestamos;
+use App\Livewire\Catalogos\RecursosHumanos\DescuentosPersonal;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — FINANCIERO
@@ -56,12 +59,15 @@ use App\Livewire\Catalogos\Red\OltAdmin;
 use App\Livewire\Catalogos\Red\OltInterna;
 use App\Livewire\Catalogos\Red\AdministracionOnus;
 use App\Livewire\Catalogos\Red\WinboxVlans;
+use App\Livewire\Catalogos\Red\Winbox;
+use App\Livewire\Catalogos\Red\Vlans;
 use App\Livewire\Catalogos\Red\CcrSwitches;
 use App\Livewire\Catalogos\Red\Ccr1;
 use App\Livewire\Catalogos\Red\Switches;
 use App\Livewire\Catalogos\Red\StarlinksIsp;
 use App\Livewire\Catalogos\Red\IspTelmex;
 use App\Livewire\Catalogos\Red\Encapsulamiento;
+use App\Livewire\Catalogos\Red\ZeroTier;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — TELEVISIÓN
@@ -70,6 +76,9 @@ use App\Livewire\Catalogos\Television\CanalesSatelites;
 use App\Livewire\Catalogos\Television\Moduladores;
 use App\Livewire\Catalogos\Television\ModuladoresDigitales;
 use App\Livewire\Catalogos\Television\Transmisores;
+use App\Livewire\Catalogos\Television\Transmisor1310;
+use App\Livewire\Catalogos\Television\Transmisor1550;
+use App\Livewire\Catalogos\Television\TransmisorEdfa;
 use App\Livewire\Catalogos\Television\PonEdfa;
 use App\Livewire\Catalogos\Television\MiniNodosAntenas;
 use App\Livewire\Catalogos\Television\Antenas;
@@ -86,6 +95,7 @@ use App\Livewire\Catalogos\Clientes\RegistroClientes;
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — SERVICIOS / TAREAS
 // ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Catalogos\Servicios\ServiciosDisponibles;
 use App\Livewire\Catalogos\Servicios\ServiciosTarifasPrincipales;
 use App\Livewire\Catalogos\Servicios\ServiciosTarifasAdicionales;
 use App\Livewire\Catalogos\Servicios\ServiciosFallas;
@@ -101,6 +111,7 @@ use App\Livewire\Catalogos\Servicios\ActividadesPersonal;
 // ─────────────────────────────────────────────────────────────────────────────
 use App\Livewire\Catalogos\PlanTrabajo\Actividades as PlanActividades;
 use App\Livewire\Catalogos\PlanTrabajo\AsignacionPlan;
+use App\Livewire\Catalogos\Servicios\MatrizActividades;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — PLANTA EXTERNA
@@ -117,6 +128,35 @@ use App\Livewire\Catalogos\Energia\EnlacesFibra;
 use App\Livewire\Catalogos\Energia\CatalogoCTC;
 use App\Livewire\Catalogos\Energia\UpsPlanta;
 use App\Livewire\Catalogos\Energia\PlantasEmergencia;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SERVICIOS FINANCIEROS POR SUCURSAL
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\FinancieroSucursal\CorteSaldosNuevos;
+use App\Livewire\FinancieroSucursal\CorteSaldosActivos;
+use App\Livewire\FinancieroSucursal\CajasSucursal;
+use App\Livewire\FinancieroSucursal\Ingresos as IngresosSucursal;
+use App\Livewire\FinancieroSucursal\Egresos as EgresosSucursal;
+use App\Livewire\FinancieroSucursal\ConciliacionWeb;
+use App\Livewire\FinancieroSucursal\ConciliacionSpei;
+use App\Livewire\FinancieroSucursal\TraspasosCajas;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KPIs
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Kpis\ReportesGenerales;
+use App\Livewire\Kpis\RepPorSucursal;
+use App\Livewire\Kpis\RepAdeudos;
+use App\Livewire\Kpis\RepSuspendidos;
+use App\Livewire\Kpis\RepCancelados;
+use App\Livewire\Kpis\RepCrecimiento;
+use App\Livewire\Kpis\RepIngresosTipo;
+use App\Livewire\Kpis\RepMayorAdeudo;
+use App\Livewire\Kpis\RepIndicadores;
+use App\Livewire\Kpis\KpisComerciales;
+use App\Livewire\Kpis\KpisFinancieros;
+use App\Livewire\Kpis\KpisArpu;
+use App\Livewire\Kpis\KpisCobranza;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — REGULATORIO
@@ -176,6 +216,9 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/descanso', DescansoMensual::class)->name('descanso');
         Route::get('/permisos', Permisos::class)->name('permisos');
         Route::get('/accesos', AccesosSistema::class)->name('accesos');
+        Route::get('/nomina', Nomina::class)->name('nomina');
+        Route::get('/prestamos', Prestamos::class)->name('prestamos');
+        Route::get('/descuentos', DescuentosPersonal::class)->name('descuentos');
     });
 
     // =========================================================================
@@ -202,12 +245,15 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/olt-interna', OltInterna::class)->name('olt-interna');
         Route::get('/onus', AdministracionOnus::class)->name('onus');
         Route::get('/vlans', WinboxVlans::class)->name('vlans');
+        Route::get('/winbox', Winbox::class)->name('winbox');
+        Route::get('/catalogo-vlans', Vlans::class)->name('catalogo-vlans');
         Route::get('/ccr', CcrSwitches::class)->name('ccr');
         Route::get('/ccr1', Ccr1::class)->name('ccr1');
         Route::get('/switches', Switches::class)->name('switches');
         Route::get('/starlinks', StarlinksIsp::class)->name('starlinks');
         Route::get('/isp-telmex', IspTelmex::class)->name('isp-telmex');
         Route::get('/encapsulamiento', Encapsulamiento::class)->name('encapsulamiento');
+        Route::get('/zerotier', ZeroTier::class)->name('zerotier');
     });
 
     // =========================================================================
@@ -223,6 +269,9 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/moduladores', Moduladores::class)->name('moduladores');
         Route::get('/moduladores-digitales', ModuladoresDigitales::class)->name('moduladores-digitales');
         Route::get('/transmisores', Transmisores::class)->name('transmisores');
+        Route::get('/transmisor-1310', Transmisor1310::class)->name('transmisor-1310');
+        Route::get('/transmisor-1550', Transmisor1550::class)->name('transmisor-1550');
+        Route::get('/transmisor-edfa', TransmisorEdfa::class)->name('transmisor-edfa');
         Route::get('/pon-edfa', PonEdfa::class)->name('pon-edfa');
         Route::get('/divisores', Divisores::class)->name('divisores');
     });
@@ -238,6 +287,7 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
     // CATÁLOGOS: SERVICIOS / TAREAS
     // =========================================================================
     Route::prefix('servicios')->name('cat.servicios.')->group(function () {
+        Route::get('/disponibles', ServiciosDisponibles::class)->name('disponibles');
         Route::get('/tarifas-principales', ServiciosTarifasPrincipales::class)->name('tarifas-principales');
         Route::get('/tarifas-adicionales', ServiciosTarifasAdicionales::class)->name('tarifas-adicionales');
         Route::get('/fallas',              ServiciosFallas::class)->name('fallas');
@@ -253,6 +303,7 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/tarifas-adicionales', ActividadesTarifasAdicionales::class)->name('tarifas-adicionales');
         Route::get('/fallas',              ActividadesFallas::class)->name('fallas');
         Route::get('/personal',            ActividadesPersonal::class)->name('personal');
+        Route::get('/clientes',            MatrizActividades::class)->name('clientes');
     });
 
     // =========================================================================
@@ -281,6 +332,39 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
     Route::prefix('plan')->name('plan.')->group(function () {
         Route::get('/actividades', PlanActividades::class)->name('actividades');
         Route::get('/asignacion', AsignacionPlan::class)->name('trabajo');
+    });
+
+    // =========================================================================
+    // SERVICIOS FINANCIEROS POR SUCURSAL
+    // =========================================================================
+    Route::prefix('svc-financiero')->name('svc.fin.')->group(function () {
+        Route::get('/corte-saldos-nuevos', CorteSaldosNuevos::class)->name('corte-nuevos');
+        Route::get('/corte-saldos-activos', CorteSaldosActivos::class)->name('corte-activos');
+        Route::get('/cajas', CajasSucursal::class)->name('cajas');
+        Route::get('/ingresos', IngresosSucursal::class)->name('ingresos');
+        Route::get('/egresos', EgresosSucursal::class)->name('egresos');
+        Route::get('/conciliacion-web', ConciliacionWeb::class)->name('conciliacion-web');
+        Route::get('/conciliacion-spei', ConciliacionSpei::class)->name('conciliacion-spei');
+        Route::get('/traspasos', TraspasosCajas::class)->name('traspasos');
+    });
+
+    // =========================================================================
+    // KPIs — INDICADORES DE GESTIÓN
+    // =========================================================================
+    Route::prefix('kpis')->name('kpi.')->group(function () {
+        Route::get('/reportes-generales', ReportesGenerales::class)->name('reportes-generales');
+        Route::get('/rep-por-sucursal', RepPorSucursal::class)->name('rep-por-sucursal');
+        Route::get('/rep-adeudos', RepAdeudos::class)->name('rep-adeudos');
+        Route::get('/rep-suspendidos', RepSuspendidos::class)->name('rep-suspendidos');
+        Route::get('/rep-cancelados', RepCancelados::class)->name('rep-cancelados');
+        Route::get('/rep-crecimiento', RepCrecimiento::class)->name('rep-crecimiento');
+        Route::get('/rep-ingresos-tipo', RepIngresosTipo::class)->name('rep-ingresos-tipo');
+        Route::get('/rep-mayor-adeudo', RepMayorAdeudo::class)->name('rep-mayor-adeudo');
+        Route::get('/rep-indicadores', RepIndicadores::class)->name('rep-indicadores');
+        Route::get('/comerciales', KpisComerciales::class)->name('comerciales');
+        Route::get('/financieros', KpisFinancieros::class)->name('financieros');
+        Route::get('/arpu', KpisArpu::class)->name('arpu');
+        Route::get('/cobranza', KpisCobranza::class)->name('cobranza');
     });
 
     // =========================================================================

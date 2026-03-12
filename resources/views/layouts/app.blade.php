@@ -238,8 +238,10 @@
             $clientesActive = request()->routeIs('clientes.*');
             $svcActive = request()->routeIs('cat.servicios.*');
             $actActive = request()->routeIs('cat.actividades.*');
+            $svcFinActive = request()->routeIs('svc.fin.*');
+            $kpiActive = request()->routeIs('kpi.*');
             $plantaActive = request()->routeIs('planta.*', 'energia.fibra');
-            $tvActive = request()->routeIs('tv.*');
+            $tvActive = request()->routeIs('tv.*', 'planta.amplificadores', 'planta.nodos-opticos');
             $redActive = request()->routeIs('red.*');
             $upsActive = request()->routeIs('energia.ups');
             $fibraActive = request()->routeIs('energia.fibra');
@@ -338,7 +340,7 @@
                                 @close-nav-cat.window="if ($event.detail !== 'adminTvt') open = false">
                                 <button @click="open = !open; if (open) $dispatch('close-nav-cat', 'adminTvt')"
                                     class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                           {{ $adminTvtActive ? 'bg-slate-100 text-slate-700' : 'text-gray-600 hover:bg-slate-100 hover:text-slate-700' }}">
+                                               {{ $adminTvtActive ? 'bg-slate-100 text-slate-700' : 'text-gray-600 hover:bg-slate-100 hover:text-slate-700' }}">
                                     <i
                                         class="ri-settings-3-line text-lg {{ $adminTvtActive ? 'text-slate-600' : 'text-slate-400' }}"></i>
                                     <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Administrativa
@@ -348,58 +350,7 @@
                                 </button>
                                 <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-slate-200 pb-1">
 
-                                    {{-- Recursos Humanos --}}
-                                    @if($_canMod('RRHH'))
-                                        <div x-data="{ open: {{ $rrhhActive ? 'true' : 'false' }} }"
-                                            @close-nav-admin.window="if ($event.detail !== 'rrhh') open = false">
-                                            <button @click="open = !open; if (open) $dispatch('close-nav-admin', 'rrhh')"
-                                                class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-r-lg transition-colors">
-                                                <i class="ri-team-line text-sm opacity-70"></i>
-                                                <span>Recursos Humanos</span>
-                                                <i class="ri-arrow-down-s-line text-xs ml-auto transition-transform"
-                                                    :class="open && 'rotate-180'"></i>
-                                            </button>
-                                            <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4">
-                                                @if($_canSub('RRHH', 'rrhh.empleados'))
-                                                    <a href="{{ route('rrhh.empleados') }}"
-                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
-                                                        <i class="ri-user-add-line text-xs opacity-70"></i>
-                                                        <span>Empleados</span>
-                                                    </a>
-                                                @endif
-                                                @if($_canSub('RRHH', 'rrhh.vacaciones'))
-                                                    <a href="{{ route('rrhh.vacaciones') }}"
-                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
-                                                        <i class="ri-sun-line text-xs opacity-70"></i>
-                                                        <span>Vacaciones</span>
-                                                    </a>
-                                                @endif
-                                                @if($_canSub('RRHH', 'rrhh.descanso'))
-                                                    <a href="{{ route('rrhh.descanso') }}"
-                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
-                                                        <i class="ri-calendar-event-line text-xs opacity-70"></i>
-                                                        <span>Descansos Mensuales</span>
-                                                    </a>
-                                                @endif
-                                                @if($_canSub('RRHH', 'rrhh.permisos'))
-                                                    <a href="{{ route('rrhh.permisos') }}"
-                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
-                                                        <i class="ri-pass-valid-line text-xs opacity-70"></i>
-                                                        <span>Permisos</span>
-                                                    </a>
-                                                @endif
-                                                @if($_canSub('RRHH', 'rrhh.accesos'))
-                                                    <a href="{{ route('rrhh.accesos') }}"
-                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
-                                                        <i class="ri-key-2-line text-xs opacity-70"></i>
-                                                        <span>Accesos Sistema</span>
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    {{-- Sucursales (Infraestructura) --}}
+                                    {{-- Sucursales (Infraestructura) — PRIMERO según spec --}}
                                     @if($_canMod('Infraestructura'))
                                         <div x-data="{ open: {{ $infraActive ? 'true' : 'false' }} }"
                                             @close-nav-admin.window="if ($event.detail !== 'infra') open = false">
@@ -444,6 +395,78 @@
                                                         class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-pink-600 hover:bg-pink-50/50 rounded transition-colors">
                                                         <i class="ri-building-4-line text-xs opacity-70"></i>
                                                         <span>CTC</span>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Recursos Humanos — SEGUNDO según spec --}}
+                                    @if($_canMod('RRHH'))
+                                        <div x-data="{ open: {{ $rrhhActive ? 'true' : 'false' }} }"
+                                            @close-nav-admin.window="if ($event.detail !== 'rrhh') open = false">
+                                            <button @click="open = !open; if (open) $dispatch('close-nav-admin', 'rrhh')"
+                                                class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-r-lg transition-colors">
+                                                <i class="ri-team-line text-sm opacity-70"></i>
+                                                <span>Recursos Humanos</span>
+                                                <i class="ri-arrow-down-s-line text-xs ml-auto transition-transform"
+                                                    :class="open && 'rotate-180'"></i>
+                                            </button>
+                                            <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4">
+                                                @if($_canSub('RRHH', 'rrhh.empleados'))
+                                                    <a href="{{ route('rrhh.empleados') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-user-add-line text-xs opacity-70"></i>
+                                                        <span>Empleados</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.vacaciones'))
+                                                    <a href="{{ route('rrhh.vacaciones') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-sun-line text-xs opacity-70"></i>
+                                                        <span>Vacaciones</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.descanso'))
+                                                    <a href="{{ route('rrhh.descanso') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-calendar-event-line text-xs opacity-70"></i>
+                                                        <span>Descansos Mensuales</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.accesos'))
+                                                    <a href="{{ route('rrhh.accesos') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-key-2-line text-xs opacity-70"></i>
+                                                        <span>Accesos Sistema</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.permisos'))
+                                                    <a href="{{ route('rrhh.permisos') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-pass-valid-line text-xs opacity-70"></i>
+                                                        <span>Permisos</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.nomina'))
+                                                    <a href="{{ route('rrhh.nomina') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-money-dollar-circle-line text-xs opacity-70"></i>
+                                                        <span>Nómina</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.prestamos'))
+                                                    <a href="{{ route('rrhh.prestamos') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-hand-coin-line text-xs opacity-70"></i>
+                                                        <span>Préstamos</span>
+                                                    </a>
+                                                @endif
+                                                @if($_canSub('RRHH', 'rrhh.descuentos'))
+                                                    <a href="{{ route('rrhh.descuentos') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 rounded transition-colors">
+                                                        <i class="ri-scissors-cut-line text-xs opacity-70"></i>
+                                                        <span>Descuentos al Personal</span>
                                                     </a>
                                                 @endif
                                             </div>
@@ -602,6 +625,13 @@
                                                     :class="open && 'rotate-180'"></i>
                                             </button>
                                             <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4">
+                                                @if($_canSub('Servicios', 'cat.servicios.disponibles'))
+                                                    <a href="{{ route('cat.servicios.disponibles') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded transition-colors">
+                                                        <i class="ri-service-line text-xs opacity-70"></i>
+                                                        <span>Servicios Disponibles</span>
+                                                    </a>
+                                                @endif
                                                 @if($_canSub('Servicios', 'cat.servicios.tarifas-principales'))
                                                     <a href="{{ route('cat.servicios.tarifas-principales') }}"
                                                         class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded transition-colors">
@@ -679,6 +709,13 @@
                                                         <span>Activ. al Personal</span>
                                                     </a>
                                                 @endif
+                                                @if($_canSub('Servicios', 'cat.actividades.clientes'))
+                                                    <a href="{{ route('cat.actividades.clientes') }}"
+                                                        class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded transition-colors">
+                                                        <i class="ri-customer-service-2-line text-xs opacity-70"></i>
+                                                        <span>Activ. para Clientes</span>
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
                                     @endif
@@ -694,7 +731,7 @@
                                 @close-nav-cat.window="if ($event.detail !== 'clientes') open = false">
                                 <button @click="open = !open; if (open) $dispatch('close-nav-cat', 'clientes')"
                                     class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                           {{ $clientesGestActive ? 'bg-teal-50 text-teal-700' : 'text-gray-600 hover:bg-teal-50 hover:text-teal-700' }}">
+                                               {{ $clientesGestActive ? 'bg-teal-50 text-teal-700' : 'text-gray-600 hover:bg-teal-50 hover:text-teal-700' }}">
                                     <i
                                         class="ri-user-star-line text-lg {{ $clientesGestActive ? 'text-teal-600' : 'text-teal-400' }}"></i>
                                     <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Gestión
@@ -706,7 +743,7 @@
                                     @if($_canSub('Clientes', 'clientes.registro'))
                                         <a href="{{ route('clientes.registro') }}"
                                             class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                  {{ request()->routeIs('clientes.registro') ? 'text-teal-700 bg-teal-50' : 'text-gray-500 hover:text-teal-600 hover:bg-teal-50/50' }}">
+                                                          {{ request()->routeIs('clientes.registro') ? 'text-teal-700 bg-teal-50' : 'text-gray-500 hover:text-teal-600 hover:bg-teal-50/50' }}">
                                             <i class="ri-user-add-line text-sm opacity-70"></i>
                                             <span>Registro de Clientes</span>
                                         </a>
@@ -789,7 +826,7 @@
                                             @if($_canSub('Television', 'tv.canales'))
                                                 <a href="{{ route('tv.canales') }}"
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-orange-600 hover:bg-orange-50/50 rounded transition-colors">
-                                                    <i class="ri-satellite-line text-xs opacity-70"></i>
+                                                    <i class="ri-remote-control-2-line text-xs opacity-70"></i>
                                                     <span>Canales</span>
                                                 </a>
                                             @endif
@@ -807,18 +844,32 @@
                                                     <span>Moduladores Digitales</span>
                                                 </a>
                                             @endif
-                                            @if($_canSub('Television', 'tv.transmisores'))
-                                                <a href="{{ route('tv.transmisores') }}"
+                                            @if($_canSub('Television', 'tv.transmisor-1310'))
+                                                <a href="{{ route('tv.transmisor-1310') }}"
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-orange-600 hover:bg-orange-50/50 rounded transition-colors">
                                                     <i class="ri-broadcast-line text-xs opacity-70"></i>
-                                                    <span>Transmisores 1310/1550/EDFA</span>
+                                                    <span>Transmisores 1310</span>
+                                                </a>
+                                            @endif
+                                            @if($_canSub('Television', 'tv.transmisor-1550'))
+                                                <a href="{{ route('tv.transmisor-1550') }}"
+                                                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-orange-600 hover:bg-orange-50/50 rounded transition-colors">
+                                                    <i class="ri-broadcast-line text-xs opacity-70"></i>
+                                                    <span>Transmisores 1550</span>
+                                                </a>
+                                            @endif
+                                            @if($_canSub('Television', 'tv.transmisor-edfa'))
+                                                <a href="{{ route('tv.transmisor-edfa') }}"
+                                                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-orange-600 hover:bg-orange-50/50 rounded transition-colors">
+                                                    <i class="ri-broadcast-line text-xs opacity-70"></i>
+                                                    <span>Transmisores EDFA</span>
                                                 </a>
                                             @endif
                                             @if($_canSub('Television', 'tv.pon-edfa'))
                                                 <a href="{{ route('tv.pon-edfa') }}"
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-orange-600 hover:bg-orange-50/50 rounded transition-colors">
                                                     <i class="ri-rfid-line text-xs opacity-70"></i>
-                                                    <span>PON EDFA</span>
+                                                    <span>Transmisores PONEDFA</span>
                                                 </a>
                                             @endif
                                             @if($_canSub('Television', 'tv.divisores'))
@@ -861,7 +912,7 @@
                                             @if($_canSub('Red', 'red.onus'))
                                                 <a href="{{ route('red.onus') }}"
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 hover:bg-purple-50/50 rounded transition-colors">
-                                                    <i class="ri-modem-line text-xs opacity-70"></i>
+                                                    <i class="ri-router-line text-xs opacity-70"></i>
                                                     <span>ONUs</span>
                                                 </a>
                                             @endif
@@ -875,7 +926,7 @@
                                             @if($_canSub('Red', 'red.olt-interna'))
                                                 <a href="{{ route('red.olt-interna') }}"
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 hover:bg-purple-50/50 rounded transition-colors">
-                                                    <i class="ri-server-2-line text-xs opacity-70"></i>
+                                                    <i class="ri-server-line text-xs opacity-70"></i>
                                                     <span>OLT Interna</span>
                                                 </a>
                                             @endif
@@ -914,11 +965,18 @@
                                                     <span>Switches</span>
                                                 </a>
                                             @endif
-                                            @if($_canSub('Red', 'red.vlans'))
-                                                <a href="{{ route('red.vlans') }}"
+                                            @if($_canSub('Red', 'red.winbox'))
+                                                <a href="{{ route('red.winbox') }}"
+                                                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 hover:bg-purple-50/50 rounded transition-colors">
+                                                    <i class="ri-terminal-box-line text-xs opacity-70"></i>
+                                                    <span>Winbox</span>
+                                                </a>
+                                            @endif
+                                            @if($_canSub('Red', 'red.catalogo-vlans'))
+                                                <a href="{{ route('red.catalogo-vlans') }}"
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 hover:bg-purple-50/50 rounded transition-colors">
                                                     <i class="ri-git-merge-line text-xs opacity-70"></i>
-                                                    <span>Winbox / VLANs</span>
+                                                    <span>VLAN</span>
                                                 </a>
                                             @endif
                                             @if($_canSub('Red', 'red.encapsulamiento'))
@@ -926,6 +984,13 @@
                                                     class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 hover:bg-purple-50/50 rounded transition-colors">
                                                     <i class="ri-stack-line text-xs opacity-70"></i>
                                                     <span>Encapsulamiento</span>
+                                                </a>
+                                            @endif
+                                            @if($_canSub('Red', 'red.zerotier'))
+                                                <a href="{{ route('red.zerotier') }}"
+                                                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 hover:bg-purple-50/50 rounded transition-colors">
+                                                    <i class="ri-shield-keyhole-line text-xs opacity-70"></i>
+                                                    <span>ZeroTier</span>
                                                 </a>
                                             @endif
                                         </div>
@@ -1017,7 +1082,7 @@
                                 @close-nav-cat.window="if ($event.detail !== 'regulatorio') open = false">
                                 <button @click="open = !open; if (open) $dispatch('close-nav-cat', 'regulatorio')"
                                     class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                                           {{ $regulatorioActive ? 'bg-rose-50 text-rose-700' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-700' }}">
+                                               {{ $regulatorioActive ? 'bg-rose-50 text-rose-700' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-700' }}">
                                     <i
                                         class="ri-government-line text-lg {{ $regulatorioActive ? 'text-rose-600' : 'text-rose-400' }}"></i>
                                     <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Catálogos
@@ -1073,126 +1138,317 @@
                         'recuperacion.equipos',
                         'reportes.servicio',
                         'reportes.atender',
+                        'svc.fin.*',
+                        'kpi.*',
                     ]);
                 @endphp
                 @if($_canMod('GestionClientes'))
-                <div x-data="{ open: {{ $modOperActive ? 'true' : 'false' }} }"
-                    @close-nav-modop.window="if ($event.detail !== 'modop') open = false">
-                    <button @click="open = !open; if (open) $dispatch('close-nav-modop', 'modop')"
-                        class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
-                               {{ $modOperActive ? 'bg-amber-50 text-amber-700' : 'text-gray-600 hover:bg-amber-50 hover:text-amber-700' }}">
-                        <i
-                            class="ri-settings-line text-lg {{ $modOperActive ? 'text-amber-600' : 'text-amber-400' }}"></i>
-                        <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Modelos de Operación</span>
-                        <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200"
-                            :class="open && 'rotate-180'"></i>
-                    </button>
-                    <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-amber-100 pb-1">
+                    <div x-data="{ open: {{ $modOperActive ? 'true' : 'false' }} }"
+                        @close-nav-modop.window="if ($event.detail !== 'modop') open = false">
+                        <button @click="open = !open; if (open) $dispatch('close-nav-modop', 'modop')"
+                            class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all
+                                   {{ $modOperActive ? 'bg-amber-50 text-amber-700' : 'text-gray-600 hover:bg-amber-50 hover:text-amber-700' }}">
+                            <i
+                                class="ri-settings-line text-lg {{ $modOperActive ? 'text-amber-600' : 'text-amber-400' }}"></i>
+                            <span class="hide-collapsed flex-1 text-left uppercase tracking-tighter">Modelos de
+                                Operación</span>
+                            <i class="hide-collapsed ri-arrow-down-s-line transition-transform duration-200"
+                                :class="open && 'rotate-180'"></i>
+                        </button>
+                        <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-amber-100 pb-1">
 
-                        {{-- ── GESTIÓN AL CLIENTE (OPERACIONALES) ── --}}
-                        <div x-data="{ open: {{ $gcActive ? 'true' : 'false' }} }"
-                            @close-nav-modop-sub.window="if ($event.detail !== 'gc') open = false">
-                            <button @click="open = !open; if (open) $dispatch('close-nav-modop-sub', 'gc')"
-                                class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-amber-600 hover:bg-red-50/50 rounded-r-lg transition-colors">
-                                <i class="ri-customer-service-2-line text-sm opacity-70"></i>
-                                <span>Gestión al Cliente</span>
-                                <i class="ri-arrow-down-s-line text-xs ml-auto transition-transform"
-                                    :class="open && 'rotate-180'"></i>
-                            </button>
-                            <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-red-100">
-                                @if($_canSub('GestionClientes', 'contrataciones-nuevas'))
-                                    <a href="{{ route('contrataciones.nuevas') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('contrataciones.nuevas') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-file-add-line text-sm opacity-70"></i>
-                                        <span>Contratos Nuevos</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'servicios-adicionales'))
-                                    <a href="{{ route('servicios.adicionales') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('servicios.adicionales') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-add-box-line text-sm opacity-70"></i>
-                                        <span>Servicios Adicionales</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'contratacion-promocion'))
-                                    <a href="{{ route('contratacion.promocion') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('contratacion.promocion') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-discount-percent-line text-sm opacity-70"></i>
-                                        <span>Pago en Promoción</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'cambio-servicio'))
-                                    <a href="{{ route('cambio.servicio') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('cambio.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-exchange-line text-sm opacity-70"></i>
-                                        <span>Cambio de Servicio</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'pago-mensualidad'))
-                                    <a href="{{ route('pago.mensualidad') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('pago.mensualidad') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-calendar-check-line text-sm opacity-70"></i>
-                                        <span>Pago de Mensualidad</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'estado-cuenta'))
-                                    <a href="{{ route('estado.cuenta') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('estado.cuenta') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-file-list-3-line text-sm opacity-70"></i>
-                                        <span>Estado de Cuenta</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'suspension-falta-pago'))
-                                    <a href="{{ route('suspension.clientes') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('suspension.clientes') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-user-unfollow-line text-sm opacity-70"></i>
-                                        <span>Suspensión Falta Pago</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'reconexion-cliente'))
-                                    <a href="{{ route('reconexion.cliente') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('reconexion.cliente') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-plug-line text-sm opacity-70"></i>
-                                        <span>Reconexión de Cliente</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'cancelacion-servicio'))
-                                    <a href="{{ route('cancelacion.servicio') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('cancelacion.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-close-circle-line text-sm opacity-70"></i>
-                                        <span>Cancelación de Servicio</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'recuperacion-equipos'))
-                                    <a href="{{ route('recuperacion.equipos') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('recuperacion.equipos') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-router-line text-sm opacity-70"></i>
-                                        <span>Recuperación de Equipos</span>
-                                    </a>
-                                @endif
-                                @if($_canSub('GestionClientes', 'reportes-servicio'))
-                                    <a href="{{ route('reportes.servicio') }}"
-                                        class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
-                                                      {{ request()->routeIs('reportes.servicio', 'reportes.atender') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
-                                        <i class="ri-inbox-archive-line text-sm opacity-70"></i>
-                                        <span>Bandeja de Reportes</span>
-                                    </a>
-                                @endif
+                            {{-- ── GESTIÓN AL CLIENTE (OPERACIONALES) ── --}}
+                            <div x-data="{ open: {{ $gcActive ? 'true' : 'false' }} }"
+                                @close-nav-modop-sub.window="if ($event.detail !== 'gc') open = false">
+                                <button @click="open = !open; if (open) $dispatch('close-nav-modop-sub', 'gc')"
+                                    class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-amber-600 hover:bg-red-50/50 rounded-r-lg transition-colors">
+                                    <i class="ri-customer-service-2-line text-sm opacity-70"></i>
+                                    <span>Gestión al Cliente</span>
+                                    <i class="ri-arrow-down-s-line text-xs ml-auto transition-transform"
+                                        :class="open && 'rotate-180'"></i>
+                                </button>
+                                <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-red-100">
+                                    @if($_canSub('GestionClientes', 'contrataciones-nuevas'))
+                                        <a href="{{ route('contrataciones.nuevas') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('contrataciones.nuevas') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-file-add-line text-sm opacity-70"></i>
+                                            <span>Contratos Nuevos</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'servicios-adicionales'))
+                                        <a href="{{ route('servicios.adicionales') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('servicios.adicionales') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-add-box-line text-sm opacity-70"></i>
+                                            <span>Servicios Adicionales</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'contratacion-promocion'))
+                                        <a href="{{ route('contratacion.promocion') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('contratacion.promocion') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-discount-percent-line text-sm opacity-70"></i>
+                                            <span>Pago en Promoción</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'cambio-servicio'))
+                                        <a href="{{ route('cambio.servicio') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('cambio.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-exchange-line text-sm opacity-70"></i>
+                                            <span>Cambio de Servicio</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'pago-mensualidad'))
+                                        <a href="{{ route('pago.mensualidad') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('pago.mensualidad') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-calendar-check-line text-sm opacity-70"></i>
+                                            <span>Pago de Mensualidad</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'estado-cuenta'))
+                                        <a href="{{ route('estado.cuenta') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('estado.cuenta') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-file-list-3-line text-sm opacity-70"></i>
+                                            <span>Estado de Cuenta</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'suspension-falta-pago'))
+                                        <a href="{{ route('suspension.clientes') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('suspension.clientes') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-user-unfollow-line text-sm opacity-70"></i>
+                                            <span>Suspensión Falta Pago</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'reconexion-cliente'))
+                                        <a href="{{ route('reconexion.cliente') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('reconexion.cliente') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-plug-line text-sm opacity-70"></i>
+                                            <span>Reconexión de Cliente</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'cancelacion-servicio'))
+                                        <a href="{{ route('cancelacion.servicio') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('cancelacion.servicio') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-close-circle-line text-sm opacity-70"></i>
+                                            <span>Cancelación de Servicio</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'recuperacion-equipos'))
+                                        <a href="{{ route('recuperacion.equipos') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('recuperacion.equipos') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-router-line text-sm opacity-70"></i>
+                                            <span>Recuperación de Equipos</span>
+                                        </a>
+                                    @endif
+                                    @if($_canSub('GestionClientes', 'reportes-servicio'))
+                                        <a href="{{ route('reportes.servicio') }}"
+                                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                              {{ request()->routeIs('reportes.servicio', 'reportes.atender') ? 'text-red-700 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50/50' }}">
+                                            <i class="ri-inbox-archive-line text-sm opacity-70"></i>
+                                            <span>Bandeja de Reportes</span>
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
+                            {{-- ── SERVICIOS FINANCIEROS POR SUCURSAL ── --}}
+                            @if($_canMod('FinancieroSucursal'))
+                                <div x-data="{ open: {{ $svcFinActive ? 'true' : 'false' }} }"
+                                    @close-nav-modop-sub.window="if ($event.detail !== 'svcfin') open = false">
+                                    <button @click="open = !open; if (open) $dispatch('close-nav-modop-sub', 'svcfin')"
+                                        class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-600 hover:text-emerald-600 hover:bg-emerald-50/50 rounded-r-lg transition-colors">
+                                        <i class="ri-safe-line text-sm opacity-70"></i>
+                                        <span>Servicios Financieros</span>
+                                        <i class="ri-arrow-down-s-line text-xs ml-auto transition-transform"
+                                            :class="open && 'rotate-180'"></i>
+                                    </button>
+                                    <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-emerald-100">
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.corte-nuevos'))
+                                            <a href="{{ route('svc.fin.corte-nuevos') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.corte-nuevos') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-scissors-2-line text-sm opacity-70"></i>
+                                                <span>Corte — Nuevos y Reconexión</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.corte-activos'))
+                                            <a href="{{ route('svc.fin.corte-activos') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.corte-activos') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-calendar-line text-sm opacity-70"></i>
+                                                <span>Corte — Activos</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.cajas'))
+                                            <a href="{{ route('svc.fin.cajas') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.cajas') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-safe-line text-sm opacity-70"></i>
+                                                <span>Cajas por Sucursal</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.ingresos'))
+                                            <a href="{{ route('svc.fin.ingresos') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.ingresos') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-money-dollar-circle-line text-sm opacity-70"></i>
+                                                <span>Ingresos</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.egresos'))
+                                            <a href="{{ route('svc.fin.egresos') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.egresos') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-arrow-up-circle-line text-sm opacity-70"></i>
+                                                <span>Egresos</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.conciliacion-web'))
+                                            <a href="{{ route('svc.fin.conciliacion-web') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.conciliacion-web') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-global-line text-sm opacity-70"></i>
+                                                <span>Conciliación WEB</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.conciliacion-spei'))
+                                            <a href="{{ route('svc.fin.conciliacion-spei') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.conciliacion-spei') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-bank-line text-sm opacity-70"></i>
+                                                <span>Conciliación SPEI</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('FinancieroSucursal', 'svc.fin.traspasos'))
+                                            <a href="{{ route('svc.fin.traspasos') }}"
+                                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors
+                                                           {{ request()->routeIs('svc.fin.traspasos') ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/50' }}">
+                                                <i class="ri-exchange-dollar-line text-sm opacity-70"></i>
+                                                <span>Traspasos entre Cajas</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- ── GESTIÓN DE KPIs ── --}}
+                            @if($_canMod('Kpis'))
+                                @php $kpiLinkClass = fn($r) => 'flex items-center gap-2.5 px-4 py-2 text-xs font-bold uppercase rounded-r-lg transition-colors ' . (request()->routeIs($r) ? 'text-violet-700 bg-violet-50' : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50/50'); @endphp
+                                <div x-data="{ open: {{ $kpiActive ? 'true' : 'false' }} }"
+                                    @close-nav-modop-sub.window="if ($event.detail !== 'kpis') open = false">
+                                    <button @click="open = !open; if (open) $dispatch('close-nav-modop-sub', 'kpis')"
+                                        class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-600 hover:text-violet-600 hover:bg-violet-50/50 rounded-r-lg transition-colors">
+                                        <i class="ri-bar-chart-grouped-line text-sm opacity-70"></i>
+                                        <span>Gestión de KPIs</span>
+                                        <i class="ri-arrow-down-s-line text-xs ml-auto transition-transform"
+                                            :class="open && 'rotate-180'"></i>
+                                    </button>
+                                    <div x-show="open" x-cloak class="mt-1 space-y-0.5 ml-4 border-l-2 border-violet-100">
+
+                                        {{-- Reportes Generales de Suscriptores --}}
+                                        @if($_canSub('Kpis', 'kpi.reportes-generales'))
+                                            <a href="{{ route('kpi.reportes-generales') }}"
+                                                class="{{ $kpiLinkClass('kpi.reportes-generales') }}">
+                                                <i class="ri-bar-chart-grouped-line text-sm opacity-70"></i>
+                                                <span>Reportes Generales</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-por-sucursal'))
+                                            <a href="{{ route('kpi.rep-por-sucursal') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-por-sucursal') }}">
+                                                <i class="ri-building-2-line text-sm opacity-70"></i>
+                                                <span>Susc. por Sucursal y Tipo</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-adeudos'))
+                                            <a href="{{ route('kpi.rep-adeudos') }}" class="{{ $kpiLinkClass('kpi.rep-adeudos') }}">
+                                                <i class="ri-error-warning-line text-sm opacity-70"></i>
+                                                <span>Susc. con Adeudos</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-suspendidos'))
+                                            <a href="{{ route('kpi.rep-suspendidos') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-suspendidos') }}">
+                                                <i class="ri-user-unfollow-line text-sm opacity-70"></i>
+                                                <span>Susc. Suspendidos</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-cancelados'))
+                                            <a href="{{ route('kpi.rep-cancelados') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-cancelados') }}">
+                                                <i class="ri-close-circle-line text-sm opacity-70"></i>
+                                                <span>Susc. Cancelados</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-crecimiento'))
+                                            <a href="{{ route('kpi.rep-crecimiento') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-crecimiento') }}">
+                                                <i class="ri-arrow-up-line text-sm opacity-70"></i>
+                                                <span>Crecimiento de Susc.</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-ingresos-tipo'))
+                                            <a href="{{ route('kpi.rep-ingresos-tipo') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-ingresos-tipo') }}">
+                                                <i class="ri-pie-chart-line text-sm opacity-70"></i>
+                                                <span>Ingresos por Tipo Serv.</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-mayor-adeudo'))
+                                            <a href="{{ route('kpi.rep-mayor-adeudo') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-mayor-adeudo') }}">
+                                                <i class="ri-medal-line text-sm opacity-70"></i>
+                                                <span>Susc. Mayor Adeudo</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.rep-indicadores'))
+                                            <a href="{{ route('kpi.rep-indicadores') }}"
+                                                class="{{ $kpiLinkClass('kpi.rep-indicadores') }}">
+                                                <i class="ri-dashboard-line text-sm opacity-70"></i>
+                                                <span>Indicadores de Reportes</span>
+                                            </a>
+                                        @endif
+
+                                        {{-- KPIs Comerciales / Financieros / ARPU / Cobranza --}}
+                                        @if($_canSub('Kpis', 'kpi.comerciales'))
+                                            <a href="{{ route('kpi.comerciales') }}" class="{{ $kpiLinkClass('kpi.comerciales') }}">
+                                                <i class="ri-line-chart-line text-sm opacity-70"></i>
+                                                <span>KPIs Comerciales</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.financieros'))
+                                            <a href="{{ route('kpi.financieros') }}" class="{{ $kpiLinkClass('kpi.financieros') }}">
+                                                <i class="ri-funds-line text-sm opacity-70"></i>
+                                                <span>KPIs Financieros</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.arpu'))
+                                            <a href="{{ route('kpi.arpu') }}" class="{{ $kpiLinkClass('kpi.arpu') }}">
+                                                <i class="ri-user-star-line text-sm opacity-70"></i>
+                                                <span>KPI — ARPU</span>
+                                            </a>
+                                        @endif
+                                        @if($_canSub('Kpis', 'kpi.cobranza'))
+                                            <a href="{{ route('kpi.cobranza') }}" class="{{ $kpiLinkClass('kpi.cobranza') }}">
+                                                <i class="ri-shield-check-line text-sm opacity-70"></i>
+                                                <span>KPIs de Cobranza</span>
+                                            </a>
+                                        @endif
+
+                                    </div>
+                                </div>
+                            @endif
+
+                        </div>
                     </div>
-                </div>
                 @endif
 
             </nav>
@@ -1221,8 +1477,9 @@
         <div class="flex flex-col flex-1 min-w-0 overflow-hidden relative bg-gray-50 dark:bg-slate-950">
 
             {{-- TOP BAR --}}
-            <header class="flex flex-col bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex-shrink-0 z-20">
-                
+            <header
+                class="flex flex-col bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex-shrink-0 z-20">
+
                 {{-- LÍNEA 1: Controles + Búsqueda + Info --}}
                 <div class="flex items-center h-16 px-4 md:px-6 gap-2 md:gap-4">
                     {{-- ZONA 1: Togles del sidebar (Izquierda) --}}
@@ -1247,7 +1504,8 @@
                     </div>
 
                     {{-- ZONA 3: Información (Reloj) + Separador --}}
-                    <div class="hidden lg:flex items-center gap-4 flex-shrink-0 pl-4 border-l border-gray-200 dark:border-slate-700">
+                    <div
+                        class="hidden lg:flex items-center gap-4 flex-shrink-0 pl-4 border-l border-gray-200 dark:border-slate-700">
                         <livewire:layout.clock />
                     </div>
 
@@ -1260,7 +1518,8 @@
                         </a>
 
                         {{-- Toggle modo oscuro --}}
-                        <button @click="toggleDark()" :title="darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                        <button @click="toggleDark()"
+                            :title="darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
                             class="p-2.5 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-sm hover:text-amber-500 hover:bg-amber-50 hover:border-amber-200 dark:hover:text-amber-400 dark:hover:bg-slate-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-100">
                             <i class="text-lg leading-none" :class="darkMode ? 'ri-sun-line' : 'ri-moon-line'"></i>
                         </button>
@@ -1273,7 +1532,8 @@
                     </div>
 
                     {{-- ZONA 5: Notificaciones + Usuario (Derecha) --}}
-                    <div class="flex items-center gap-2 flex-shrink-0 pl-2 border-l border-gray-200 dark:border-slate-700">
+                    <div
+                        class="flex items-center gap-2 flex-shrink-0 pl-2 border-l border-gray-200 dark:border-slate-700">
                         {{-- Notificaciones --}}
                         <livewire:layout.notificaciones-top-bar />
 
@@ -1283,7 +1543,8 @@
                 </div>
 
                 {{-- LÍNEA 2: Breadcrumbs --}}
-                <div class="flex items-center h-12 px-4 md:px-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-700/50">
+                <div
+                    class="flex items-center h-12 px-4 md:px-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-700/50">
                     <livewire:layout.breadcrumbs />
                 </div>
 
