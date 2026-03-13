@@ -1,5 +1,5 @@
 
-<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" style="overflow-anchor: none;">
 
     {{-- ================================================================ ENCABEZADO ================================================================ --}}
     @php
@@ -1108,6 +1108,40 @@
                     </div>
                     @endif
 
+                    {{-- Horas transcurridas (automático) --}}
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3.5 flex items-center gap-3">
+                        <i class="ri-time-line text-gray-400 text-base flex-shrink-0"></i>
+                        <div>
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Horas transcurridas desde la apertura</p>
+                            <p class="text-sm font-black text-gray-800">{{ $horasAtencion }} <span class="text-[10px] font-medium text-gray-400 normal-case">hrs. desde la generación del reporte</span></p>
+                        </div>
+                    </div>
+
+                    {{-- Calificación del Suscriptor --}}
+                    <div class="space-y-1.5">
+                        <label class="block text-[9px] font-black text-gray-500 uppercase tracking-widest">Calificación del Suscriptor</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="flex items-center justify-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all
+                                {{ $calificacion === 'Excelente' ? 'bg-emerald-50 border-emerald-400 text-emerald-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300' }}">
+                                <input type="radio" wire:model="calificacion" value="Excelente" class="sr-only">
+                                <i class="ri-emotion-happy-line text-sm"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Excelente</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all
+                                {{ $calificacion === 'Bueno' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300' }}">
+                                <input type="radio" wire:model="calificacion" value="Bueno" class="sr-only">
+                                <i class="ri-emotion-normal-line text-sm"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Bueno</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all
+                                {{ $calificacion === 'Malo' ? 'bg-red-50 border-red-400 text-red-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300' }}">
+                                <input type="radio" wire:model="calificacion" value="Malo" class="sr-only">
+                                <i class="ri-emotion-unhappy-line text-sm"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Malo</span>
+                            </label>
+                        </div>
+                    </div>
+
                     {{-- Notas técnicas --}}
                     <div class="space-y-1.5">
                         <label class="block text-[9px] font-black text-gray-500 uppercase tracking-widest">Notas del técnico (opcional)</label>
@@ -1194,6 +1228,21 @@
                                 Enviar SMS de notificación al suscriptor
                             </li>
                         </ul>
+                    </div>
+
+                    {{-- Resumen cierre técnico --}}
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Calificación del Suscriptor</p>
+                            <p class="text-xs font-black
+                                {{ $calificacion === 'Excelente' ? 'text-emerald-700' : ($calificacion === 'Bueno' ? 'text-blue-700' : 'text-red-700') }}">
+                                {{ $calificacion }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tiempo de Atención</p>
+                            <p class="text-xs font-black text-gray-700">{{ $horasAtencion }} hrs.</p>
+                        </div>
                     </div>
 
                     {{-- Regla de negocio: facturación --}}
@@ -1507,35 +1556,53 @@
                 </div>
                 <div class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-center">
-                        <p class="text-[8px] font-bold text-amber-500 uppercase tracking-widest mb-1">Estado</p>
+                        <p class="text-[8px] font-bold text-amber-500 uppercase tracking-widest mb-1">Estado del Suscriptor</p>
                         <p class="text-[10px] font-black text-amber-800 uppercase leading-tight">{{ $reporte['estado_cliente'] }}</p>
                     </div>
                     <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
                         <p class="text-[8px] font-bold text-red-400 uppercase tracking-widest mb-1">Saldo Adeudo</p>
                         <p class="text-sm font-black text-red-700">${{ number_format($reporte['saldo_pendiente'] ?? 0, 2) }}</p>
                     </div>
-                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
-                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">NAP</p>
-                        <p class="text-[10px] font-black text-gray-800 uppercase">{{ $reporte['nap'] }}</p>
-                        <p class="text-[9px] text-gray-400 font-medium">{{ $reporte['dir_nap'] }}</p>
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+                        <p class="text-[8px] font-bold text-red-400 uppercase tracking-widest mb-1">Último Pago</p>
+                        <p class="text-[10px] font-black text-red-700">
+                            {{ isset($reporte['fecha_ultimo_pago']) ? \Carbon\Carbon::parse($reporte['fecha_ultimo_pago'])->format('d/m/Y') : '—' }}
+                        </p>
                     </div>
                     <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
-                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Equipo</p>
-                        <p class="text-[9px] font-black text-gray-800 leading-tight">{{ $reporte['info_equipo'] }}</p>
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Días en Mora</p>
+                        <p class="text-xl font-black text-red-700">{{ $reporte['dias_suspension'] ?? '—' }}</p>
+                    </div>
+                </div>
+                <div class="border-t border-amber-100 px-4 py-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="flex items-center gap-3">
+                        <i class="ri-signal-tower-line text-amber-400 text-base flex-shrink-0"></i>
+                        <div>
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">NAP — Infraestructura</p>
+                            <p class="text-xs font-black text-gray-800 uppercase">{{ $reporte['nap'] }}
+                                <span class="text-gray-400 font-normal normal-case ml-1">— {{ $reporte['dir_nap'] }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="ri-router-line text-gray-400 text-base flex-shrink-0"></i>
+                        <div>
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Equipo Asignado</p>
+                            <p class="text-[10px] font-black text-gray-800">{{ $reporte['info_equipo'] }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- ─── A. DESCONEXIÓN FÍSICA ───────────────────────────────── --}}
-            <div class="bg-white border {{ $tecnicoCompletadoRec ? 'border-emerald-300' : 'border-gray-200' }} rounded-xl shadow-sm overflow-hidden"
-                 x-data="{ equipoRec: '{{ $recuperaEquipoRec }}' }">
+            <div class="bg-white border {{ $tecnicoCompletadoRec ? 'border-emerald-300' : 'border-gray-200' }} rounded-xl shadow-sm">
                 <div class="{{ $tecnicoCompletadoRec ? 'bg-emerald-50 border-b border-emerald-200' : 'bg-gray-50 border-b border-gray-200' }} px-5 py-3.5 flex items-center gap-2">
                     @if($tecnicoCompletadoRec)
                     <i class="ri-checkbox-circle-fill text-emerald-600 text-base"></i>
-                    <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Cierre Técnico — Completado</p>
+                    <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">A. Desconexión Física — Completada</p>
                     @else
                     <i class="ri-tools-line text-gray-600 text-base"></i>
-                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Cierre Técnico — Acciones en Campo y Sucursal</p>
+                    <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">A. Desconexión Física en Campo</p>
                     @endif
                 </div>
                 <div class="p-5 space-y-5 {{ $tecnicoCompletadoRec ? 'opacity-60 pointer-events-none' : '' }}">
@@ -1568,112 +1635,6 @@
                                    class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-4 text-sm font-black uppercase focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400"
                                    placeholder="Ej: Salida #4">
                             <p class="text-[9px] text-gray-400">El inventario de salidas NAP se actualizará al confirmar el cierre</p>
-                        </div>
-                    </div>
-
-                    {{-- A.2 Recuperación de Equipo --}}
-                    <div class="border-t border-gray-100 pt-4 space-y-3">
-                        <p class="text-[9px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-1.5">
-                            <i class="ri-router-line"></i> B. Recuperación del Equipo en Comodato
-                        </p>
-
-                        {{-- Radio: Sí / No --}}
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="cursor-pointer" @click="equipoRec = 'si'">
-                                <input type="radio" name="equipoRecRec" value="si" class="sr-only">
-                                <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
-                                     :class="equipoRec === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
-                                    <i class="ri-checkbox-circle-line block text-xl mb-1"
-                                       :class="equipoRec === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
-                                    <p class="text-[10px] font-black uppercase tracking-widest"
-                                       :class="equipoRec === 'si' ? 'text-emerald-700' : 'text-gray-400'">SÍ — Recuperado</p>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer" @click="equipoRec = 'no'">
-                                <input type="radio" name="equipoRecRec" value="no" class="sr-only">
-                                <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
-                                     :class="equipoRec === 'no' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-200'">
-                                    <i class="ri-close-circle-line block text-xl mb-1"
-                                       :class="equipoRec === 'no' ? 'text-red-500' : 'text-gray-300'"></i>
-                                    <p class="text-[10px] font-black uppercase tracking-widest"
-                                       :class="equipoRec === 'no' ? 'text-red-700' : 'text-gray-400'">NO — No Recuperado</p>
-                                </div>
-                            </label>
-                        </div>
-                        @error('recuperaEquipoRec')
-                        <p class="text-[10px] text-red-500 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
-                        @enderror
-
-                        {{-- CASO: Sí recuperado --}}
-                        <div x-show="equipoRec === 'si'" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
-                            <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Serie registrada en sistema</p>
-                            <p class="font-mono text-sm font-black text-indigo-700 bg-white border border-indigo-100 px-4 py-2 rounded-lg">
-                                {{ $reporte['info_equipo'] }}
-                            </p>
-                            <div class="space-y-1.5">
-                                <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física recuperada *</label>
-                                <input type="text" wire:model.live="serieRecuperada"
-                                       class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
-                                       placeholder="ESCANEAR O ESCRIBIR SERIE...">
-                            </div>
-                            @if($serieRecuperada)
-                                @php $serieOk = str_contains($reporte['info_equipo'], $serieRecuperada); @endphp
-                                @if($serieOk)
-                                <div class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
-                                    <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — coincide con el registro ✓
-                                </div>
-                                @else
-                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                                    <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5 mb-1">
-                                        <i class="ri-alert-line text-amber-600"></i> Serie diferente detectada
-                                    </p>
-                                    <p class="text-[10px] text-amber-700 font-medium">
-                                        No coincide con el registro. El sistema buscará esta serie, la reasignará al historial del suscriptor y registrará la recuperación correcta.
-                                    </p>
-                                </div>
-                                @endif
-                            @endif
-                            <label class="flex items-center gap-3 cursor-pointer p-3 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
-                                <input type="checkbox" wire:model="equipoEntregado" class="h-5 w-5 text-emerald-600 rounded focus:ring-emerald-500 flex-shrink-0">
-                                <div>
-                                    <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Equipo ingresado a inventario de sucursal ✓</p>
-                                    <p class="text-[9px] text-emerald-600 font-medium">La sucursal acepta el ingreso del equipo al almacén</p>
-                                </div>
-                            </label>
-                            @error('equipoEntregado')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
-                        </div>
-
-                        {{-- CASO: No recuperado --}}
-                        <div x-show="equipoRec === 'no'" x-cloak class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
-                            <p class="text-[9px] font-black text-red-700 uppercase tracking-widest">Equipo no recuperado — seleccione forma de resolución</p>
-                            <p class="text-[10px] text-red-600 font-medium">
-                                Para cerrar el reporte el suscriptor debe liquidar el valor del equipo por pérdida o daño.
-                                Si no paga, use Guardar Precierre.
-                            </p>
-                            <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
-                                <input type="checkbox" wire:model.live="pagoDanoRec" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
-                                <div>
-                                    <p class="text-[10px] font-black text-red-900 uppercase tracking-widest">A) Pago por daño del equipo confirmado</p>
-                                    <p class="text-[9px] text-red-600 font-medium mt-0.5">El equipo fue dañado. El suscriptor pagó el costo de reparación/reposición.</p>
-                                </div>
-                            </label>
-                            <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
-                                <input type="checkbox" wire:model.live="pagoPerdidaRec" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
-                                <div>
-                                    <p class="text-[10px] font-black text-red-900 uppercase tracking-widest">B) Pago por pérdida del equipo confirmado</p>
-                                    <p class="text-[9px] text-red-600 font-medium mt-0.5">El equipo no existe. El suscriptor pagó el valor total. Estatus → PAGADO POR PÉRDIDA.</p>
-                                </div>
-                            </label>
-                            @error('pagoPerdidaRec')
-                            <p class="text-[10px] text-red-600 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
-                            @enderror
-                            <div x-show="!$wire.pagoPerdidaRec && !$wire.pagoDanoRec"
-                                 class="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg p-3">
-                                <i class="ri-information-line text-amber-600 text-sm flex-shrink-0"></i>
-                                <p class="text-[10px] text-amber-700 font-bold">
-                                    Si el suscriptor no paga, use <strong>Guardar Precierre</strong> con motivo correspondiente.
-                                </p>
-                            </div>
                         </div>
                     </div>
 
@@ -1715,6 +1676,160 @@
                     @endif
 
                 </div>
+            </div>
+
+            {{-- ─── B. RECUPERACIÓN DEL EQUIPO — todo Alpine local, CERO wire:model.live ── --}}
+            <div x-init="equipoInfoRec = @json($reporte['info_equipo'] ?? '')" x-data="{
+                equipoRec: '{{ $recuperaEquipoRec }}',
+                serie: '',
+                equipoInfoRec: '',
+                get serieMatch() { return this.serie.length > 0 && this.equipoInfoRec.toUpperCase().includes(this.serie.toUpperCase()); },
+                get serieDiff()  { return this.serie.length > 0 && !this.equipoInfoRec.toUpperCase().includes(this.serie.toUpperCase()); },
+                pagoDano: false,
+                pagoPerdida: false,
+                equipoEntregado: false
+            }" class="bg-white border {{ $tecnicoCompletadoRec ? 'border-emerald-300' : 'border-amber-200' }} rounded-xl shadow-sm">
+                <div class="{{ $tecnicoCompletadoRec ? 'bg-emerald-50 border-b border-emerald-200' : 'bg-amber-50 border-b border-amber-200' }} px-5 py-3.5 flex items-center gap-2">
+                    @if($tecnicoCompletadoRec)
+                    <i class="ri-checkbox-circle-fill text-emerald-600 text-base"></i>
+                    <p class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">B. Recuperación del Equipo — Completada</p>
+                    @else
+                    <i class="ri-router-line text-amber-600 text-base"></i>
+                    <p class="text-[11px] font-black text-amber-800 uppercase tracking-widest">B. Recuperación del Equipo en Comodato</p>
+                    @endif
+                </div>
+                <div class="p-5 space-y-4 {{ $tecnicoCompletadoRec ? 'opacity-60 pointer-events-none' : '' }}">
+
+                    {{-- Botones Sí / No — <button type="button"> igual que cancelación --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" @click="equipoRec = 'si'; pagoDano = false; pagoPerdida = false">
+                            <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                 :class="equipoRec === 'si' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'">
+                                <i class="ri-checkbox-circle-line block text-2xl mb-1"
+                                   :class="equipoRec === 'si' ? 'text-emerald-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="equipoRec === 'si' ? 'text-emerald-700' : 'text-gray-400'">SÍ — Recuperado</p>
+                                <p class="text-[9px] mt-0.5"
+                                   :class="equipoRec === 'si' ? 'text-emerald-600' : 'text-gray-300'">Regresa al inventario</p>
+                            </div>
+                        </button>
+                        <button type="button" @click="equipoRec = 'no'; serie = ''">
+                            <div class="text-center border-2 rounded-xl p-3.5 transition-all cursor-pointer"
+                                 :class="equipoRec === 'no' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-200'">
+                                <i class="ri-close-circle-line block text-2xl mb-1"
+                                   :class="equipoRec === 'no' ? 'text-red-500' : 'text-gray-300'"></i>
+                                <p class="text-[10px] font-black uppercase tracking-widest"
+                                   :class="equipoRec === 'no' ? 'text-red-700' : 'text-gray-400'">NO — No Recuperado</p>
+                                <p class="text-[9px] mt-0.5"
+                                   :class="equipoRec === 'no' ? 'text-red-600' : 'text-gray-300'">Requiere resolución</p>
+                            </div>
+                        </button>
+                    </div>
+                    @error('recuperaEquipoRec')
+                    <p class="text-[10px] text-red-500 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                    @enderror
+
+                    {{-- CASO: Sí recuperado —  x-show simple sin transiciones (igual que cancelación) --}}
+                    <div x-show="equipoRec === 'si'" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                        <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Validar serie del equipo recuperado</p>
+                        <p class="font-mono text-sm font-black text-indigo-700 bg-white border border-indigo-100 px-4 py-2 rounded-lg">
+                            {{ $reporte['info_equipo'] }}
+                        </p>
+                        <div class="space-y-1.5">
+                            <label class="block text-[9px] font-black text-gray-600 uppercase tracking-widest">Serie física recuperada *</label>
+                            <input type="text" x-model="serie"
+                                   class="w-full bg-white border border-emerald-300 rounded-lg py-2.5 px-4 text-sm font-black font-mono uppercase tracking-widest text-indigo-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+                                   placeholder="ESCANEAR O ESCRIBIR SERIE...">
+                        </div>
+                        <div x-show="serieMatch" class="flex items-center gap-2 text-[10px] font-black text-emerald-700">
+                            <i class="ri-checkbox-circle-fill text-emerald-500"></i> Serie confirmada — coincide con el registro ✓
+                        </div>
+                        <div x-show="serieDiff" class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <p class="text-[10px] font-black text-amber-800 flex items-center gap-1.5 mb-1">
+                                <i class="ri-alert-line text-amber-600"></i> Serie diferente detectada
+                            </p>
+                            <p class="text-[10px] text-amber-700 font-medium">
+                                No coincide con el registro. El sistema buscará esta serie, la reasignará al historial del suscriptor y registrará la recuperación correcta.
+                            </p>
+                        </div>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
+                            <input type="checkbox" x-model="equipoEntregado" class="h-5 w-5 text-emerald-600 rounded focus:ring-emerald-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Equipo ingresado a inventario de sucursal ✓</p>
+                                <p class="text-[9px] text-emerald-600 font-medium">La sucursal acepta el ingreso del equipo al almacén</p>
+                            </div>
+                        </label>
+                        @error('equipoEntregado')<p class="text-[10px] text-red-500 font-bold">{{ $message }}</p>@enderror
+                    </div>
+
+                    {{-- CASO: No recuperado — x-show simple sin transiciones --}}
+                    <div x-show="equipoRec === 'no'" x-cloak class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+                        <p class="text-[9px] font-black text-red-700 uppercase tracking-widest">Equipo no recuperado — seleccione forma de resolución</p>
+                        <p class="text-[10px] text-red-600 font-medium">
+                            Para cerrar el reporte el suscriptor debe liquidar el valor del equipo por pérdida o daño.
+                            Si no paga, use Guardar Precierre.
+                        </p>
+                        <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                            <input type="checkbox" x-model="pagoDano" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-red-900 uppercase tracking-widest">A) Pago por daño del equipo confirmado</p>
+                                <p class="text-[9px] text-red-600 font-medium mt-0.5">El equipo fue dañado. El suscriptor pagó el costo de reparación/reposición.</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                            <input type="checkbox" x-model="pagoPerdida" class="mt-0.5 h-5 w-5 text-red-600 rounded focus:ring-red-500 flex-shrink-0">
+                            <div>
+                                <p class="text-[10px] font-black text-red-900 uppercase tracking-widest">B) Pago por pérdida del equipo confirmado</p>
+                                <p class="text-[9px] text-red-600 font-medium mt-0.5">El equipo no existe. El suscriptor pagó el valor total. Estatus → PAGADO POR PÉRDIDA.</p>
+                            </div>
+                        </label>
+                        @error('pagoPerdidaRec')
+                        <p class="text-[10px] text-red-600 font-black flex items-center gap-1"><i class="ri-error-warning-line"></i> {{ $message }}</p>
+                        @enderror
+                        <div x-show="!pagoPerdida && !pagoDano"
+                             class="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                            <i class="ri-information-line text-amber-600 text-sm flex-shrink-0"></i>
+                            <p class="text-[10px] text-amber-700 font-bold">
+                                Si el suscriptor no paga, use <strong>Guardar Precierre</strong> con motivo correspondiente.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- Horas transcurridas + Calificación --}}
+                <div class="border-t border-gray-100 px-5 pt-4 pb-2 space-y-4">
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3.5 flex items-center gap-3">
+                        <i class="ri-time-line text-gray-400 text-base flex-shrink-0"></i>
+                        <div>
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Horas transcurridas desde la apertura</p>
+                            <p class="text-sm font-black text-gray-800">{{ $horasAtencion }} <span class="text-[10px] font-medium text-gray-400 normal-case">hrs. desde la generación del reporte</span></p>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[9px] font-black text-gray-500 uppercase tracking-widest">Calificación del Suscriptor</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="flex items-center justify-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all
+                                {{ $calificacion === 'Excelente' ? 'bg-emerald-50 border-emerald-400 text-emerald-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300' }}">
+                                <input type="radio" wire:model="calificacion" value="Excelente" class="sr-only">
+                                <i class="ri-emotion-happy-line text-sm"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Excelente</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all
+                                {{ $calificacion === 'Bueno' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300' }}">
+                                <input type="radio" wire:model="calificacion" value="Bueno" class="sr-only">
+                                <i class="ri-emotion-normal-line text-sm"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Bueno</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all
+                                {{ $calificacion === 'Malo' ? 'bg-red-50 border-red-400 text-red-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300' }}">
+                                <input type="radio" wire:model="calificacion" value="Malo" class="sr-only">
+                                <i class="ri-emotion-unhappy-line text-sm"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Malo</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
                 {{-- Botón Guardar Cierre Técnico --}}
                 @if(!$tecnicoCompletadoRec)
@@ -1722,7 +1837,7 @@
                     @error('tecnicoCompletadoRec')
                     <p class="text-[10px] text-red-500 font-black mb-3 flex items-center gap-1.5"><i class="ri-error-warning-line"></i> {{ $message }}</p>
                     @enderror
-                    <button @click="$wire.guardarAvanceRecuperacion(equipoRec)"
+                    <button @click="$wire.guardarAvanceRecuperacion(equipoRec, serie, pagoDano, pagoPerdida)"
                             class="w-full py-3 bg-gray-800 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-900 transition-all active:scale-95 flex items-center justify-center gap-2">
                         <i class="ri-save-3-line text-base"></i> Guardar Cierre Técnico
                     </button>
@@ -1806,6 +1921,21 @@
                             </li>
                         </ul>
                     </div>
+                    {{-- Resumen calificación / horas --}}
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Calificación del Suscriptor</p>
+                            <p class="text-xs font-black
+                                {{ $calificacion === 'Excelente' ? 'text-emerald-700' : ($calificacion === 'Bueno' ? 'text-blue-700' : 'text-red-700') }}">
+                                {{ $calificacion }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tiempo de Atención</p>
+                            <p class="text-xs font-black text-gray-700">{{ $horasAtencion }} hrs.</p>
+                        </div>
+                    </div>
+
                     <div class="flex items-start gap-3 bg-red-50 border border-red-100 rounded-lg p-3.5">
                         <i class="ri-information-line text-red-500 text-base flex-shrink-0 mt-0.5"></i>
                         <p class="text-[10px] font-medium text-red-700 leading-relaxed">

@@ -16,7 +16,8 @@
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l \"C:/laragon/www/tvt-sistema/app/Livewire/GestionClientes/ReportesServicio.php\" && /c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l \"C:/laragon/www/tvt-sistema/app/Livewire/GestionClientes/AtenderReporte.php\")",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l \"C:/laragon/www/tvt-sistema/app/Livewire/GestionClientes/AtenderReporte.php\" && /c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l \"C:/laragon/www/tvt-sistema/app/Livewire/GestionClientes/ReportesServicio.php\")",
       "Bash(php -l app/Livewire/GestionClientes/AtenderReporte.php 2>&1)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(npm run:*)"
     ]
   }
 }

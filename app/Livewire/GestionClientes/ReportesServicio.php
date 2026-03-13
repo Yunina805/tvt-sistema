@@ -67,9 +67,9 @@ class ReportesServicio extends Component
         //     ->paginate(20);
         // ───────────────────────────────────────────────────────────────
 
-        // DATOS DE EJEMPLO — se irán agregando conforme se construye cada tipo de reporte
+        // DATOS DE EJEMPLO — todos los tipos de reporte implementados
         $todos = collect([
-            // 1. INSTALACION — Solo Televisión
+            // ── INSTALACIONES ────────────────────────────────────────────
             [
                 'folio'          => 'REP-2026-0003',
                 'fecha_apertura' => '2026-03-11 09:00',
@@ -83,7 +83,6 @@ class ReportesServicio extends Component
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Sistema',
             ],
-            // 2. INSTALACION — Solo Internet
             [
                 'folio'          => 'REP-2026-0005',
                 'fecha_apertura' => '2026-03-11 11:00',
@@ -97,7 +96,6 @@ class ReportesServicio extends Component
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Sistema',
             ],
-            // 3. INSTALACION — Televisión + Internet
             [
                 'folio'          => 'REP-2026-0001',
                 'fecha_apertura' => '2026-03-11 10:00',
@@ -111,7 +109,115 @@ class ReportesServicio extends Component
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Sistema',
             ],
-            // 4. CAMBIO DE SERVICIO — TV+Internet
+            // ── FALLAS ───────────────────────────────────────────────────
+            [
+                'folio'          => 'REP-2026-0002',
+                'fecha_apertura' => '2026-03-11 08:30',
+                'tipo_reporte'   => 'FALLA_TV',
+                'tipo_servicio'  => 'TV',
+                'cliente'        => 'MARÍA LÓPEZ CRUZ',
+                'telefono'       => '9524567890',
+                'servicio_actual'=> 'Retro TV',
+                'sucursal'       => 'San Pedro Amuzgos',
+                'tecnico'        => 'Cuadrilla 2',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Cliente',
+            ],
+            [
+                'folio'          => 'REP-2026-0009',
+                'fecha_apertura' => '2026-03-12 08:15',
+                'tipo_reporte'   => 'FALLA_INTERNET',
+                'tipo_servicio'  => 'INTERNET',
+                'cliente'        => 'JORGE CASTILLO MORA',
+                'telefono'       => '9511234000',
+                'servicio_actual'=> 'Internet 50 Mbps',
+                'sucursal'       => 'Oaxaca Norte',
+                'tecnico'        => 'Cuadrilla 3',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Cliente',
+            ],
+            [
+                'folio'          => 'REP-2026-0004',
+                'fecha_apertura' => '2026-03-11 07:45',
+                'tipo_reporte'   => 'FALLA_TV_INTERNET',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'cliente'        => 'ROSA MARTÍNEZ DÍAZ',
+                'telefono'       => '9513456789',
+                'servicio_actual'=> 'Combo TV + Internet',
+                'sucursal'       => 'Oaxaca Norte',
+                'tecnico'        => 'Cuadrilla 1',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Cliente',
+            ],
+            // ── CAMBIO DE DOMICILIO ───────────────────────────────────────
+            [
+                'folio'          => 'REP-2026-0014',
+                'fecha_apertura' => '2026-03-12 09:30',
+                'tipo_reporte'   => 'CAMBIO_DOMICILIO',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'cliente'        => 'FERNANDA LUNA ESPINOZA',
+                'telefono'       => '9515678901',
+                'servicio_actual'=> 'TV + Internet 30 Mbps',
+                'sucursal'       => 'Oaxaca Centro',
+                'tecnico'        => 'Cuadrilla 1',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Administración',
+            ],
+            // ── SUSPENSIONES ─────────────────────────────────────────────
+            [
+                'folio'          => 'SUP-2026-0001',
+                'fecha_apertura' => '2026-03-10 07:30',
+                'tipo_reporte'   => 'SUSPENSION',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'cliente'        => 'PEDRO ARMENDÁRIZ RUIZ',
+                'telefono'       => '9518765432',
+                'servicio_actual'=> 'TV + Internet 30 Mbps',
+                'sucursal'       => 'Oaxaca Centro',
+                'tecnico'        => 'Sucursal (remoto)',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Sistema Automático',
+            ],
+            [
+                'folio'          => 'SUP-2026-0002',
+                'fecha_apertura' => '2026-02-24 08:45',
+                'tipo_reporte'   => 'SUSPENSION',
+                'tipo_servicio'  => 'TV',
+                'cliente'        => 'LUIS HERNÁNDEZ VEGA',
+                'telefono'       => '9527654321',
+                'servicio_actual'=> 'Retro TV',
+                'sucursal'       => 'San Pedro Amuzgos',
+                'tecnico'        => 'Cuadrilla 3',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Sistema',
+            ],
+            // ── RECUPERACIONES ───────────────────────────────────────────
+            [
+                'folio'          => 'REC-2026-0001',
+                'fecha_apertura' => '2026-03-10 06:00',
+                'tipo_reporte'   => 'RECUPERACION',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'cliente'        => 'PEDRO ARMENDÁRIZ RUIZ',
+                'telefono'       => '9518765432',
+                'servicio_actual'=> 'TV + Internet 30 Mbps',
+                'sucursal'       => 'Oaxaca Centro',
+                'tecnico'        => 'Cuadrilla 1',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Sistema Automático',
+            ],
+            [
+                'folio'          => 'REP-2026-0007',
+                'fecha_apertura' => '2026-02-24 09:00',
+                'tipo_reporte'   => 'RECUPERACION',
+                'tipo_servicio'  => 'INTERNET',
+                'cliente'        => 'PATRICIA GÓMEZ RIVAS',
+                'telefono'       => '9512345678',
+                'servicio_actual'=> 'Internet 30 Mbps',
+                'sucursal'       => 'Oaxaca Centro',
+                'tecnico'        => 'Cuadrilla 1',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Sistema',
+            ],
+            // ── CAMBIOS Y AMPLIACIONES ───────────────────────────────────
             [
                 'folio'          => 'REP-2026-0006',
                 'fecha_apertura' => '2026-03-11 13:00',
@@ -119,13 +225,12 @@ class ReportesServicio extends Component
                 'tipo_servicio'  => 'TV+INTERNET',
                 'cliente'        => 'ROBERTO DÍAZ LUNA',
                 'telefono'       => '9514561230',
-                'servicio_actual'=> 'TV + Internet 50 Mbps',
+                'servicio_actual'=> 'TV + Internet 100 Mbps',
                 'sucursal'       => 'Oaxaca Norte',
                 'tecnico'        => 'Cuadrilla 3',
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Administración',
             ],
-            // 5. SERVICIO ADICIONAL — Solo Televisión
             [
                 'folio'          => 'REP-2026-0010',
                 'fecha_apertura' => '2026-03-11 14:00',
@@ -139,7 +244,6 @@ class ReportesServicio extends Component
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Sistema',
             ],
-            // 6. AUMENTO DE VELOCIDAD — Internet
             [
                 'folio'          => 'REP-2026-0011',
                 'fecha_apertura' => '2026-03-11 15:00',
@@ -153,7 +257,20 @@ class ReportesServicio extends Component
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Sistema',
             ],
-            // 7. RECONEXION — TV+Internet
+            // ── RECONEXIONES ─────────────────────────────────────────────
+            [
+                'folio'          => 'REP-2026-0012',
+                'fecha_apertura' => '2026-03-11 16:00',
+                'tipo_reporte'   => 'RECONEXION',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'cliente'        => 'ELENA VARGAS MORALES',
+                'telefono'       => '9516789012',
+                'servicio_actual'=> 'TV + Internet 30 Mbps',
+                'sucursal'       => 'Oaxaca Centro',
+                'tecnico'        => 'Cuadrilla 1',
+                'estado'         => 'Pendiente',
+                'quien_reporto'  => 'Administración',
+            ],
             [
                 'folio'          => 'REP-2026-0013',
                 'fecha_apertura' => '2026-03-11 17:00',
@@ -167,7 +284,7 @@ class ReportesServicio extends Component
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Administración',
             ],
-            // 8. CANCELACION — TV+Internet
+            // ── CANCELACIÓN ──────────────────────────────────────────────
             [
                 'folio'          => 'REP-2026-0008',
                 'fecha_apertura' => '2026-03-11 18:00',
@@ -178,20 +295,6 @@ class ReportesServicio extends Component
                 'servicio_actual'=> 'Combo TV + Internet',
                 'sucursal'       => 'Oaxaca Centro',
                 'tecnico'        => 'Ing. Ana Martínez',
-                'estado'         => 'Pendiente',
-                'quien_reporto'  => 'Administración',
-            ],
-            // 9. RECONEXION — TV+Internet
-            [
-                'folio'          => 'REP-2026-0012',
-                'fecha_apertura' => '2026-03-11 16:00',
-                'tipo_reporte'   => 'RECONEXION',
-                'tipo_servicio'  => 'TV+INTERNET',
-                'cliente'        => 'ELENA VARGAS MORALES',
-                'telefono'       => '9516789012',
-                'servicio_actual'=> 'TV + Internet 30 Mbps',
-                'sucursal'       => 'Oaxaca Centro',
-                'tecnico'        => 'Cuadrilla 1',
                 'estado'         => 'Pendiente',
                 'quien_reporto'  => 'Administración',
             ],

@@ -37,6 +37,7 @@ use App\Livewire\Catalogos\RecursosHumanos\AccesosSistema;
 use App\Livewire\Catalogos\RecursosHumanos\Nomina;
 use App\Livewire\Catalogos\RecursosHumanos\Prestamos;
 use App\Livewire\Catalogos\RecursosHumanos\DescuentosPersonal;
+use App\Livewire\Catalogos\RecursosHumanos\ProductividadTecnicos;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATÁLOGOS — FINANCIERO
@@ -159,11 +160,33 @@ use App\Livewire\Kpis\KpisArpu;
 use App\Livewire\Kpis\KpisCobranza;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CATÁLOGOS — REGULATORIO
+// CATÁLOGOS — REGULATORIO (legacy)
 // ─────────────────────────────────────────────────────────────────────────────
 use App\Livewire\Catalogos\Regulatorio\EntidadesRegulatorias;
 use App\Livewire\Catalogos\Regulatorio\Documentos as DocumentosReg;
 use App\Livewire\Catalogos\Regulatorio\EnvioObligaciones;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GESTIÓN REGULATORIA Y LEGAL
+// ─────────────────────────────────────────────────────────────────────────────
+use App\Livewire\Regulatorio\Cfe;
+use App\Livewire\Regulatorio\Compranet;
+use App\Livewire\Regulatorio\Crt;
+use App\Livewire\Regulatorio\JovenesConstruyendo;
+use App\Livewire\Regulatorio\Profeco;
+use App\Livewire\Regulatorio\Impi;
+use App\Livewire\Regulatorio\Promtel;
+use App\Livewire\Regulatorio\Ine;
+use App\Livewire\Regulatorio\Renapo;
+use App\Livewire\Regulatorio\Cofece;
+use App\Livewire\Regulatorio\Reiniecyt;
+use App\Livewire\Regulatorio\Sat;
+use App\Livewire\Regulatorio\Imss;
+use App\Livewire\Regulatorio\CamarasComercio;
+use App\Livewire\Regulatorio\ProveedoresSignal;
+use App\Livewire\Regulatorio\ProveedoresMateriales;
+use App\Livewire\Regulatorio\ProyectosTerceros;
+use App\Livewire\Regulatorio\ConstitucionTVT;
 
 // =============================================================================
 
@@ -219,6 +242,7 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
         Route::get('/nomina', Nomina::class)->name('nomina');
         Route::get('/prestamos', Prestamos::class)->name('prestamos');
         Route::get('/descuentos', DescuentosPersonal::class)->name('descuentos');
+        Route::get('/productividad', ProductividadTecnicos::class)->name('productividad');
     });
 
     // =========================================================================
@@ -368,12 +392,44 @@ Route::middleware(['auth', 'verified', 'acceso'])->group(function () {
     });
 
     // =========================================================================
-    // CATÁLOGOS: REGULATORIO
+    // CATÁLOGOS: REGULATORIO (legacy)
     // =========================================================================
     Route::prefix('regulatorio')->name('regulatorio.')->group(function () {
         Route::get('/entidades', EntidadesRegulatorias::class)->name('entidades');
         Route::get('/documentos', DocumentosReg::class)->name('documentos');
         Route::get('/obligaciones', EnvioObligaciones::class)->name('obligaciones');
+    });
+
+    // =========================================================================
+    // GESTIÓN REGULATORIA Y LEGAL — ORGANISMOS EXTERNOS
+    // =========================================================================
+    Route::prefix('legal')->name('legal.')->group(function () {
+
+        // Regulatorios
+        Route::get('/cfe',                Cfe::class)               ->name('cfe');
+        Route::get('/compranet',          Compranet::class)          ->name('compranet');
+        Route::get('/crt',                Crt::class)                ->name('crt');
+        Route::get('/jovenes-construyendo', JovenesConstruyendo::class)->name('jovenes');
+        Route::get('/profeco',            Profeco::class)            ->name('profeco');
+        Route::get('/impi',               Impi::class)               ->name('impi');
+        Route::get('/promtel',            Promtel::class)            ->name('promtel');
+        Route::get('/ine',                Ine::class)                ->name('ine');
+        Route::get('/renapo',             Renapo::class)             ->name('renapo');
+        Route::get('/cofece',             Cofece::class)             ->name('cofece');
+        Route::get('/reiniecyt',          Reiniecyt::class)          ->name('reiniecyt');
+        Route::get('/sat',                Sat::class)                ->name('sat');
+        Route::get('/imss',               Imss::class)               ->name('imss');
+        Route::get('/camaras-comercio',   CamarasComercio::class)    ->name('camaras');
+
+        // Proveedores
+        Route::get('/proveedores-signal',     ProveedoresSignal::class)    ->name('prov-signal');
+        Route::get('/proveedores-materiales', ProveedoresMateriales::class)->name('prov-materiales');
+
+        // Clientes
+        Route::get('/proyectos-terceros', ProyectosTerceros::class)->name('proyectos-terceros');
+
+        // Legal TVT
+        Route::get('/constitucion-tvt',   ConstitucionTVT::class)   ->name('constitucion-tvt');
     });
 
 });

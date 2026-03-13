@@ -348,9 +348,10 @@ class AtenderReporte extends Component
                 'encapsulamiento'=> 'IPoE',
                 'ultima_potencia_nap'    => '-18.0',
                 'ultima_potencia_equipo' => '-22.1',
-                'saldo_pendiente'=> 1920.00,
-                'dias_suspension'=> 91,
-                'soporta_remoto' => false,
+                'saldo_pendiente'    => 1920.00,
+                'dias_suspension'    => 91,
+                'fecha_ultimo_pago'  => '2025-12-08',
+                'soporta_remoto'     => false,
             ],
             'SUP-2026-0001' => [
                 'folio'          => 'SUP-2026-0001',
@@ -443,8 +444,9 @@ class AtenderReporte extends Component
                 'encapsulamiento'=> 'IPoE',
                 'ultima_potencia_nap'    => '-19.5',
                 'ultima_potencia_equipo' => '-23.4',
-                'saldo_pendiente'=> 1400.00,
-                'dias_suspension'=> 65,
+                'saldo_pendiente'    => 1400.00,
+                'dias_suspension'    => 65,
+                'fecha_ultimo_pago'  => '2025-12-21',
             ],
             'REP-2026-0008' => [
                 'folio'          => 'REP-2026-0008',
@@ -607,6 +609,66 @@ class AtenderReporte extends Component
                 'ultima_potencia_equipo' => '-21.8',
                 'plan_anterior'  => '30 Mbps',
                 'plan_nuevo'     => '100 Mbps',
+            ],
+            // FALLA_INTERNET — Solo Internet
+            'REP-2026-0009' => [
+                'folio'          => 'REP-2026-0009',
+                'fecha'          => '2026-03-12 08:15',
+                'sucursal'       => 'Oaxaca Norte',
+                'cliente'        => 'JORGE CASTILLO MORA',
+                'id_cliente'     => 'OAN-0041278',
+                'telefono'       => '9511234000',
+                'domicilio'      => 'Av. Ferrocarril 88, Col. Industrial. Ref: Bodega gris, entrada lateral.',
+                'estado_cliente' => 'Activo',
+                'quien_reporto'  => 'Cliente',
+                'tipo_reporte'   => 'FALLA_INTERNET',
+                'tipo_servicio'  => 'INTERNET',
+                'falla_reportada'=> 'FALLA EN SERVICIO DE INTERNET',
+                'servicio'       => 'Internet 50 Mbps',
+                'tecnico'        => 'Cuadrilla 3',
+                'nap'            => 'NAP-OAN-06',
+                'dir_nap'        => 'Poste 14, Av. Ferrocarril Norte',
+                'salidas_nap_disponibles' => ['3','5'],
+                'info_equipo'    => 'ONU Huawei HG8310M (Serie: HW2024-077)',
+                'ip'             => '192.168.5.77',
+                'wifi'           => 'TuVision_Jorge',
+                'password_wifi'  => 'jor77890',
+                'olt'            => 'OLT-02',
+                'pon'            => 'PON/0/7',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '-20.1',
+                'ultima_potencia_equipo' => '-24.5',
+            ],
+            // CAMBIO_DOMICILIO — TV+Internet
+            'REP-2026-0014' => [
+                'folio'          => 'REP-2026-0014',
+                'fecha'          => '2026-03-12 09:30',
+                'sucursal'       => 'Oaxaca Centro',
+                'cliente'        => 'FERNANDA LUNA ESPINOZA',
+                'id_cliente'     => 'OAX-0033456',
+                'telefono'       => '9515678901',
+                'domicilio'      => 'Calle Reforma 210 (nuevo domicilio). Ref: Casa beige, portón gris.',
+                'estado_cliente' => 'Activo',
+                'quien_reporto'  => 'Administración',
+                'tipo_reporte'   => 'CAMBIO_DOMICILIO',
+                'tipo_servicio'  => 'TV+INTERNET',
+                'falla_reportada'=> 'CAMBIO DE DOMICILIO',
+                'servicio'       => 'TV + Internet 30 Mbps',
+                'tecnico'        => 'Cuadrilla 1',
+                'nap'            => '—',
+                'dir_nap'        => '— Asignar en nuevo domicilio —',
+                'salidas_nap_disponibles' => ['1','2','4','5'],
+                'info_equipo'    => 'ONU ZTE F660 (Serie: ZTE2024-120)',
+                'ip'             => '192.168.10.90',
+                'wifi'           => 'TuVision_Fernanda',
+                'password_wifi'  => 'fer90123',
+                'olt'            => 'OLT-01',
+                'pon'            => 'PON/0/8',
+                'vlan'           => '100',
+                'encapsulamiento'=> 'IPoE',
+                'ultima_potencia_nap'    => '—',
+                'ultima_potencia_equipo' => '—',
             ],
         ];
 
@@ -927,10 +989,13 @@ class AtenderReporte extends Component
 
     // ── Cierre TÉCNICO de recuperación ───────────────────────────────
 
-    public function guardarAvanceRecuperacion(string $equipoRecVal = ''): void
+    public function guardarAvanceRecuperacion(string $equipoRecVal = '', string $serieVal = '', bool $pagoDano = false, bool $pagoPerdida = false): void
     {
-        // Recibir el valor del radio desde Alpine (no wire:model para evitar re-renders)
+        // Recibir valores desde Alpine (sin wire:model.live para evitar re-renders)
         $this->recuperaEquipoRec = $equipoRecVal;
+        $this->serieRecuperada   = $serieVal;
+        $this->pagoDanoRec       = $pagoDano;
+        $this->pagoPerdidaRec    = $pagoPerdida;
 
         if (!$this->desconexionFisicaRec) {
             $this->addError('desconexionFisicaRec', 'Confirme la desconexión física del servicio en NAP.');

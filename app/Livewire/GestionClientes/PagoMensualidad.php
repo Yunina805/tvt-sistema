@@ -50,6 +50,10 @@ class PagoMensualidad extends Component
     public string $telefonoWhatsapp = '';
     public bool   $whatsappEnviado  = false;
 
+    // ── Liquidación total (mensualidad + adeudo) ──────────────────────────────
+    public float $montoMensualidadLiq = 0.0;   // parte mensualidad del desglose
+    public float $montoAdeudoLiq      = 0.0;   // parte adeudo del desglose
+
     // ── Datos del recibo generado (paso 3) ────────────────────────────────────
     public float  $montoFinal      = 0.0;
     public float  $subtotalRecibo  = 0.0;
@@ -173,6 +177,8 @@ class PagoMensualidad extends Component
         $this->tarifaMonto          = 0.0;
         $this->montoCobro           = 0.0;
         $this->montoManual          = 0.0;
+        $this->montoMensualidadLiq  = 0.0;
+        $this->montoAdeudoLiq       = 0.0;
         $this->modificarMonto       = false;
         $this->motivoAjuste         = '';
         $this->passwordAutorizacion = '';
@@ -190,9 +196,17 @@ class PagoMensualidad extends Component
         $tarifa = $this->clienteSeleccionado['tarifa'] ?? 0;
         $saldo  = $this->clienteSeleccionado['saldo']  ?? 0;
 
+        $this->montoMensualidadLiq = 0.0;
+        $this->montoAdeudoLiq      = 0.0;
+
         $this->montoCobro = match ($value) {
-            'MENSUALIDAD' => $tarifa,
-            'ADEUDO'      => $saldo,
+            'MENSUALIDAD'        => $tarifa,
+            'ADEUDO'             => $saldo,
+            'MENSUALIDAD_Y_ADEUDO' => (function() use ($tarifa, $saldo) {
+                $this->montoMensualidadLiq = $tarifa;
+                $this->montoAdeudoLiq      = $saldo;
+                return $tarifa + $saldo;
+            })(),
             'DIAS_USO'    => round($tarifa / 30 * now()->day, 2),
             'RECONEXION'  => 150.00,   // TODO: cargar de catálogo de tarifas
             'INSTALACION' => 300.00,   // TODO: cargar de catálogo de tarifas
@@ -214,11 +228,17 @@ class PagoMensualidad extends Component
         $anioActual = now()->format('Y');
         $mesesAdeudo = $this->clienteSeleccionado['meses_adeudo'] ?? 1;
 
+        $mesAnterior = $mesActual > 1 ? $mesActual - 1 : 12;
+
         $this->periodoLabel = match ($this->concepto) {
             'MENSUALIDAD' => $meses[$mesActual] . ' ' . $anioActual,
             'ADEUDO'      => $mesesAdeudo > 1
                 ? $meses[max(1, $mesActual - $mesesAdeudo + 1)] . ' — ' . $meses[$mesActual] . ' ' . $anioActual
                 : $meses[$mesActual] . ' ' . $anioActual,
+            'MENSUALIDAD_Y_ADEUDO' => $meses[$mesActual] . ' ' . $anioActual
+                . ($mesesAdeudo > 0
+                    ? ' + Adeudo (' . $mesesAdeudo . ($mesesAdeudo === 1 ? ' mes' : ' meses') . ')'
+                    : ''),
             'DIAS_USO'    => '1 al ' . now()->day . ' de ' . $meses[$mesActual] . ' ' . $anioActual,
             'RECONEXION'  => 'Cargo de reconexión · ' . now()->format('d/m/Y'),
             'INSTALACION' => 'Cargo de instalación · ' . now()->format('d/m/Y'),
@@ -400,6 +420,8 @@ class PagoMensualidad extends Component
         $this->tarifaMonto          = 0.0;
         $this->montoCobro           = 0.0;
         $this->montoManual          = 0.0;
+        $this->montoMensualidadLiq  = 0.0;
+        $this->montoAdeudoLiq       = 0.0;
         $this->formaPago            = 'efectivo';
         $this->modificarMonto       = false;
         $this->motivoAjuste         = '';
@@ -424,11 +446,12 @@ class PagoMensualidad extends Component
     {
         return view('livewire.gestion-clientes.pago-mensualidad', [
             'conceptos' => [
-                'MENSUALIDAD' => 'Mensualidad del servicio',
-                'ADEUDO'      => 'Liquidación de adeudo',
-                'DIAS_USO'    => 'Proporcional / días de uso',
-                'RECONEXION'  => 'Cargo por reconexión',
-                'INSTALACION' => 'Cargo de instalación',
+                'MENSUALIDAD'          => 'Mensualidad del servicio',
+                'MENSUALIDAD_Y_ADEUDO' => 'Mensualidad + Liquidar Adeudo',
+                'ADEUDO'               => 'Liquidación de adeudo',
+                'DIAS_USO'             => 'Proporcional / días de uso',
+                'RECONEXION'           => 'Cargo por reconexión',
+                'INSTALACION'          => 'Cargo de instalación',
             ],
             'usoCfdiOpciones' => [
                 'G01' => 'G01 – Adquisición de mercancias',

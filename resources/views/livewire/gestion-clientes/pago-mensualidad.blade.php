@@ -285,6 +285,36 @@
                         </div>
                     </div>
                     @endif
+
+                    {{-- Desglose liquidación total --}}
+                    @if($concepto === 'MENSUALIDAD_Y_ADEUDO')
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl overflow-hidden">
+                        <div class="bg-amber-100 border-b border-amber-200 px-4 py-2.5 flex items-center gap-2">
+                            <i class="ri-scales-3-line text-amber-700 text-sm"></i>
+                            <p class="text-[9px] font-black text-amber-800 uppercase tracking-widest">Desglose del Cobro</p>
+                        </div>
+                        <div class="divide-y divide-amber-100">
+                            <div class="flex items-center justify-between px-4 py-2.5">
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-700 uppercase">Mensualidad</p>
+                                    <p class="text-[9px] text-gray-400 font-medium">Mes en curso</p>
+                                </div>
+                                <p class="text-sm font-black text-indigo-700">${{ number_format($montoMensualidadLiq, 2) }}</p>
+                            </div>
+                            <div class="flex items-center justify-between px-4 py-2.5">
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-700 uppercase">Adeudo Pendiente</p>
+                                    <p class="text-[9px] text-gray-400 font-medium">{{ $clienteSeleccionado['meses_adeudo'] ?? 0 }} {{ ($clienteSeleccionado['meses_adeudo'] ?? 0) === 1 ? 'mes' : 'meses' }} acumulados</p>
+                                </div>
+                                <p class="text-sm font-black text-red-600">${{ number_format($montoAdeudoLiq, 2) }}</p>
+                            </div>
+                            <div class="flex items-center justify-between px-4 py-3 bg-amber-100">
+                                <p class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Total a Cobrar</p>
+                                <p class="text-base font-black text-amber-900">${{ number_format($montoCobro, 2) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -618,6 +648,28 @@
                         <p class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Desglose del Cobro</p>
                     </div>
                     <div class="divide-y divide-gray-100">
+                        {{-- Líneas de desglose para Mensualidad + Adeudo --}}
+                        @if($concepto === 'MENSUALIDAD_Y_ADEUDO')
+                        <div class="flex items-center justify-between px-5 py-3">
+                            <div>
+                                <p class="text-[10px] font-black text-gray-700 uppercase">Mensualidad — Mes en curso</p>
+                                @if($periodoLabel)
+                                <p class="text-[9px] text-emerald-600 font-bold uppercase mt-0.5">
+                                    <i class="ri-calendar-line"></i> {{ $periodoLabel }}
+                                </p>
+                                @endif
+                            </div>
+                            <p class="text-sm font-black text-indigo-700">${{ number_format($montoMensualidadLiq, 2) }}</p>
+                        </div>
+                        <div class="flex items-center justify-between px-5 py-3">
+                            <p class="text-[10px] font-black text-gray-700 uppercase">Liquidación de Adeudo</p>
+                            <p class="text-sm font-black text-red-600">${{ number_format($montoAdeudoLiq, 2) }}</p>
+                        </div>
+                        <div class="flex items-center justify-between px-5 py-3">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase">Subtotal</p>
+                            <p class="text-sm font-black text-gray-700">${{ number_format($subtotalRecibo, 2) }}</p>
+                        </div>
+                        @else
                         <div class="flex items-center justify-between px-5 py-3.5">
                             <div>
                                 <p class="text-[10px] font-black text-gray-700 uppercase">
@@ -634,6 +686,7 @@
                             </div>
                             <p class="text-sm font-black text-gray-700">${{ number_format($subtotalRecibo, 2) }}</p>
                         </div>
+                        @endif
                         <div class="flex items-center justify-between px-5 py-3.5">
                             <p class="text-[10px] font-bold text-gray-500 uppercase">IVA (16%)</p>
                             <p class="text-sm font-bold text-gray-600">${{ number_format($ivaRecibo, 2) }}</p>
